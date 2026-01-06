@@ -1,0 +1,420 @@
+:root{
+    --bg:#f6f8fc;
+    --panel:#ffffff;
+    --panel-2:#f3f6ff;
+    --border:rgba(0,0,0,.08);
+    --muted:rgba(0,0,0,.55);
+    --text:#111827;
+  
+    --primary:#4361ee;
+    --primary-2:#3a56d4;
+    --danger:#e71d36;
+  
+    --shadow: 0 12px 30px rgba(17,24,39,.08);
+    --radius:14px;
+    --transition: all .18s ease;
+  }
+  
+  *{box-sizing:border-box;margin:0;padding:0}
+  
+  body{
+    font-family:'Tajawal',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    background:
+      radial-gradient(900px 380px at 10% 0%, rgba(67,97,238,.16), transparent 55%),
+      radial-gradient(700px 320px at 95% 5%, rgba(245,158,11,.14), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    min-height:100vh;
+  }
+  
+  .page{max-width:1200px;margin:0 auto;padding:18px}
+  
+  .hidden{display:none!important}
+  .small{font-size:12px}
+  .muted{color:var(--muted)}
+  
+  .btn{
+    border:1px solid var(--border);
+    background: var(--panel);
+    color:var(--text);
+    padding:10px 12px;
+    border-radius: 12px;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    text-decoration:none;
+    transition: var(--transition);
+    font-weight:800;
+  }
+  .btn:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(0,0,0,.07)}
+  .btn-primary{
+    background:linear-gradient(135deg,var(--primary),var(--primary-2));
+    border-color:rgba(67,97,238,.35);
+    color:#fff;
+  }
+  .btn-ghost{
+    background: rgba(67,97,238,.06);
+    border-color: rgba(67,97,238,.18);
+    color: var(--primary);
+  }
+  .btn-danger{
+    background: linear-gradient(135deg, var(--danger), #c71a31);
+    border-color: rgba(231,29,54,.35);
+    color:#fff;
+  }
+  .w-100{width:100%;justify-content:center}
+  
+  /* Notification */
+  .notification-btn{
+    width:42px;height:42px;
+    border-radius:12px;
+    border:1px solid var(--border);
+    background: var(--panel-2);
+    display:grid;
+    place-items:center;
+    text-decoration:none;
+    color: var(--text);
+    position: relative;
+    transition: var(--transition);
+  }
+  .notification-btn:hover{transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,.07)}
+  .notification-badge{
+    position:absolute;
+    top:-8px; right:-8px;
+    background: var(--danger);
+    color:#fff;
+    border-radius:999px;
+    min-width:22px;height:22px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:900;
+    padding:0 6px;
+    border:2px solid var(--panel);
+  }
+  
+  /* Topbar */
+  .topbar{
+    background: var(--panel);
+    border:1px solid var(--border);
+    box-shadow: var(--shadow);
+    border-radius: var(--radius);
+    padding:16px 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+  }
+  .brand{display:flex;gap:12px;align-items:center}
+  .brand-icon{
+    width:44px;height:44px;border-radius:14px;
+    display:grid;place-items:center;
+    background: rgba(67,97,238,.12);
+    border:1px solid rgba(67,97,238,.22);
+  }
+  .brand-icon i{color:var(--primary)}
+  .brand-text h1{font-size:18px;margin:0}
+  .brand-text p{margin-top:3px;font-size:12px;color:var(--muted)}
+  .topbar-right{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  
+  /* Welcome */
+  .welcome{
+    margin:14px 0;
+    background: linear-gradient(135deg, rgba(67,97,238,.12), rgba(245,158,11,.10));
+    border:1px solid rgba(0,0,0,.06);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding:16px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:14px;
+    overflow:hidden;
+    position:relative;
+  }
+  .welcome::after{
+    content:"";
+    position:absolute;
+    right:-60px; top:-60px;
+    width:180px;height:180px;
+    background: rgba(67,97,238,.16);
+    border-radius:50%;
+  }
+  .welcome-left{display:flex;gap:12px;align-items:center;position:relative;z-index:1}
+  .avatar{
+    width:56px;height:56px;border-radius:18px;
+    object-fit:cover;
+    border:1px solid rgba(0,0,0,.08);
+    background:#fff;
+  }
+  .welcome h2{margin:0;font-size:18px}
+  .welcome p{margin-top:4px;color:var(--muted);font-size:12px}
+  .welcome-actions{display:flex;gap:10px;flex-wrap:wrap;position:relative;z-index:1}
+  
+  .hint-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 12px;
+    border-radius:999px;
+    border:1px solid rgba(0,0,0,.08);
+    background: rgba(255,255,255,.6);
+    backdrop-filter: blur(6px);
+    font-weight:800;
+    color: var(--text);
+    font-size:12px;
+  }
+  
+  /* Stats */
+  .stats{
+    display:grid;
+    grid-template-columns: repeat(3, minmax(0,1fr));
+    gap:12px;
+    margin-bottom:14px;
+  }
+  .stat-card{
+    background: var(--panel);
+    border:1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding:14px;
+    display:flex;
+    gap:12px;
+    align-items:center;
+  }
+  .stat-icon{
+    width:44px;height:44px;border-radius:14px;
+    display:grid;place-items:center;
+    background: var(--panel-2);
+    border:1px solid rgba(0,0,0,.06);
+    color: var(--primary);
+  }
+  .stat-label{font-size:12px;color:var(--muted)}
+  .stat-value{font-size:18px;font-weight:900;margin-top:2px}
+  
+  /* Grid + Cards */
+  .grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:14px;
+  }
+  .two-col{grid-template-columns:1fr 1fr;}
+  
+  .card{
+    background: var(--panel);
+    border:1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding:16px;
+  }
+  .card-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:14px;
+  }
+  .card-title{display:flex;gap:10px;align-items:center}
+  .card-title i{color: var(--primary)}
+  .card-title h3{margin:0;font-size:16px}
+  
+  /* Profile */
+  .profile-box{
+    border:1px solid var(--border);
+    background: var(--panel-2);
+    border-radius: var(--radius);
+    padding:14px;
+  }
+  .profile-grid{
+    display:grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap:10px;
+    margin-top:12px;
+  }
+  .info-item{
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:12px;
+  }
+  .info-label{display:block;font-size:12px;color:var(--muted)}
+  .info-value{display:block;margin-top:4px;font-weight:900}
+  
+  /* Forms */
+  .form{display:grid;gap:12px}
+  .form-group label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+  .form-control{
+    width:100%;
+    padding:12px 14px;
+    border-radius: 12px;
+    border:1px solid var(--border);
+    background:#fff;
+    color:var(--text);
+    outline:none;
+    font-weight:700;
+    height:48px;
+  }
+  .form-control:focus{
+    border-color: rgba(67,97,238,.55);
+    box-shadow:0 0 0 3px rgba(67,97,238,.14);
+  }
+  
+  /* Plan cards */
+  .plan-card{
+    border-top:4px solid rgba(67,97,238,.22);
+  }
+  .rows-wrap{
+    border:1px solid var(--border);
+    background: var(--panel-2);
+    border-radius: 14px;
+    padding:10px;
+  }
+  
+  /* =========================
+     FULL TEXT INSIDE CELLS ✅
+  ========================= */
+  
+
+/* ================================
+   PLANS STACK ✅ (Workout فوق - Nutrition تحت)
+   ================================ */
+   .plans-stack{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+  }
+  
+  .plans-stack .plan-card{
+    width:100%;
+  }
+  
+  /* ================================
+     ROWS WRAP
+     ================================ */
+  .rows-wrap{
+    border:1px solid var(--border);
+    background: var(--panel-2);
+    border-radius: 14px;
+    padding:12px;
+  }
+  
+  /* ================================
+     WORKOUT ROW ✅ (NO SCROLL / NO ROTATE)
+     ================================ */
+  .workout-row{
+    display:grid;
+    grid-template-columns: 180px 170px 1fr 110px 160px 48px;
+    gap:10px;
+    align-items:center;
+    padding:10px;
+    background:#fff;
+    border:1px solid rgba(0,0,0,.06);
+    border-radius:12px;
+    margin-bottom:10px;
+  
+    writing-mode: horizontal-tb !important;
+    transform: none !important;
+  }
+  
+  .workout-row select,
+  .workout-row input{
+    width:100%;
+    height:48px;
+    padding:12px 14px;
+    border-radius:12px;
+    border:1px solid var(--border);
+    background:#fff;
+    color:var(--text);
+    font-size:14px;
+    font-weight:800;
+  
+    writing-mode: horizontal-tb !important;
+    transform: none !important;
+  
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  /* ================================
+     NUTRITION ROW ✅ (NO SCROLL / NO ROTATE)
+     ================================ */
+  .nutrition-row{
+    display:grid;
+    grid-template-columns: 180px 120px 1fr 140px 130px 130px 120px 48px;
+    gap:10px;
+    align-items:center;
+    padding:10px;
+    background:#fff;
+    border:1px solid rgba(0,0,0,.06);
+    border-radius:12px;
+    margin-bottom:10px;
+  
+    writing-mode: horizontal-tb !important;
+    transform: none !important;
+  }
+  
+  .nutrition-row select,
+  .nutrition-row input{
+    width:100%;
+    height:48px;
+    padding:12px 14px;
+    border-radius:12px;
+    border:1px solid var(--border);
+    background:#fff;
+    color:var(--text);
+    font-size:14px;
+    font-weight:800;
+  
+    writing-mode: horizontal-tb !important;
+    transform: none !important;
+  
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  /* Remove button */
+  .remove-row{
+    width:48px;height:48px;
+    border-radius: 12px;
+    border:1px solid rgba(231,29,54,.25);
+    background: rgba(231,29,54,.08);
+    color: var(--danger);
+    cursor:pointer;
+    display:grid;
+    place-items:center;
+    transition: var(--transition);
+  }
+  .remove-row:hover{transform: translateY(-1px); background: rgba(231,29,54,.12)}
+  
+  /* Add row button */
+  .add-row-btn{
+    background: rgba(67,97,238,.08);
+    border: 1px dashed rgba(67,97,238,.35);
+    color: var(--primary);
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 900;
+    cursor:pointer;
+    transition: var(--transition);
+  }
+  .add-row-btn:hover{background: rgba(67,97,238,.12); border-style: solid}
+  .alert{
+    padding:12px 14px;
+    border-radius:12px;
+    border:1px solid rgba(0,0,0,.08);
+    background:#fff;
+    font-weight:800;
+  }
+  .alert-success{border-color: rgba(16,185,129,.35); background: rgba(16,185,129,.10);}
+  .alert-danger{border-color: rgba(239,68,68,.35); background: rgba(239,68,68,.10);}
+  /* Responsive */
+  @media (max-width: 980px){
+    .workout-row,
+    .nutrition-row{
+      grid-template-columns: 1fr;
+    }
+    .remove-row{
+      width:100%;
+      height:46px;
+    }
+  }
