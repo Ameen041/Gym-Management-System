@@ -648,8 +648,6 @@ input[type="date"] {
   text-align: left !important;
 }
 
-
-/* Responsive */
 @media (max-width: 1024px) {
   .sidebar {
     transform: translateX(-100%);

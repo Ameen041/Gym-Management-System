@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Workout Plan | Smart Fitness System</title>
+    <title>Workout Plan | Ameen Gym</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/workout-plan.css') }}">
 </head>
@@ -59,18 +59,29 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($details as $day => $exercises)
-                                            @foreach($exercises as $exercise)
-                                                <tr>
-                                                    <td>{{ $day }}</td>
-                                                    <td>{{ $exercise['muscle'] ?? '' }}</td>
-                                                    <td>{{ $exercise['exercise'] ?? '' }}</td>
-                                                    <td>{{ $exercise['sets'] ?? '' }}</td>
-                                                    <td>{{ $exercise['reps'] ?? '' }}</td>
-                                                </tr>
-                                            @endforeach
-                                        @endforeach
-                                    </tbody>
+@foreach($details as $day => $exercises)
+
+    <tr class="day-row">
+        <td colspan="5">
+            <i class="fas fa-calendar-day"></i>
+            <b>{{ $day }}</b>
+            <span class="day-count">({{ count($exercises) }} exercises)</span>
+        </td>
+    </tr>
+
+
+    @foreach($exercises as $exercise)
+        <tr>
+            <td class="day-empty"></td>
+            <td>{{ $exercise['muscle'] ?? '' }}</td>
+            <td>{{ $exercise['exercise'] ?? '' }}</td>
+            <td>{{ $exercise['sets'] ?? '' }}</td>
+            <td>{{ $exercise['reps'] ?? '' }}</td>
+        </tr>
+    @endforeach
+
+@endforeach
+</tbody>
                                 </table>
                             </div>
                         @else

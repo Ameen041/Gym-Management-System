@@ -9,9 +9,7 @@
                 <li class="{{ request()->routeIs('home') ? 'active' : '' }}">
                     <a href="{{ route('home') }}">Home</a>
                 </li>
-                <li class="{{ request()->routeIs('trainers') ? 'active' : '' }}">
-                    <a href="{{ route('trainers') }}">Trainers</a>
-                </li> 
+                <li><a href="#trainers">Trainers</a></li>
                 <li><a href="#programs">Programs</a></li>
                 <li><a href="#nutrition">Nutrition</a></li>
                 <li><a href="#pricing">Packages</a></li>

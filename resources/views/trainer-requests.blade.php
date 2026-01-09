@@ -10,7 +10,6 @@
 </head>
 <body>
 
-    {{-- ✅ Modal لعرض الصورة بحجم كبير --}}
     <div id="photoModal" class="photo-modal" onclick="closePhotoModal(event)">
         <button class="close-btn" type="button" onclick="hidePhotoModal()">Close ✕</button>
         <img id="photoModalImg" src="" alt="Body Photo">
@@ -71,7 +70,7 @@
                                     <span>Notes: {{ $request->notes ?? 'None' }}</span>
                                 </div>
 
-                                {{-- ✅ Body Photos (Workout) --}}
+                             
                                 @php
                                     $photos = is_array($request->body_photos)
                                         ? $request->body_photos
@@ -112,9 +111,13 @@
                             </div>
 
                             <div class="request-actions">
-    <a href="{{ route('trainer.dashboard', ['user_id' => $request->user_id, 'type' => 'workout']) }}" class="btn btn-accept">
-        <i class="fas fa-plus"></i> Create Plan
-    </a>
+                            <a href="{{ route('trainer.dashboard', [
+    'user_id' => $request->user_id,
+    'type' => 'workout',
+    'request_id' => $request->id
+]) }}" class="btn btn-accept">
+    <i class="fas fa-plus"></i> Create Plan
+</a>
 
     <form action="{{ route('trainer.rejectWorkout', $request->id) }}" method="POST">
         @csrf
@@ -175,7 +178,7 @@
                                     <span>Notes: {{ $request->notes ?? 'None' }}</span>
                                 </div>
 
-                                {{-- ✅ Body Photos (Nutrition) --}}
+                              
                                 @php
                                     $photos = is_array($request->body_photos)
                                         ? $request->body_photos
@@ -216,9 +219,13 @@
                             </div>
 
                             <div class="request-actions">
-    <a href="{{ route('trainer.dashboard', ['user_id' => $request->user_id, 'type' => 'nutrition']) }}" class="btn btn-accept">
-        <i class="fas fa-plus"></i> Create Plan
-    </a>
+                            <a href="{{ route('trainer.dashboard', [
+    'user_id' => $request->user_id,
+    'type' => 'nutrition',
+    'request_id' => $request->id
+]) }}" class="btn btn-accept">
+    <i class="fas fa-plus"></i> Create Plan
+</a>
 
     <form action="{{ route('trainer.rejectNutrition', $request->id) }}" method="POST">
         @csrf
@@ -259,13 +266,13 @@
         }
 
         function closePhotoModal(e) {
-            // إذا كبس على الخلفية (مو على الصورة نفسها) سكّر
+          
             if (e.target && e.target.id === 'photoModal') {
                 hidePhotoModal();
             }
         }
 
-        // ESC للإغلاق
+      
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') hidePhotoModal();
         });

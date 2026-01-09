@@ -12,6 +12,7 @@
         <!-- Login Form -->
         <form class="auth-form active" id="login" method="POST" action="{{ route('login') }}">
             @csrf
+
             <div class="form-group">
                 <label>Email</label>
                 <input type="email" name="email" required>
@@ -97,3 +98,4 @@
         </form>
     </div>
 </div>
+

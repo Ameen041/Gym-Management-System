@@ -9,11 +9,11 @@ use App\Http\Controllers\AdminTemplateController;
 
 
 
-Route::get('/', [AuthController::class, 'showLoginForm'])->name('home'); // الصفحة الرئيسية
+Route::get('/', [AuthController::class, 'showLoginForm'])->name('home'); 
 
-Route::post('/login', [AuthController::class, 'login'])->name('login'); // لمعالجة تسجيل الدخول
+Route::post('/login', [AuthController::class, 'login'])->name('login'); 
 
-Route::post('/register', [AuthController::class, 'register'])->name('register'); // تسجيل حساب جديد
+Route::post('/register', [AuthController::class, 'register'])->name('register'); 
 
 Route::post('/trainer-dashboard', [AuthController::class, 'trainer-dashboard'])->name('trainer-dashboard');
 
@@ -77,12 +77,14 @@ Route::middleware(['auth','active','role:admin'])
         ->name('requests.destroy');
         Route::get('/requests',  [AdminController::class,'requests'])->name('requests.index');
         Route::post('/users/{id}/toggle', [AdminUserController::class, 'toggleActive'])->name('users.toggle');
-        Route::get('/templates',           [AdminTemplateController::class,'index'])->name('templates.index');
-        Route::get('/templates/create',    [AdminTemplateController::class,'create'])->name('templates.create');
-        Route::post('/templates',          [AdminTemplateController::class,'store'])->name('templates.store');
-        Route::get('/templates/{id}/edit', [AdminTemplateController::class,'edit'])->name('templates.edit');
-        Route::post('/templates/{id}',     [AdminTemplateController::class,'update'])->name('templates.update');
-        Route::delete('/templates/{id}',   [AdminTemplateController::class,'destroy'])->name('templates.destroy');
+        Route::get('/templates',            [AdminTemplateController::class,'index'])->name('templates.index');
+        Route::get('/templates/create',     [AdminTemplateController::class,'create'])->name('templates.create');
+        Route::post('/templates',           [AdminTemplateController::class,'store'])->name('templates.store');
+        Route::get('/templates/{id}/edit',  [AdminTemplateController::class,'edit'])->name('templates.edit');
+        
+        Route::put('/templates/{id}',       [AdminTemplateController::class,'update'])->name('templates.update'); // ✅ هنا
+        
+        Route::delete('/templates/{id}',    [AdminTemplateController::class,'destroy'])->name('templates.destroy');
         Route::get('/payments', [AdminController::class, 'paymentsDashboard'])->name('payments.dashboard');
         Route::get('/subscriptions/expired', [AdminController::class, 'expiredSubscriptions'])
     ->name('subscriptions.expired');

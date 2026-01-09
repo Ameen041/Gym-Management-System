@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nutrition Plan | Smart Fitness System</title>
+    <title>Nutrition Plan | Ameen Gym</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('css/workout-plan.css') }}">
 </head>
@@ -62,19 +62,29 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach($details as $day => $meals)
-                                            @foreach($meals as $meal)
-                <tr>
-          <td>{{ $day }}</td>
-          <td>{{ $meal['meal_number'] ?? '' }}</td>
-          <td>{{ $meal['calories'] ?? '' }}</td>
-          <td>{{ $meal['protein'] ?? '' }}</td>
-          <td>{{ $meal['carbs'] ?? '' }}</td>
-          <td>{{ $meal['fat'] ?? '' }}</td>
-          </tr>
-             @endforeach
-        @endforeach
-         </tbody>
+@foreach($details as $day => $meals)
+
+    <tr class="day-row">
+        <td colspan="6">
+            <i class="fas fa-calendar-day"></i>
+            <b>{{ $day }}</b>
+            <span class="day-count">({{ count($meals) }} meals)</span>
+        </td>
+    </tr>
+
+    @foreach($meals as $meal)
+        <tr>
+            <td class="day-empty"></td>
+            <td>{{ $meal['meal_number'] ?? '' }}</td>
+            <td>{{ $meal['calories'] ?? '' }}</td>
+            <td>{{ $meal['protein'] ?? '' }}</td>
+            <td>{{ $meal['carbs'] ?? '' }}</td>
+            <td>{{ $meal['fat'] ?? '' }}</td>
+        </tr>
+    @endforeach
+
+@endforeach
+</tbody>
            </table>
             </div>
             @else

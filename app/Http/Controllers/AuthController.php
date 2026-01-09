@@ -9,43 +9,63 @@ use App\Models\User;
 use App\Models\WorkoutPlan;
 use App\Models\NutritionPlan;
 use App\Models\Payment;
+use App\Models\PlanTemplate;
+use Illuminate\Support\Facades\Http;
 
 class AuthController extends Controller
 {
     /* ==================== AUTHENTICATION METHODS ==================== */
+      
     
     public function showLoginForm()
     {
-        return view('home');
+        $trainersCount = User::where('role', 'trainer')->count();
+        $traineesCount = User::where('role', 'trainee')->count();
+    
+        $latestWorkout = PlanTemplate::where('type', 'workout')
+            ->where('is_active', 1)
+            ->latest()
+            ->first(); 
+    
+        $latestNutrition = PlanTemplate::where('type', 'nutrition')
+            ->where('is_active', 1)
+            ->latest()
+            ->first();
+    
+        return view('home', compact(
+            'trainersCount',
+            'traineesCount',
+            'latestWorkout',
+            'latestNutrition'
+        ));
     }
 
     public function login(Request $request)
-    {
-        $request->validate([
-            'email'    => ['required','email'],
-            'password' => ['required','string'],
-        ]);
-    
-        if (Auth::attempt($request->only('email','password'), $request->boolean('remember'))) {
-            $request->session()->regenerate();
-    
-            $user = Auth::user();
-    
-            // ✅ هاد هو الصح
-            if (!$user->is_active) {
-                Auth::logout();
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
-                return back()->with('error', 'Your account is suspended. Please contact the administrator.');
-            }
-    
-            if ($user->role === 'admin')   return redirect('/admin/dashboard');
-            if ($user->role === 'trainer') return redirect('/trainer-dashboard');
-            return redirect('/trainee-dashboard');
+{
+    $request->validate([
+        'email'    => ['required','email'],
+        'password' => ['required','string'],
+    ]);
+
+    if (Auth::attempt($request->only('email','password'), $request->boolean('remember'))) {
+        $request->session()->regenerate();
+
+        $user = Auth::user();
+
+        if (!$user->is_active) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return back()->with('error', 'Your account is suspended. Please contact the administrator.');
         }
-    
-        return back()->withErrors(['email' => 'Invalid credentials. Please try again.']);
+
+        if ($user->role === 'admin')   return redirect('/admin/dashboard');
+        if ($user->role === 'trainer') return redirect('/trainer-dashboard');
+        return redirect('/trainee-dashboard');
     }
+
+    return back()->withErrors(['email' => 'Invalid credentials. Please try again.']);
+}
 
 public function logout(Request $request)
 {
@@ -105,17 +125,14 @@ public function logout(Request $request)
                 ->with('unauthorized', 'Unauthorized access.');
         }
     
-        // الخطط
         $workoutPlan   = WorkoutPlan::where('user_id', $user->id)->first();
         $nutritionPlan = NutritionPlan::where('user_id', $user->id)->first();
     
-        // الدفعات
         $payments = Payment::where('user_id', $user->id)
             ->orderByDesc('paid_at')
             ->orderByDesc('id')
             ->get();
     
-        // اشتراك فعّال
         $activePayment = Payment::where('user_id', $user->id)
             ->whereDate('period_start', '<=', now())
             ->whereDate('period_end', '>=', now())

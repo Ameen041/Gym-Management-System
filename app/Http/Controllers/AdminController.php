@@ -28,9 +28,6 @@ class AdminController extends Controller
         return view('admin.dashboard', compact('stats'));
     }
 
-
-    
-
     public function requests(Request $request)
     {
         
@@ -118,12 +115,10 @@ public function paymentsDashboard(Request $request)
 {
     $now = Carbon::now();
 
-    // ✅ Filters (optional)
     $from   = $request->filled('from') ? Carbon::parse($request->from)->startOfDay() : null;
     $to     = $request->filled('to')   ? Carbon::parse($request->to)->endOfDay()   : null;
     $method = $request->filled('method') ? $request->method : null;
 
-    // Base query helper
     $baseQuery = Payment::query();
     if ($from && $to) {
         $baseQuery->whereBetween('paid_at', [$from, $to]);
@@ -132,7 +127,6 @@ public function paymentsDashboard(Request $request)
         $baseQuery->where('method', $method);
     }
 
-    // ✅ Daily (today) - keep your original meaning (today) BUT respect method filter if provided
     $today = Carbon::today();
 
     $dailyQuery = Payment::query()->whereDate('paid_at', $today);
@@ -141,14 +135,14 @@ public function paymentsDashboard(Request $request)
     $dailyTotal = (clone $dailyQuery)->sum('amount');
     $dailyCount = (clone $dailyQuery)->count();
 
-    // Latest payments: better to show latest overall (filtered) not only today
+
     $dailyLatest = (clone $baseQuery)
         ->with('user:id,name,email')
         ->orderByDesc('paid_at')
         ->limit(15)
         ->get();
 
-    // ✅ Monthly (current month) - respect method filter
+
     $monthStart = $now->copy()->startOfMonth();
     $monthEnd   = $now->copy()->endOfMonth();
 
@@ -158,7 +152,6 @@ public function paymentsDashboard(Request $request)
     $monthlyTotal = (clone $monthlyQuery)->sum('amount');
     $monthlyCount = (clone $monthlyQuery)->count();
 
-    // limit breakdown (top days) to avoid "report feeling"
     $monthlyByDay = (clone $monthlyQuery)
         ->selectRaw('DATE(paid_at) as day, SUM(amount) as total, COUNT(*) as count')
         ->groupBy(DB::raw('DATE(paid_at)'))
@@ -166,7 +159,6 @@ public function paymentsDashboard(Request $request)
         ->limit(12)
         ->get();
 
-    // ✅ Yearly (current year) - respect method filter
     $yearStart = $now->copy()->startOfYear();
     $yearEnd   = $now->copy()->endOfYear();
 
@@ -182,16 +174,12 @@ public function paymentsDashboard(Request $request)
         ->orderBy('month')
         ->get();
 
-    // ✅ by method (this month) - keep as your original, BUT if method filter set, still show all methods? عادةً الأفضل بدون فلتر method هون.
     $byMethod = Payment::selectRaw('COALESCE(method,"-") as method, SUM(amount) as total, COUNT(*) as count')
         ->whereBetween('paid_at', [$monthStart, $monthEnd])
         ->groupBy(DB::raw('COALESCE(method,"-")'))
         ->orderByDesc('total')
         ->get();
 
-
-
-    // ✅ Methods list for filter select
     $methods = Payment::selectRaw('COALESCE(method,"-") as method')
         ->distinct()
         ->orderBy('method')

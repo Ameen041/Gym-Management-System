@@ -1,10 +1,15 @@
-document.addEventListener("DOMContentLoaded", function () {
+/* =========================
+   Trainer Dashboard JS
+   ========================= */
+
+   document.addEventListener("DOMContentLoaded", () => {
+    // ===== Profile toggle =====
     const toggleProfileBtn = document.getElementById("toggleProfileBtn");
     const closeProfileBtn  = document.getElementById("closeProfileBtn");
     const profileBox       = document.getElementById("profileBox");
   
     const toggleEditBtn = document.getElementById("toggleEditBtn");
-    const editBox      = document.getElementById("editBox");
+    const editBox       = document.getElementById("editBox");
   
     if (toggleProfileBtn && profileBox) {
       toggleProfileBtn.addEventListener("click", () => {
@@ -28,176 +33,203 @@ document.addEventListener("DOMContentLoaded", function () {
         editBox.classList.toggle("hidden");
       });
     }
+  
+    // ==========================================================
+    // Event Delegation (IMPORTANT)
+    // - Works for dynamically added rows
+    // ==========================================================
+    document.addEventListener("click", (e) => {
+      // Remove row buttons
+      const removeBtn = e.target.closest(".remove-row");
+      if (removeBtn) {
+        const row = removeBtn.closest(".workout-row, .nutrition-row");
+        if (!row) return;
+  
+        const container = row.parentElement; // rows container for that day
+        const isWorkout = row.classList.contains("workout-row");
+        const selector  = isWorkout ? ".workout-row" : ".nutrition-row";
+  
+        if (container.querySelectorAll(selector).length > 1) {
+          row.remove();
+        } else {
+          alert(isWorkout
+            ? "This day must contain at least one exercise row."
+            : "This day must contain at least one meal row."
+          );
+        }
+        return;
+      }
+  
+      // Add mini buttons (day cards)
+      const addMini = e.target.closest(".add-mini-btn");
+      if (addMini) {
+        const day = addMini.getAttribute("data-day");
+        const type = addMini.getAttribute("data-type"); // workout | nutrition
+        if (!day || !type) return;
+  
+        if (type === "workout") addWorkoutRow(day);
+        if (type === "nutrition") addNutritionRow(day);
+      }
+    });
   });
   
-  /* ================== WORKOUT ROWS ================== */
-  function addRow() {
-    const container = document.getElementById("workout-rows");
+  /* ==========================================================
+     Helpers
+     ========================================================== */
+  function resetRowFields(row) {
+    row.querySelectorAll("input, select, textarea").forEach((el) => {
+      // keep hidden day[] intact
+      if (el.type === "hidden") return;
+  
+      // reset values safely
+      if (el.tagName === "SELECT") {
+        el.selectedIndex = 0;
+        return;
+      }
+  
+      if (el.type === "checkbox" || el.type === "radio") {
+        el.checked = false;
+        return;
+      }
+  
+      el.value = "";
+    });
+  }
+  
+  /* ================== WORKOUT WEEKLY ROWS ================== */
+  function addWorkoutRow(day) {
+    const container = document.getElementById(`workout-rows-${day}`);
     if (!container) return;
   
     const firstRow = container.querySelector(".workout-row");
     if (!firstRow) return;
   
     const newRow = firstRow.cloneNode(true);
-    newRow.querySelectorAll("input, select").forEach(el => (el.value = ""));
+    resetRowFields(newRow);
     container.appendChild(newRow);
   }
   
-  function removeRow(button) {
-    const container = document.getElementById("workout-rows");
+  /* ================== NUTRITION WEEKLY ROWS ================== */
+  function addNutritionRow(day) {
+    const container = document.getElementById(`nutrition-rows-${day}`);
     if (!container) return;
   
-    const row = button.closest(".workout-row");
-    if (!row) return;
+    const firstRow = container.querySelector(".nutrition-row");
+    if (!firstRow) return;
   
-    if (container.querySelectorAll(".workout-row").length > 1) {
-      row.remove();
-    } else {
-      alert("The table must contain at least one row.");
-    }
+    const newRow = firstRow.cloneNode(true);
+    resetRowFields(newRow);
+    container.appendChild(newRow);
   }
   
-  /* ================== NUTRITION ROWS ================== */
-  function addNutritionRow() {
-    const container = document.getElementById("nutrition-rows");
-    if (!container) return;
+  /* ================== TEMPLATES (Weekly) ==================
+     Format:
+     workout:   day|muscle|exercise|sets|reps
+     nutrition: day|meal_number|description|calories|protein|carbs|fat
+  ========================================================== */
   
-    const first = container.querySelector(".nutrition-row");
-    if (!first) return;
+  function clearWeeklyContainers(prefix) {
+    const days = ["Saturday","Sunday","Monday","Tuesday","Wednesday","Thursday","Friday"];
+    days.forEach((day) => {
+      const container = document.getElementById(`${prefix}-${day}`);
+      if (!container) return;
   
-    const row = first.cloneNode(true);
-    row.querySelectorAll("input, select").forEach(el => (el.value = ""));
-    container.appendChild(row);
+      const isWorkout = prefix.includes("workout");
+      const rowClass  = isWorkout ? ".workout-row" : ".nutrition-row";
+  
+      const first = container.querySelector(rowClass);
+      container.innerHTML = "";
+  
+      if (first) {
+        // IMPORTANT: append the original first row, but reset it
+        resetRowFields(first);
+        container.appendChild(first);
+      }
+    });
   }
   
-  function removeNutritionRow(button) {
-    const container = document.getElementById("nutrition-rows");
-    if (!container) return;
-  
-    const row = button.closest(".nutrition-row");
-    if (!row) return;
-  
-    if (container.querySelectorAll(".nutrition-row").length > 1) {
-      row.remove();
-    } else {
-      alert("The table must contain at least one row.");
-    }
-  }
-  
-  /* ================== TEMPLATES (TEXT FORMAT) ================== */
-  function loadWorkoutTemplateFromSelect(selectEl) {
-    if (!selectEl) return;
-    const option = selectEl.options[selectEl.selectedIndex];
+  /* ===== Workout Template Loader ===== */
+  function loadWorkoutTemplateWeekly(selectEl) {
+    const option = selectEl?.options?.[selectEl.selectedIndex];
     const body = option ? option.getAttribute("data-body") : null;
     if (!body) return;
   
-    const lines = body
-      .split("\n")
-      .map(l => l.trim())
-      .filter(l => l.length > 0);
+    clearWeeklyContainers("workout-rows");
   
-    const container = document.getElementById("workout-rows");
-    if (!container) return;
+    const lines = body.split("\n").map(l => l.trim()).filter(Boolean);
   
-    container.innerHTML = "";
-  
-    lines.forEach(line => {
+    lines.forEach((line) => {
       const parts = line.split("|").map(p => p.trim());
       if (parts.length < 5) return;
   
       const [day, muscle, exercise, sets, reps] = parts;
+      const container = document.getElementById(`workout-rows-${day}`);
+      if (!container) return;
   
-      const row = document.createElement("div");
-      row.className = " workout-row";
-      row.innerHTML = `
-        <select name="day[]" required>
-          <option value="">Day</option>
-          ${["Saturday","Sunday","Monday","Tuesday","Wednesday","Thursday","Friday"]
-            .map(d => `<option value="${d}" title="${d}">${d}</option>`).join("")}
-        </select>
+      // use first row if empty, otherwise add new row
+      let row = container.querySelector(".workout-row");
+      const muscleEl = row?.querySelector('select[name="muscle[]"]');
+      const exEl     = row?.querySelector('input[name="exercise[]"]');
   
-        <select name="muscle[]" required>
-          <option value="">Muscle</option>
-          ${["Chest","Back","Shoulders","Legs","Abs","Biceps","Triceps"]
-            .map(m => `<option value="${m}" title="${m}">${m}</option>`).join("")}
-        </select>
+      const isFirstEmpty = row && muscleEl && exEl && !muscleEl.value && !exEl.value;
   
-        <input type="text" name="exercise[]" placeholder="Exercise (Full name)" required>
-        <input type="number" name="sets[]" placeholder="Sets" required>
-        <input type="text" name="reps[]" placeholder="Reps (e.g. 10-12)" required>
+      if (!isFirstEmpty) {
+        row = row.cloneNode(true);
+        resetRowFields(row);
+        container.appendChild(row);
+      }
   
-        <button type="button" class="remove-row" onclick="removeRow(this)" title="Remove Row">
-          <i class="fas fa-trash-alt"></i>
-        </button>
-      `;
-  
-      const selects = row.querySelectorAll("select");
-      const inputs  = row.querySelectorAll("input");
-  
-      selects[0].value = day || "";
-      selects[1].value = muscle || "";
-      inputs[0].value  = exercise || "";
-      inputs[1].value  = sets || "";
-      inputs[2].value  = reps || "";
-  
-      container.appendChild(row);
+      row.querySelector('select[name="muscle[]"]').value = muscle || "";
+      row.querySelector('input[name="exercise[]"]').value = exercise || "";
+      row.querySelector('input[name="sets[]"]').value = sets || "";
+      row.querySelector('input[name="reps[]"]').value = reps || "";
     });
   }
   
-  function loadNutritionTemplateFromSelect(selectEl) {
-    if (!selectEl) return;
-    const option = selectEl.options[selectEl.selectedIndex];
+  /* ===== Nutrition Template Loader ===== */
+  function loadNutritionTemplateWeekly(selectEl) {
+    const option = selectEl?.options?.[selectEl.selectedIndex];
     const body = option ? option.getAttribute("data-body") : null;
     if (!body) return;
   
-    const lines = body
-      .split("\n")
-      .map(l => l.trim())
-      .filter(l => l.length > 0);
+    clearWeeklyContainers("nutrition-rows");
   
-    const container = document.getElementById("nutrition-rows");
-    if (!container) return;
+    const lines = body.split("\n").map(l => l.trim()).filter(Boolean);
   
-    container.innerHTML = "";
-  
-    lines.forEach(line => {
+    lines.forEach((line) => {
       const parts = line.split("|").map(p => p.trim());
       if (parts.length < 7) return;
   
       const [day, mealNum, desc, calories, protein, carbs, fat] = parts;
+      const container = document.getElementById(`nutrition-rows-${day}`);
+      if (!container) return;
   
-      const row = document.createElement("div");
-      row.className = " nutrition-row";
-      row.innerHTML = `
-        <select name="day[]" required>
-          <option value="">Day</option>
-          ${["Saturday","Sunday","Monday","Tuesday","Wednesday","Thursday","Friday"]
-            .map(d => `<option value="${d}" title="${d}">${d}</option>`).join("")}
-        </select>
+      let row = container.querySelector(".nutrition-row");
+      const mealEl = row?.querySelector('input[name="meal_number[]"]');
+      const descEl = row?.querySelector('input[name="description[]"]');
   
-        <input type="number" name="meal_number[]" placeholder="Meal #" min="1" required>
-        <input type="text" name="description[]" placeholder="Meal Description (Full text)" required>
-        <input type="number" name="calories[]" placeholder="Calories" required>
-        <input type="number" name="protein[]" placeholder="Protein (g)" step="0.1" required>
-        <input type="number" name="carbs[]" placeholder="Carbs (g)" step="0.1" required>
-        <input type="number" name="fat[]" placeholder="Fat (g)" step="0.1" required>
+      const isFirstEmpty = row && mealEl && descEl && !mealEl.value && !descEl.value;
   
-        <button type="button" class="remove-row" onclick="removeNutritionRow(this)" title="Remove Row">
-          <i class="fas fa-trash-alt"></i>
-        </button>
-      `;
+      if (!isFirstEmpty) {
+        row = row.cloneNode(true);
+        resetRowFields(row);
+        container.appendChild(row);
+      }
   
-      const select = row.querySelector("select");
-      const inputs = row.querySelectorAll("input");
-  
-      select.value   = day || "";
-      inputs[0].value = mealNum || "";
-      inputs[1].value = desc || "";
-      inputs[2].value = calories || "";
-      inputs[3].value = protein || "";
-      inputs[4].value = carbs || "";
-      inputs[5].value = fat || "";
-  
-      container.appendChild(row);
+      row.querySelector('input[name="meal_number[]"]').value = mealNum || "";
+      row.querySelector('input[name="description[]"]').value = desc || "";
+      row.querySelector('input[name="calories[]"]').value = calories || "";
+      row.querySelector('input[name="protein[]"]').value = protein || "";
+      row.querySelector('input[name="carbs[]"]').value = carbs || "";
+      row.querySelector('input[name="fat[]"]').value = fat || "";
     });
   }
+  
+  /* ==========================================================
+     Export functions to global scope
+     (so Blade onchange="" still works)
+     ========================================================== */
+  window.addWorkoutRow = addWorkoutRow;
+  window.addNutritionRow = addNutritionRow;
+  window.loadWorkoutTemplateWeekly = loadWorkoutTemplateWeekly;
+  window.loadNutritionTemplateWeekly = loadNutritionTemplateWeekly;

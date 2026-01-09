@@ -17,57 +17,65 @@ class TrainerController extends Controller
     /* ==================== NUTRITION PLAN METHODS ==================== */
     
     public function addNutrition(Request $request)
-{
-    $request->validate([
-        'user_id'      => 'required|exists:users,id',
-        'title'        => 'required|string|max:255',
-        'day'          => 'required|array',
-        'meal_number'  => 'required|array',
-        'description'  => 'required|array',
-        'calories'     => 'required|array',
-        'protein'      => 'required|array',
-        'carbs'        => 'required|array',
-        'fat'          => 'required|array',
-        // (اختياري) لو عم تمرّر رقم الطلب مع الفورم
-        'request_id'   => 'nullable|integer',
-    ]);
-
-    $nutritionDetails = [];
-    foreach ($request->day as $index => $day) {
-        $nutritionDetails[$day][] = [
-            'meal_number' => $request->meal_number[$index],
-            'description' => $request->description[$index],
-            'calories'    => $request->calories[$index],
-            'protein'     => $request->protein[$index],
-            'carbs'       => $request->carbs[$index],
-            'fat'         => $request->fat[$index],
-        ];
+    {
+        $request->validate([
+            'user_id'        => 'required|exists:users,id',
+            'title'          => 'required|string|max:255',
+            'day'            => 'required|array',
+            'day.*'          => 'required|string',
+            'meal_number'    => 'required|array',
+            'meal_number.*'  => 'required',
+            'description'    => 'required|array',
+            'description.*'  => 'required|string',
+            'calories'       => 'required|array',
+            'calories.*'     => 'required',
+            'protein'        => 'required|array',
+            'protein.*'      => 'required',
+            'carbs'          => 'required|array',
+            'carbs.*'        => 'required',
+            'fat'            => 'required|array',
+            'fat.*'          => 'required',
+            'request_id'     => 'nullable|integer',
+        ]);
+    
+        $nutritionDetails = [];
+        foreach ($request->day as $index => $day) {
+            $nutritionDetails[$day][] = [
+                'meal_number' => $request->meal_number[$index],
+                'description' => $request->description[$index],
+                'calories'    => $request->calories[$index],
+                'protein'     => $request->protein[$index],
+                'carbs'       => $request->carbs[$index],
+                'fat'         => $request->fat[$index],
+            ];
+        }
+    
+        NutritionPlan::create([
+            'user_id'      => $request->user_id,
+            'trainer_id'   => auth()->id(),
+            'title'        => $request->title,
+            'plan_details' => json_encode($nutritionDetails, JSON_UNESCAPED_UNICODE),
+        ]);
+    
+        if ($request->filled('request_id')) {
+            NutritionRequest::where('id', $request->request_id)
+                ->where('trainer_id', auth()->id())
+                ->update(['status' => 'approved', 'updated_at' => now()]);
+        } else {
+            NutritionRequest::where('user_id', $request->user_id)
+                ->where('trainer_id', auth()->id())
+                ->where('status', 'pending')
+                ->orderByDesc('id')
+                ->limit(1)
+                ->update(['status' => 'approved', 'updated_at' => now()]);
+        }
+    
+        return redirect()->route('trainer.dashboard', [
+            'user_id' => $request->user_id,
+            'type' => 'nutrition',
+            'request_id' => $request->request_id
+        ])->with('success', 'Nutrition plan has been submitted successfully.');
     }
-
-    NutritionPlan::create([
-        'user_id'      => $request->user_id,
-        'trainer_id'   => auth()->id(),
-        'title'        => $request->title,
-        'plan_details' => json_encode($nutritionDetails, JSON_UNESCAPED_UNICODE),
-    ]);
-
-    // ✅ بدل الحذف: وافِق الطلب
-    if ($request->filled('request_id')) {
-        NutritionRequest::where('id', $request->request_id)
-            ->where('trainer_id', auth()->id())
-            ->update(['status' => 'approved', 'updated_at' => now()]);
-    } else {
-        // في حال ما مرّرت request_id: وافِق أحدث طلب pending لنفس الزوج (مدرّب/متدرّب)
-        NutritionRequest::where('user_id', $request->user_id)
-            ->where('trainer_id', auth()->id())
-            ->where('status', 'pending')
-            ->orderByDesc('id')
-            ->limit(1)
-            ->update(['status' => 'approved', 'updated_at' => now()]);
-    }
-
-    return redirect()->back()->with('success', 'Nutrition plan has been submitted successfully.');
-}
 
     /* ==================== DASHBOARD & REQUESTS METHODS ==================== */
     
@@ -135,18 +143,22 @@ class TrainerController extends Controller
     return redirect()->route('trainee.dashboard')->with('success', 'Request has been sent to the trainer successfully');
 }
 
-    public function addWorkout(Request $request)
+public function addWorkout(Request $request)
 {
     $request->validate([
-        'user_id'   => 'required|exists:users,id',
-        'title'     => 'required|string|max:255',
-        'day'       => 'required|array',
-        'muscle'    => 'required|array',
-        'exercise'  => 'required|array',
-        'sets'      => 'required|array',
-        'reps'      => 'required|array',
-        // (اختياري) لو عم تمرّر رقم الطلب مع الفورم
-        'request_id' => 'nullable|integer',
+        'user_id'     => 'required|exists:users,id',
+        'title'       => 'required|string|max:255',
+        'day'         => 'required|array',
+        'day.*'       => 'required|string',
+        'muscle'      => 'required|array',
+        'muscle.*'    => 'required|string',
+        'exercise'    => 'required|array',
+        'exercise.*'  => 'required|string',
+        'sets'        => 'required|array',
+        'sets.*'      => 'required',
+        'reps'        => 'required|array',
+        'reps.*'      => 'required',
+        'request_id'  => 'nullable|integer',
     ]);
 
     $structured = [];
@@ -163,16 +175,14 @@ class TrainerController extends Controller
         'user_id'      => $request->user_id,
         'trainer_id'   => auth()->id(),
         'title'        => $request->title,
-        'plan_details' => json_encode($structured),
+        'plan_details' => json_encode($structured, JSON_UNESCAPED_UNICODE),
     ]);
 
-    // ✅ بدل الحذف: وافِق الطلب
     if ($request->filled('request_id')) {
         WorkoutRequest::where('id', $request->request_id)
             ->where('trainer_id', auth()->id())
             ->update(['status' => 'approved', 'updated_at' => now()]);
     } else {
-        // في حال ما مرّرت request_id: وافِق أحدث طلب pending لنفس الزوج (مدرّب/متدرّب)
         WorkoutRequest::where('user_id', $request->user_id)
             ->where('trainer_id', auth()->id())
             ->where('status', 'pending')
@@ -181,7 +191,11 @@ class TrainerController extends Controller
             ->update(['status' => 'approved', 'updated_at' => now()]);
     }
 
-    return back()->with('success', 'Workout plan has been submitted successfully.');
+    return redirect()->route('trainer.dashboard', [
+        'user_id' => $request->user_id,
+        'type' => 'workout',
+        'request_id' => $request->request_id
+    ])->with('success', 'Workout plan has been submitted successfully.');
 }
 
     /* ==================== REQUEST MANAGEMENT METHODS ==================== */

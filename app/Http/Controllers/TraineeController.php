@@ -70,7 +70,6 @@ class TraineeController extends Controller
 {
     $user = auth()->user();
 
-    // 🔍 هل عنده اشتراك فعّال اليوم؟
     $hasActivePayment = Payment::where('user_id', $user->id)
         ->whereDate('period_start', '<=', now()->toDateString())
         ->whereDate('period_end', '>=', now()->toDateString())
@@ -82,7 +81,6 @@ class TraineeController extends Controller
             ->with('error', 'You must have an active subscription to request a workout plan.');
     }
 
-    // ✅ Validation + صور متعددة
     $data = $request->validate([
         'goal'          => 'required|string|max:255',
         'notes'         => 'nullable|string',
@@ -91,7 +89,6 @@ class TraineeController extends Controller
         'body_photos.*' => 'image|mimes:jpg,jpeg,png,webp|max:4096',
     ]);
 
-    // ✅ رفع الصور وتخزين المسارات
     $photoPaths = [];
     if ($request->hasFile('body_photos')) {
         foreach ($request->file('body_photos') as $file) {
@@ -117,7 +114,6 @@ public function requestNutrition(Request $request)
 {
     $user = auth()->user();
 
-    // 🔍 هل عنده اشتراك فعّال اليوم؟
     $hasActivePayment = Payment::where('user_id', $user->id)
         ->whereDate('period_start', '<=', now()->toDateString())
         ->whereDate('period_end', '>=', now()->toDateString())
@@ -129,7 +125,6 @@ public function requestNutrition(Request $request)
             ->with('error', 'You must have an active subscription to request a nutrition plan.');
     }
 
-    // ✅ Validation + صور متعددة
     $data = $request->validate([
         'goal'          => 'required|string|max:255',
         'notes'         => 'nullable|string',
@@ -138,7 +133,6 @@ public function requestNutrition(Request $request)
         'body_photos.*' => 'image|mimes:jpg,jpeg,png,webp|max:4096',
     ]);
 
-    // ✅ رفع الصور وتخزين المسارات
     $photoPaths = [];
     if ($request->hasFile('body_photos')) {
         foreach ($request->file('body_photos') as $file) {
@@ -190,7 +184,7 @@ public function updateProfile(Request $request)
     ]);
 
     if ($request->hasFile('photo')) {
-        // حذف القديمة (اختياري)
+    
         if ($user->profile_photo) {
             Storage::disk('public')->delete($user->profile_photo);
         }

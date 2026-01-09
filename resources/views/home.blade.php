@@ -23,12 +23,12 @@
                 
                 <div class="stats">
                     <div class="stat-item">
-                        <span class="number">+500</span>
-                        <span class="label">Trainees</span>
+                    <span class="number">+{{ $traineesCount }}</span>
+                    <span class="label">Trainees</span>
                     </div>
                     <div class="stat-item">
-                        <span class="number">+30</span>
-                        <span class="label">Professional Trainers</span>
+                    <span class="number">+{{ $trainersCount }}</span>
+                    <span class="label">Professional Trainers</span>
                     </div>
                     <div class="stat-item">
                         <span class="number">+95%</span>
@@ -42,7 +42,7 @@
     <!-- Features Section -->
     <section class="features" id="features">
         <div class="container">
-            <h2 class="section-title">Why Smart Bodybuilding Club?</h2>
+            <h2 class="section-title">Why Ameen Gym?</h2>
             <p class="section-subtitle">We provide you with a unique and comprehensive sports experience</p>
             
             <div class="features-grid">
@@ -97,43 +97,143 @@
         </div>
     </section>
 
-    <!-- Programs Section -->
-    <section class="programs" id="programs">
-        <div class="container">
-            <h2 class="section-title">Our Training Programs</h2>
-            <p class="section-subtitle">Choose the program that suits your goals</p>
-            
-            <div class="programs-tabs">
-                <button class="tab-btn active" data-tab="fitness">General Fitness</button>
-                <button class="tab-btn" data-tab="bodybuilding">Bodybuilding</button>
-                <button class="tab-btn" data-tab="weight-loss">Weight Loss</button>
-                <button class="tab-btn" data-tab="rehabilitation">Rehabilitation</button>
-            </div>
-            
-            <div class="programs-content">
-                <div class="tab-content active" id="fitness">
-                    <div class="program-card">
-                        <div class="program-image">
-                            <img src="{{ asset('images/fitness-program.jpg') }}" alt="General Fitness Program">
-                        </div>
-                        <div class="program-info">
-                            <h3>General Fitness Program</h3>
-                            <p>Comprehensive program to improve physical fitness and endurance</p>
-                            <ul class="program-features">
-                                <li><i class="fas fa-check"></i> 3 sessions per week</li>
-                                <li><i class="fas fa-check"></i> Comprehensive exercises</li>
-                                <li><i class="fas fa-check"></i> Weekly follow-up</li>
-                            </ul>
-                            <a href="#" class="btn btn-primary">Details</a>
-                        </div>
-                    </div>
+   <!-- Programs Section -->
+<section class="programs" id="programs">
+  <div class="container">
+    <h2 class="section-title">Latest Programs</h2>
+    <p class="section-subtitle">Recently added training and nutrition programs</p>
+
+    <div class="programs-content">
+      <div class="programs-grid">
+
+        {{-- WORKOUT CARD --}}
+        <div class="program-card">
+          <div class="program-info">
+            <h3>Workout Program</h3>
+
+            @if($latestWorkout)
+              <h4 class="program-subtitle">{{ $latestWorkout->title }}</h4>
+              <p class="program-desc">
+                {{ $latestWorkout->description ?: 'Weekly workout plan template ready to use.' }}
+              </p>
+
+              @php
+                $lines = preg_split("/\r\n|\n|\r/", trim($latestWorkout->plan_details ?? ''));
+                $lines = array_values(array_filter(array_map('trim',$lines)));
+                $preview = array_slice($lines, 0, 6);
+
+                $pretty = [];
+                foreach($preview as $line){
+                  $p = array_map('trim', explode('|', $line));
+                  if(count($p) < 5) continue;
+                  [$day,$muscle,$exercise,$sets,$reps] = $p;
+                  $pretty[] = "{$day} • {$exercise} — {$sets} × {$reps}";
+                }
+              @endphp
+
+              @if(count($pretty))
+                <div class="program-features">
+                  <p class="muted small">Quick preview:</p>
+                  <ul class="preview-list">
+                    @foreach($pretty as $item)
+                      <li>{{ $item }}</li>
+                    @endforeach
+                  </ul>
+
+                  @if(count($lines) > 6)
+                    <p class="muted tiny">+{{ count($lines) - 6 }} more items…</p>
+                  @endif
                 </div>
-                
-                <div class="tab-content" id="bodybuilding">
-                </div>
-            </div>
+              @endif
+
+            @else
+              <p class="muted">No workout templates yet.</p>
+            @endif
+          </div>
         </div>
-    </section>
+
+        {{-- NUTRITION CARD --}}
+        <div class="program-card">
+          <div class="program-info">
+            <h3>Nutrition Program</h3>
+
+            @if($latestNutrition)
+              <h4 class="program-subtitle">{{ $latestNutrition->title }}</h4>
+              <p class="program-desc">
+                {{ $latestNutrition->description ?: 'Weekly nutrition plan template with calories & macros.' }}
+              </p>
+
+              @php
+                $lines = preg_split("/\r\n|\n|\r/", trim($latestNutrition->plan_details ?? ''));
+                $lines = array_values(array_filter(array_map('trim',$lines)));
+                $preview = array_slice($lines, 0, 6);
+
+                $pretty = [];
+                foreach($preview as $line){
+                  $p = array_map('trim', explode('|', $line));
+                  if(count($p) < 7) continue;
+                  [$day,$meal,$desc,$cal,$pro,$carb,$fat] = $p;
+                  $pretty[] = "{$day} • Meal {$meal}: {$desc} — {$cal} kcal (P{$pro}/C{$carb}/F{$fat})";
+                }
+              @endphp
+
+              @if(count($pretty))
+                <div class="program-features">
+                  <p class="muted small">Quick preview:</p>
+                  <ul class="preview-list">
+                    @foreach($pretty as $item)
+                      <li>{{ $item }}</li>
+                    @endforeach
+                  </ul>
+
+                  @if(count($lines) > 6)
+                    <p class="muted tiny">+{{ count($lines) - 6 }} more items…</p>
+                  @endif
+                </div>
+              @endif
+
+            @else
+              <p class="muted">No nutrition templates yet.</p>
+            @endif
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+{{-- Styles (put in home.css if you prefer) --}}
+<style>
+  .programs-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:18px;
+  }
+
+  .program-subtitle{
+    margin-top:10px;
+    font-size:16px;
+  }
+
+  .program-desc{
+    margin-top:6px;
+    opacity:.9;
+    line-height:1.6;
+  }
+
+  .preview-list{
+    margin:8px 0 0;
+    padding-left:18px;
+    line-height:1.75;
+  }
+
+  .tiny{ font-size:12px; margin-top:10px; }
+
+  @media (max-width: 900px){
+    .programs-grid{ grid-template-columns:1fr; }
+  }
+</style>
 
     <!-- Trainers Section -->
     <section class="trainers" id="trainers">

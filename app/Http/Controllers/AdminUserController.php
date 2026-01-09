@@ -14,12 +14,10 @@ class AdminUserController extends Controller
     {
         $q = User::query();
     
-        // فلترة حسب الدور
         if ($request->filled('role')) {
             $q->where('role', $request->role);
         }
     
-        // ✅ فلترة حسب الاسم
         if ($request->filled('name')) {
             $name = trim($request->name);
             $q->where('name', 'like', "%{$name}%");
@@ -85,11 +83,10 @@ class AdminUserController extends Controller
 {
     $user = User::findOrFail($id);
 
-    // ما نسمح توقف نفسك أو توقف أي أدمن آخر (اختياري)
     if (auth()->id() === $user->id) {
         return back()->with('status', "You can't suspend your own account.");
     }
-    // خيار: لا توقّف الأدمن
+
     if ($user->role === 'admin') {
         return back()->with('status', "You can't suspend an admin.");
     }
@@ -111,7 +108,6 @@ public function payments($id)
             ->with('status', 'Payments can only be managed for trainees.');
     }
 
-    // كل الدفعات لهالمستخدم (أحدث دفعة أولاً)
     $payments = Payment::where('user_id', $user->id)
         ->orderByDesc('paid_at')
         ->orderByDesc('id')
