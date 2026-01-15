@@ -64,6 +64,19 @@
                                     <tbody>
 @foreach($details as $day => $meals)
 
+
+
+
+
+
+
+
+
+
+
+
+
+3.
     <tr class="day-row">
         <td colspan="6">
             <i class="fas fa-calendar-day"></i>

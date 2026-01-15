@@ -10,8 +10,6 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Payment;
 use Carbon\Carbon;
 
-
-
 class AdminController extends Controller
 {
     public function dashboard()
@@ -131,11 +129,8 @@ public function paymentsDashboard(Request $request)
 
     $dailyQuery = Payment::query()->whereDate('paid_at', $today);
     if ($method) $dailyQuery->where('method', $method);
-
     $dailyTotal = (clone $dailyQuery)->sum('amount');
     $dailyCount = (clone $dailyQuery)->count();
-
-
     $dailyLatest = (clone $baseQuery)
         ->with('user:id,name,email')
         ->orderByDesc('paid_at')
@@ -192,8 +187,6 @@ public function paymentsDashboard(Request $request)
         'byMethod','methods'
     ));
 }
-
-
 
 public function expiredSubscriptions(Request $request)
 {

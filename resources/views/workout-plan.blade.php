@@ -21,7 +21,7 @@
                     </button>
                 </div>
             </div>
-   
+            
             <div class="plan-content">
                 @if(session('success'))
                     <div class="alert alert-success">

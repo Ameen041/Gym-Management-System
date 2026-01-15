@@ -51,6 +51,7 @@ class TrainerController extends Controller
         }
     
         NutritionPlan::create([
+
             'user_id'      => $request->user_id,
             'trainer_id'   => auth()->id(),
             'title'        => $request->title,

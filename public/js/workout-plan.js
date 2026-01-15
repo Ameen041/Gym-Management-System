@@ -6,7 +6,7 @@
         window.print();
       });
     }
-  
+    
     const planDetails = document.querySelectorAll(".detail-section");
     planDetails.forEach((section, index) => {
       section.style.opacity = "0";
