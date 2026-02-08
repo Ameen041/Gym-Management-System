@@ -6,8 +6,8 @@
     <span class="logo-text">ِAmeen Gym</span>
     </div>   
             <ul class="nav-links">
-                <li class="{{ request()->routeIs('home') ? 'active' : '' }}">
-                    <a href="{{ route('home') }}">Home</a>
+                <li class="<?php echo e(request()->routeIs('home') ? 'active' : ''); ?>">
+                    <a href="<?php echo e(route('home')); ?>">Home</a>
                 </li>
                 <li><a href="#trainers">Trainers</a></li>
                 <li><a href="#programs">Programs</a></li>
@@ -26,4 +26,4 @@
             </button>
         </nav>
     </div>
-</header>
+</header><?php /**PATH C:\laragon\www\Ameen-Gym\resources\views/partials/navbar.blade.php ENDPATH**/ ?>

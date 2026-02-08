@@ -1,12 +1,12 @@
-@extends('layouts.app')
 
-@section('title','Gym-System | Homepage')
 
-@section('custom_css')
-    <link rel="stylesheet" href="{{ asset('css/home.css') }}">
-@endsection
+<?php $__env->startSection('title','Gym-System | Homepage'); ?>
 
-@section('content')
+<?php $__env->startSection('custom_css'); ?>
+    <link rel="stylesheet" href="<?php echo e(asset('css/home.css')); ?>">
+<?php $__env->stopSection(); ?>
+
+<?php $__env->startSection('content'); ?>
     <!-- Overlay -->
     <div class="overlay"></div>
     
@@ -17,17 +17,17 @@
                 <h2>Create the best version of yourself!</h2>
                 <p class="subtitle">Personal training and nutrition programs with the best trainers to achieve your goals</p>
                 <div class="cta-buttons">
-                    <a href="{{ url('/trainers') }}" class="btn btn-primary btn-lg">Browse Trainers</a>
+                    <a href="<?php echo e(url('/trainers')); ?>" class="btn btn-primary btn-lg">Browse Trainers</a>
                     <a href="#programs" class="btn btn-outline btn-lg">View Programs</a>
                 </div>
                 
                 <div class="stats">
                     <div class="stat-item">
-                    <span class="number">+{{ $traineesCount }}</span>
+                    <span class="number">+<?php echo e($traineesCount); ?></span>
                     <span class="label">Trainees</span>
                     </div>
                     <div class="stat-item">
-                    <span class="number">+{{ $trainersCount }}</span>
+                    <span class="number">+<?php echo e($trainersCount); ?></span>
                     <span class="label">Professional Trainers</span>
                     </div>
                     <div class="stat-item">
@@ -106,18 +106,19 @@
     <div class="programs-content">
       <div class="programs-grid">
 
-        {{-- WORKOUT CARD --}}
+        
         <div class="program-card">
           <div class="program-info">
             <h3>Workout Program</h3>
 
-            @if($latestWorkout)
-              <h4 class="program-subtitle">{{ $latestWorkout->title }}</h4>
+            <?php if($latestWorkout): ?>
+              <h4 class="program-subtitle"><?php echo e($latestWorkout->title); ?></h4>
               <p class="program-desc">
-                {{ $latestWorkout->description ?: 'Weekly workout plan template ready to use.' }}
+                <?php echo e($latestWorkout->description ?: 'Weekly workout plan template ready to use.'); ?>
+
               </p>
 
-              @php
+              <?php
                 $lines = preg_split("/\r\n|\n|\r/", trim($latestWorkout->plan_details ?? ''));
                 $lines = array_values(array_filter(array_map('trim',$lines)));
                 $preview = array_slice($lines, 0, 6);
@@ -129,41 +130,42 @@
                   [$day,$muscle,$exercise,$sets,$reps] = $p;
                   $pretty[] = "{$day} • {$exercise} — {$sets} × {$reps}";
                 }
-              @endphp
+              ?>
 
-              @if(count($pretty))
+              <?php if(count($pretty)): ?>
                 <div class="program-features">
                   <p class="muted small">Quick preview:</p>
                   <ul class="preview-list">
-                    @foreach($pretty as $item)
-                      <li>{{ $item }}</li>
-                    @endforeach
+                    <?php $__currentLoopData = $pretty; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                      <li><?php echo e($item); ?></li>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                   </ul>
 
-                  @if(count($lines) > 6)
-                    <p class="muted tiny">+{{ count($lines) - 6 }} more items…</p>
-                  @endif
+                  <?php if(count($lines) > 6): ?>
+                    <p class="muted tiny">+<?php echo e(count($lines) - 6); ?> more items…</p>
+                  <?php endif; ?>
                 </div>
-              @endif
+              <?php endif; ?>
 
-            @else
+            <?php else: ?>
               <p class="muted">No workout templates yet.</p>
-            @endif
+            <?php endif; ?>
           </div>
         </div>
 
-        {{-- NUTRITION CARD --}}
+        
         <div class="program-card">
           <div class="program-info">
             <h3>Nutrition Program</h3>
 
-            @if($latestNutrition)
-              <h4 class="program-subtitle">{{ $latestNutrition->title }}</h4>
+            <?php if($latestNutrition): ?>
+              <h4 class="program-subtitle"><?php echo e($latestNutrition->title); ?></h4>
               <p class="program-desc">
-                {{ $latestNutrition->description ?: 'Weekly nutrition plan template with calories & macros.' }}
+                <?php echo e($latestNutrition->description ?: 'Weekly nutrition plan template with calories & macros.'); ?>
+
               </p>
 
-              @php
+              <?php
                 $lines = preg_split("/\r\n|\n|\r/", trim($latestNutrition->plan_details ?? ''));
                 $lines = array_values(array_filter(array_map('trim',$lines)));
                 $preview = array_slice($lines, 0, 6);
@@ -175,26 +177,26 @@
                   [$day,$meal,$desc,$cal,$pro,$carb,$fat] = $p;
                   $pretty[] = "{$day} • Meal {$meal}: {$desc} — {$cal} kcal (P{$pro}/C{$carb}/F{$fat})";
                 }
-              @endphp
+              ?>
 
-              @if(count($pretty))
+              <?php if(count($pretty)): ?>
                 <div class="program-features">
                   <p class="muted small">Quick preview:</p>
                   <ul class="preview-list">
-                    @foreach($pretty as $item)
-                      <li>{{ $item }}</li>
-                    @endforeach
+                    <?php $__currentLoopData = $pretty; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                      <li><?php echo e($item); ?></li>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                   </ul>
 
-                  @if(count($lines) > 6)
-                    <p class="muted tiny">+{{ count($lines) - 6 }} more items…</p>
-                  @endif
+                  <?php if(count($lines) > 6): ?>
+                    <p class="muted tiny">+<?php echo e(count($lines) - 6); ?> more items…</p>
+                  <?php endif; ?>
                 </div>
-              @endif
+              <?php endif; ?>
 
-            @else
+            <?php else: ?>
               <p class="muted">No nutrition templates yet.</p>
-            @endif
+            <?php endif; ?>
           </div>
         </div>
 
@@ -203,7 +205,7 @@
   </div>
 </section>
 
-{{-- Styles (put in home.css if you prefer) --}}
+
 <style>
   .programs-grid{
     display:grid;
@@ -244,7 +246,7 @@
             <div class="trainers-grid">
                 <div class="trainer-card">
                     <div class="trainer-image">
-                        <img src="{{ asset('images/trainer1.jpg') }}" alt="Trainer Omar Al-Saour">
+                        <img src="<?php echo e(asset('images/trainer1.jpg')); ?>" alt="Trainer Omar Al-Saour">
                         <div class="social-links">
                             <a href="#"><i class="fab fa-instagram"></i></a>
                             <a href="#"><i class="fab fa-twitter"></i></a>
@@ -261,13 +263,13 @@
                             <i class="fas fa-star-half-alt"></i>
                             <span>(48)</span>
                         </div>
-                        <a href="{{ url('/trainers/1') }}" class="btn btn-outline">View Profile</a>
+                        <a href="<?php echo e(url('/trainers/1')); ?>" class="btn btn-outline">View Profile</a>
                     </div>
                 </div>
                 
                 <div class="trainer-card">
                     <div class="trainer-image">
-                        <img src="{{ asset('images/trainer2.jpg') }}" alt="Trainer Adnan Sheikh Al-Ard">
+                        <img src="<?php echo e(asset('images/trainer2.jpg')); ?>" alt="Trainer Adnan Sheikh Al-Ard">
                         <div class="social-links">
                             <a href="#"><i class="fab fa-instagram"></i></a>
                             <a href="#"><i class="fab fa-twitter"></i></a>
@@ -284,13 +286,13 @@
                             <i class="fas fa-star"></i>
                             <span>(36)</span>
                         </div>
-                        <a href="{{ url('/trainers/2') }}" class="btn btn-outline">View Profile</a>
+                        <a href="<?php echo e(url('/trainers/2')); ?>" class="btn btn-outline">View Profile</a>
                     </div>
                 </div>
                 
                 <div class="trainer-card">
                     <div class="trainer-image">
-                        <img src="{{ asset('images/trainer3.jpg') }}" alt="Trainer Mohammed Al-Gharib">
+                        <img src="<?php echo e(asset('images/trainer3.jpg')); ?>" alt="Trainer Mohammed Al-Gharib">
                         <div class="social-links">
                             <a href="#"><i class="fab fa-instagram"></i></a>
                             <a href="#"><i class="fab fa-twitter"></i></a>
@@ -307,7 +309,7 @@
                             <i class="far fa-star"></i>
                             <span>(29)</span>
                         </div>
-                        <a href="{{ url('/trainers/3') }}" class="btn btn-outline">View Profile</a>
+                        <a href="<?php echo e(url('/trainers/3')); ?>" class="btn btn-outline">View Profile</a>
                     </div>
                 </div>
             </div>
@@ -356,7 +358,7 @@
                             "Thanks to the system and the dedicated trainer, I was able to lose 15 kilos in just 4 months. The diet program was easy and delicious!"
                         </p>
                         <div class="client-info">
-                            <img src="{{ asset('images/client1.jpg') }}" alt="Sarah Mohammed">
+                            <img src="<?php echo e(asset('images/client1.jpg')); ?>" alt="Sarah Mohammed">
                             <div>
                                 <h4>Sarah Mohammed</h4>
                                 <span>Lost 15 kilos</span>
@@ -374,7 +376,7 @@
                             "The trainer was very professional and helped me build muscle and gain strength in record time. I recommend this experience to everyone!"
                         </p>
                         <div class="client-info">
-                            <img src="{{ asset('images/client2.jpg') }}" alt="Ahmed Khalid">
+                            <img src="<?php echo e(asset('images/client2.jpg')); ?>" alt="Ahmed Khalid">
                             <div>
                                 <h4>Ahmed Khalid</h4>
                                 <span>Gained 8 kilos of muscle</span>
@@ -392,7 +394,7 @@
                             "After suffering from back pain, the rehabilitation program helped me regain my movement and daily activity. Thanks to the training team!"
                         </p>
                         <div class="client-info">
-                            <img src="{{ asset('images/client3.jpg') }}" alt="Nora Abdullah">
+                            <img src="<?php echo e(asset('images/client3.jpg')); ?>" alt="Nora Abdullah">
                             <div>
                                 <h4>Nora Abdullah</h4>
                                 <span>Full back improvement</span>
@@ -481,8 +483,9 @@
         </div>
     </section>
     
-@endsection
+<?php $__env->stopSection(); ?>
 
-@section('custom_js')
-<script src="{{ asset('js/home.js') }}"></script>
-@endsection
+<?php $__env->startSection('custom_js'); ?>
+<script src="<?php echo e(asset('js/home.js')); ?>"></script>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\laragon\www\Ameen-Gym\resources\views/home.blade.php ENDPATH**/ ?>
