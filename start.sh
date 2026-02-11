@@ -3,23 +3,30 @@ set -e
 
 echo "🚀 Starting Ameen Gym (Laravel)..."
 
-# Fix permissions at runtime (important on Render)
-chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache || true
-chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache || true
+# Debug (safe)
+echo "DB_CONNECTION=${DB_CONNECTION}"
+echo "DB_HOST=${DB_HOST}"
+echo "DB_PORT=${DB_PORT}"
+echo "DB_DATABASE=${DB_DATABASE}"
+echo "DB_USERNAME=${DB_USERNAME}"
+
+# Ensure dirs exist
+mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache
+mkdir -p /var/www/html/storage/framework/{cache,sessions,views}
+
+# Fix permissions (Render sometimes needs aggressive perms)
+chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache || true
 
 # Clear caches so env vars are re-read
-php artisan config:clear || true
-php artisan cache:clear || true
-php artisan route:clear || true
-php artisan view:clear || true
+php artisan optimize:clear || true
 
 # Run migrations
 php artisan migrate --force
 
-# Rebuild caches (optional but good for production)
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+# Rebuild caches (optional)
+php artisan config:cache || true
+php artisan route:cache || true
+php artisan view:cache || true
 
 echo "✅ Laravel Ready. Starting Apache..."
 exec apache2-foreground
