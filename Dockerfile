@@ -22,7 +22,7 @@ WORKDIR /var/www/html
 COPY . .
 
 # Install PHP deps
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
 # Permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \

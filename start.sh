@@ -1,27 +1,34 @@
 #!/usr/bin/env bash
 set -e
 
-# Render provides PORT; make Apache listen on it
-if [ -n "$PORT" ]; then
-  sed -i "s/Listen 80/Listen ${PORT}/" /etc/apache2/ports.conf
-  sed -i "s/:80/:${PORT}/" /etc/apache2/sites-available/000-default.conf
+echo "✅ Starting Ameen Gym (Laravel) ..."
+
+cd /var/www/html
+
+# Ensure correct permissions (Render sometimes changes ownership)
+chown -R www-data:www-data storage bootstrap/cache || true
+chmod -R 775 storage bootstrap/cache || true
+
+# Generate key if missing (only if APP_KEY empty)
+if [ -z "$APP_KEY" ]; then
+  echo "⚠️ APP_KEY is empty. Generating..."
+  php artisan key:generate --force
 fi
 
-# Clear old caches (important if you previously cached wrong config)
+# Cache config/routes/views (safe in prod)
 php artisan config:clear || true
-php artisan route:clear  || true
-php artisan view:clear   || true
+php artisan route:clear || true
+php artisan view:clear || true
 
-# Cache again using Render ENV vars
 php artisan config:cache || true
-php artisan route:cache  || true
-php artisan view:cache   || true
+php artisan route:cache || true
+php artisan view:cache || true
 
-# Run migrations (for demo)
-php artisan migrate --force || true
+# Run migrations (and seed if you want demo accounts)
+php artisan migrate --force
 
-# OPTIONAL: seed demo accounts if you have DemoUsersSeeder
-# Uncomment if you want it always:
-# php artisan db:seed --class=DemoUsersSeeder --force || true
+# OPTIONAL: seed demo users (فعّلها إذا بدك حسابات الديمو تنضاف تلقائياً)
+# php artisan db:seed --force
 
+echo "🚀 Done. Starting Apache..."
 exec apache2-foreground
