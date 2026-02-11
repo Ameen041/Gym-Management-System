@@ -13,7 +13,10 @@ chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache || true
 php artisan optimize:clear || true
 
 # run migrations
-php artisan migrate --force || true
+php artisan migrate --force
+
+# Run seeders
+php artisan db:seed --force
 
 echo "✅ Laravel Ready. Starting Apache..."
 exec apache2-foreground
