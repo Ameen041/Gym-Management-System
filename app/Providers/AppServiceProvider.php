@@ -9,27 +9,19 @@ use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
-    public function register(): void
+    public function register()
     {
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
-        // ✅ Fix Mixed Content on Render / proxies (force https)
-        if (app()->environment('production')) {
+    
+        if (env('APP_ENV') === 'production') {
             URL::forceScheme('https');
         }
 
-        // ✅ reCAPTCHA custom validation rule
         Validator::extend('recaptcha', function ($attribute, $value, $parameters, $validator) {
-
             $secret = config('services.recaptcha.secret_key');
             if (!$secret) return false;
 
