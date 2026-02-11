@@ -1,24 +1,23 @@
 FROM php:8.2-apache
 
-# Install system dependencies
 RUN apt-get update && apt-get install -y \
+    git curl unzip zip \
     libpq-dev \
-    libzip-dev \
-    zip \
-    unzip \
-    git \
-    curl \
-    libonig-dev \
-    libpng-dev \
-    libxml2-dev \
+    libzip-dev zlib1g-dev \
     libicu-dev \
-    && docker-php-ext-install \
-        pdo \
-        pdo_pgsql \
-        pgsql \
-        bcmath \
-        intl \
-        zip
+    libpng-dev libjpeg-dev libfreetype6-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN a2enmod rewrite \
+ && sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
+
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg
+
+# ثبّت zip لحاله + باقي الاكستنشنز
+RUN docker-php-ext-install zip \
+ && docker-php-ext-install \
+    pdo pdo_pgsql \
+    mbstring bcmath intl gd
 
 # Enable Apache rewrite
 RUN a2enmod rewrite \
