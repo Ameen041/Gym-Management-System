@@ -1,19 +1,19 @@
 #!/bin/bash
 set -e
 
-echo "✅ Starting Ameen Gym (Laravel) ..."
+echo "🚀 Starting Ameen Gym (Laravel)..."
 
-# مهم: خليه يشوف متغيرات Render الجديدة
-php artisan config:clear || true
-php artisan cache:clear || true
+php artisan config:clear
+php artisan cache:clear
+php artisan route:clear
+php artisan view:clear
 
-# (اختياري) اعمل كاش بعدين
-php artisan config:cache || true
-php artisan route:cache || true
-php artisan view:cache || true
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
 
-# ✅ اعمل migrations تلقائياً
-php artisan migrate --force || true
+php artisan migrate --force
 
-# شغل Apache
+echo "✅ Laravel Ready. Starting Apache..."
+
 exec apache2-foreground
