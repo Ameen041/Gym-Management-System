@@ -1,17 +1,19 @@
-#!/usr/bin/env sh
+#!/bin/bash
 set -e
 
 echo "✅ Starting Ameen Gym (Laravel) ..."
 
+# مهم: خليه يشوف متغيرات Render الجديدة
 php artisan config:clear || true
-php artisan route:clear || true
-php artisan view:clear || true
+php artisan cache:clear || true
 
+# (اختياري) اعمل كاش بعدين
 php artisan config:cache || true
 php artisan route:cache || true
 php artisan view:cache || true
 
-# Run migrations but don't stop the server if DB isn't ready yet
+# ✅ اعمل migrations تلقائياً
 php artisan migrate --force || true
 
+# شغل Apache
 exec apache2-foreground
