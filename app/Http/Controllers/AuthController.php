@@ -41,31 +41,37 @@ class AuthController extends Controller
     }
 
     public function login(Request $request)
-{
-    $request->validate([
-        'email'    => ['required','email'],
-        'password' => ['required','string'],
-    ]);
-
-    if (Auth::attempt($request->only('email','password'), $request->boolean('remember'))) {
-        $request->session()->regenerate();
-
-        $user = Auth::user();
-
-        if (!$user->is_active) {
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-            return back()->with('error', 'Your account is suspended. Please contact the administrator.');
+    {
+        $credentials = $request->validate([
+            'email'    => ['required', 'email'],
+            'password' => ['required', 'string'],
+        ]);
+    
+        if (Auth::attempt($credentials)) {
+    
+            $request->session()->regenerate();
+            $user = Auth::user();
+    
+            if (!$user->is_active) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+    
+                return redirect()->route('login.form')
+                    ->with('error', 'Your account is suspended. Please contact the administrator.');
+            }
+    
+            return match ($user->role) {
+                'admin'   => redirect()->route('admin.dashboard'),
+                'trainer' => redirect()->route('trainer.dashboard'),
+                default   => redirect()->route('trainee.dashboard'),
+            };
         }
-
-        if ($user->role === 'admin')   return redirect('/admin/dashboard');
-        if ($user->role === 'trainer') return redirect('/trainer-dashboard');
-        return redirect('/trainee-dashboard');
+    
+        return back()->withErrors([
+            'email' => 'Invalid credentials. Please try again.'
+        ]);
     }
-
-    return back()->withErrors(['email' => 'Invalid credentials. Please try again.']);
-}
 
 public function logout(Request $request)
 {
