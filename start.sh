@@ -10,26 +10,28 @@ echo "DB_PORT=${DB_PORT}"
 echo "DB_DATABASE=${DB_DATABASE}"
 echo "DB_USERNAME=${DB_USERNAME}"
 
-# Ensure dirs exist + permissions
-mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache
-mkdir -p /var/www/html/storage/framework/{cache,sessions,views}
+APP_DIR="/var/www/html"
+STORAGE="$APP_DIR/storage"
+CACHE="$APP_DIR/bootstrap/cache"
 
-chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache || true
-chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache || true
+# Ensure dirs exist
+mkdir -p "$STORAGE" "$CACHE"
+mkdir -p "$STORAGE/framework/cache" "$STORAGE/framework/sessions" "$STORAGE/framework/views"
 
-# IMPORTANT: remove any cached config files (hard reset)
-rm -f /var/www/html/bootstrap/cache/config.php || true
-rm -f /var/www/html/bootstrap/cache/routes-v7.php || true
-rm -f /var/www/html/bootstrap/cache/services.php || true
-rm -f /var/www/html/bootstrap/cache/packages.php || true
+# Fix permissions
+chown -R www-data:www-data "$STORAGE" "$CACHE" || true
+chmod -R 775 "$STORAGE" "$CACHE" || true
 
-# Clear cached stuff
+# Hard reset cached files (avoid stale env/config)
+rm -f "$CACHE/config.php" "$CACHE/routes-v7.php" "$CACHE/services.php" "$CACHE/packages.php" || true
+
+# Clear all Laravel caches (important for Render env vars + APP_URL)
 php artisan optimize:clear || true
 
-# Run migrations
-php artisan migrate --force
+# Run migrations (do not fail the whole boot if DB is temporarily unavailable)
+php artisan migrate --force || true
 
-# Cache again (optional)
+# Rebuild caches (optional - safe)
 php artisan config:cache || true
 php artisan route:cache || true
 php artisan view:cache || true
