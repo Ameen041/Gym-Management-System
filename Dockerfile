@@ -1,5 +1,6 @@
 FROM php:8.2-apache
 
+# System deps + PHP extensions
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     zip \
@@ -8,21 +9,27 @@ RUN apt-get update && apt-get install -y \
     curl \
     && docker-php-ext-install pdo pdo_pgsql pgsql
 
+# Enable Apache rewrite + set DocumentRoot to /public
+RUN a2enmod rewrite \
+ && sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
+
+# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
+# Copy project
 COPY . .
 
+# Install PHP deps
 RUN composer install --no-dev --optimize-autoloader
 
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage
+# Permissions
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+ && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-RUN php artisan config:cache
-RUN php artisan route:cache
-RUN php artisan view:cache
+# Start script
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
 
-EXPOSE 80
-
-CMD ["apache2-foreground"]
+CMD ["/start.sh"]
