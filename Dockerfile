@@ -27,7 +27,7 @@ RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
 
 # Permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
- && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+ && chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Start script
 COPY start.sh /start.sh

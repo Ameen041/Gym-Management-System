@@ -10,20 +10,26 @@ echo "DB_PORT=${DB_PORT}"
 echo "DB_DATABASE=${DB_DATABASE}"
 echo "DB_USERNAME=${DB_USERNAME}"
 
-# Ensure dirs exist
+# Ensure dirs exist + permissions
 mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache
 mkdir -p /var/www/html/storage/framework/{cache,sessions,views}
 
-# Fix permissions (Render sometimes needs aggressive perms)
-chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache || true
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache || true
+chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache || true
 
-# Clear caches so env vars are re-read
+# IMPORTANT: remove any cached config files (hard reset)
+rm -f /var/www/html/bootstrap/cache/config.php || true
+rm -f /var/www/html/bootstrap/cache/routes-v7.php || true
+rm -f /var/www/html/bootstrap/cache/services.php || true
+rm -f /var/www/html/bootstrap/cache/packages.php || true
+
+# Clear cached stuff
 php artisan optimize:clear || true
 
 # Run migrations
 php artisan migrate --force
 
-# Rebuild caches (optional)
+# Cache again (optional)
 php artisan config:cache || true
 php artisan route:cache || true
 php artisan view:cache || true
