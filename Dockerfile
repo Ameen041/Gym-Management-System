@@ -32,7 +32,7 @@ WORKDIR /var/www/html
 COPY . .
 
 # Install dependencies (ignore platform reqs to avoid crashes)
-RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
+RUN composer install --no-dev --optimize-autoloader --no-scripts --ignore-platform-reqs
 
 # Permissions
 RUN chown -R www-data:www-data storage bootstrap/cache \
