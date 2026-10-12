@@ -46,6 +46,12 @@
         </div>
     </div>
 
+    @foreach(['success' => 'check-circle', 'error' => 'exclamation-circle'] as $flash => $icon)
+        @if(session($flash))
+            <div class="flash flash-{{ $flash }}"><i class="fas fa-{{ $icon }}"></i> {{ session($flash) }}</div>
+        @endif
+    @endforeach
+
     <div class="hero">
         <div class="hero-left">
             <div class="hero-icon"><i class="fas fa-users"></i></div>
@@ -65,7 +71,7 @@
             @php
                 $photo = $trainer->profile_photo
                     ? asset('storage/' . $trainer->profile_photo)
-                    : 'https://via.placeholder.com/900x900?text=Trainer';
+                    : asset('images/avatar.svg');
             @endphp
 
             <div class="trainer-card">
@@ -77,18 +83,11 @@
                 <div class="trainer-body">
                     <div class="trainer-title">
                         <h3>{{ $trainer->name }}</h3>
-                        <p class="trainer-email">{{ $trainer->email }}</p>
                     </div>
 
                     <div class="trainer-meta">
                         @if(!is_null($trainer->age))
                             <span><i class="fas fa-birthday-cake"></i> {{ $trainer->age }} {{ __('yrs') }}</span>
-                        @endif
-                        @if(!is_null($trainer->height))
-                            <span><i class="fas fa-ruler-vertical"></i> {{ $trainer->height }} {{ __('cm') }}</span>
-                        @endif
-                        @if(!is_null($trainer->weight))
-                            <span><i class="fas fa-weight"></i> {{ $trainer->weight }} {{ __('kg') }}</span>
                         @endif
                     </div>
 

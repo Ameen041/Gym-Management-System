@@ -22,6 +22,13 @@ class AuthController extends Controller
         $trainersCount = User::where('role', 'trainer')->count();
         $traineesCount = User::where('role', 'trainee')->count();
     
+        // Real trainers for the home page (newest first)
+        $featuredTrainers = User::where('role', 'trainer')
+            ->where('is_active', true)
+            ->latest()
+            ->take(3)
+            ->get();
+
         $latestWorkout = PlanTemplate::where('type', 'workout')
             ->where('is_active', 1)
             ->latest()
@@ -36,7 +43,8 @@ class AuthController extends Controller
             'trainersCount',
             'traineesCount',
             'latestWorkout',
-            'latestNutrition'
+            'latestNutrition',
+            'featuredTrainers'
         ));
     }
 
@@ -68,9 +76,9 @@ class AuthController extends Controller
             };
         }
     
-        return back()->withErrors([
-            'email' => __('Invalid credentials. Please try again.')
-        ]);
+        return back()
+            ->withInput($request->only('email'))
+            ->withErrors(['email' => __('Invalid credentials. Please try again.')]);
     }
 
 public function logout(Request $request)
@@ -85,7 +93,8 @@ public function logout(Request $request)
     
     public function register(Request $request)
     {
-        $request->validate([
+        // Separate error bag so the sign-up tab re-opens with its errors
+        $request->validateWithBag('register', [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6|confirmed',
@@ -94,33 +103,27 @@ public function logout(Request $request)
             'height' => 'nullable|numeric|min:50|max:300',
             'weight' => 'nullable|numeric|min:20|max:300',
         ]);
-    
+
+        $isTrainee = $request->role === 'trainee';
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
             'age' => $request->age,
-            'height' => $request->height,
-            'weight' => $request->weight,
+            // Body measurements are only relevant for trainees
+            'height' => $isTrainee ? $request->height : null,
+            'weight' => $isTrainee ? $request->weight : null,
         ]);
-    
+
         Auth::login($user);
-    
-        return redirect($user->role === 'trainer' ? route('trainer.dashboard') : '/trainee-dashboard');
+
+        return redirect()->route($isTrainee ? 'trainee.dashboard' : 'trainer.dashboard');
     }
 
     /* ==================== DASHBOARD METHODS ==================== */
     
-    public function trainerDashboard()
-    {
-        if (auth()->check() && auth()->user()->role === 'trainer') {
-            return view('trainer-dashboard');
-        }
-
-        return redirect()->route('login.form')->with('show_signup', true);
-    }
-
     public function traineeDashboard()
     {
         $user = Auth::user();
@@ -153,25 +156,5 @@ public function logout(Request $request)
             'activePayment'  => $activePayment,
             'hasSubscription'=> (bool) $activePayment, 
         ]);
-    }
-
-    /* ==================== PLAN DISPLAY METHODS ==================== */
-    
-    public function showWorkoutPlan()
-    {
-        $user = Auth::user();
-        $plan = WorkoutPlan::where('user_id', $user->id)->first();
-
-        if (!$plan) {
-            return redirect()->route('trainee.dashboard')->with('error', __('No workout plan available.'));
-        }
-
-        return view('workout-plan', compact('plan'));
-    }
-
-    public function showNutritionPlan(Request $request)
-    {
-        $trainerId = $request->query('trainer_id'); 
-        return view('nutrition-plan', compact('trainerId'));
     }
 }

@@ -9,6 +9,9 @@ use App\Http\Controllers\AdminTemplateController;
 use App\Http\Controllers\AdminExerciseController;
 use App\Http\Controllers\ExerciseController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\PasswordResetController;
+use App\Http\Controllers\AdminMessageController;
 
 
 
@@ -24,47 +27,51 @@ Route::post('/register', [AuthController::class, 'register'])->name('register');
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::get('/trainer-dashboard', [TrainerController::class, 'dashboard'])->name('trainer.dashboard');
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login.form');
 
-Route::get('/trainee-dashboard', [AuthController::class, 'traineeDashboard'])->name('trainee.dashboard');
-
-Route::middleware(['auth','active', 'trainer'])->group(function () {
- Route::post('/trainer/profile/update', [TrainerController::class, 'updateProfile'])->name('trainer.profile.update');
-Route::post('/trainer/add-workout', [TrainerController::class, 'addWorkout'])->name('trainer.addWorkout');
-Route::get('/trainer/create-workout/{user_id}', [TrainerController::class, 'showWorkoutForm'])->name('trainer.createWorkout');
-Route::delete('/trainer/reject-workout/{id}', [TrainerController::class, 'rejectWorkout'])->name('trainer.rejectWorkout');
-Route::delete('/trainer/reject-nutrition/{id}', [TrainerController::class, 'rejectNutrition'])->name('trainer.rejectNutrition');
-Route::post('/trainer/add-nutrition', [TrainerController::class, 'addNutrition'])->name('trainer.addNutrition');
-});
-
-
-
-Route::post('/trainee/request-workout', [TraineeController::class, 'requestWorkout'])->name('trainee.requestWorkout');
-
-Route::get('/trainer/requests', [TrainerController::class, 'showRequests'])->name('trainer.requests');
-
+// Public list of trainers (choosing one requires a trainee account)
 Route::get('/trainers', [TraineeController::class, 'showTrainers'])->name('trainers');
 
-Route::get('/workout-plan', [TraineeController::class, 'showWorkoutPlan'])->name('trainee.schedule');
+// Contact form on the home page
+Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:5,1')->name('contact.store');
 
-Route::get('/nutrition-plan', [TraineeController::class, 'showNutritionPlan'])->name('trainee.diet');
+// Forgot / reset password
+Route::middleware('guest')->group(function () {
+    Route::get('/forgot-password', [PasswordResetController::class, 'requestForm'])->name('password.request');
+    Route::post('/forgot-password', [PasswordResetController::class, 'sendLink'])->middleware('throttle:5,1')->name('password.email');
+    Route::get('/reset-password/{token}', [PasswordResetController::class, 'resetForm'])->name('password.reset');
+    Route::post('/reset-password', [PasswordResetController::class, 'reset'])->name('password.update');
+});
 
-Route::post('/trainee/request-nutrition', [TraineeController::class, 'requestNutrition'])->name('trainee.requestNutrition');
+// Trainer area
+Route::middleware(['auth', 'active', 'role:trainer'])->group(function () {
+    Route::get('/trainer-dashboard', [TrainerController::class, 'dashboard'])->name('trainer.dashboard');
+    Route::get('/trainer/requests', [TrainerController::class, 'showRequests'])->name('trainer.requests');
+    Route::post('/trainer/profile/update', [TrainerController::class, 'updateProfile'])->name('trainer.profile.update');
+    Route::post('/trainer/add-workout', [TrainerController::class, 'addWorkout'])->name('trainer.addWorkout');
+    Route::post('/trainer/add-nutrition', [TrainerController::class, 'addNutrition'])->name('trainer.addNutrition');
+    Route::delete('/trainer/reject-workout/{id}', [TrainerController::class, 'rejectWorkout'])->name('trainer.rejectWorkout');
+    Route::delete('/trainer/reject-nutrition/{id}', [TrainerController::class, 'rejectNutrition'])->name('trainer.rejectNutrition');
+});
 
-Route::get('/trainer/nutrition-requests', [TrainerController::class, 'showNutritionRequests'])->name('trainer.nutritionRequests');
-
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login.form');
+// Trainee area
+Route::middleware(['auth', 'active', 'role:trainee'])->group(function () {
+    Route::get('/trainee-dashboard', [AuthController::class, 'traineeDashboard'])->name('trainee.dashboard');
+    Route::get('/workout-plan', [TraineeController::class, 'showWorkoutPlan'])->name('trainee.schedule');
+    Route::delete('/workout-plan', [TraineeController::class, 'deleteWorkoutPlan'])->name('trainee.schedule.destroy');
+    Route::get('/nutrition-plan', [TraineeController::class, 'showNutritionPlan'])->name('trainee.diet');
+    Route::delete('/nutrition-plan', [TraineeController::class, 'deleteNutritionPlan'])->name('trainee.diet.destroy');
+    Route::post('/trainee/request-workout', [TraineeController::class, 'requestWorkout'])->name('trainee.requestWorkout');
+    Route::post('/trainee/request-nutrition', [TraineeController::class, 'requestNutrition'])->name('trainee.requestNutrition');
+    Route::match(['POST', 'PUT', 'PATCH'], '/trainee/profile/update', [TraineeController::class, 'updateProfile'])
+        ->name('trainee.profile.update');
+});
 
 // Exercise library (weight training exercises with video explanations)
 Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/exercises', [ExerciseController::class, 'index'])->name('exercises.index');
     Route::get('/exercises/{exercise}', [ExerciseController::class, 'show'])->whereNumber('exercise')->name('exercises.show');
 });
-
-Route::get('/trainee/profile/edit', [TraineeController::class, 'editProfile'])->name('trainee.profile.edit');
-
-Route::match(['POST','PUT','PATCH'], '/trainee/profile/update', [TraineeController::class, 'updateProfile'])
-    ->name('trainee.profile.update');
 
 
 
@@ -102,6 +109,9 @@ Route::middleware(['auth','active','role:admin'])
         Route::get('/exercises/{id}/edit', [AdminExerciseController::class,'edit'])->name('exercises.edit');
         Route::put('/exercises/{id}',      [AdminExerciseController::class,'update'])->name('exercises.update');
         Route::delete('/exercises/{id}',   [AdminExerciseController::class,'destroy'])->name('exercises.destroy');
+        Route::get('/messages', [AdminMessageController::class, 'index'])->name('messages.index');
+        Route::post('/messages/{message}/read', [AdminMessageController::class, 'markRead'])->name('messages.read');
+        Route::delete('/messages/{message}', [AdminMessageController::class, 'destroy'])->name('messages.destroy');
         Route::get('/payments', [AdminController::class, 'paymentsDashboard'])->name('payments.dashboard');
         Route::get('/subscriptions/expired', [AdminController::class, 'expiredSubscriptions'])
     ->name('subscriptions.expired');

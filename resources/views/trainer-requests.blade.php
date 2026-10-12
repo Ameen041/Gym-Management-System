@@ -23,6 +23,12 @@
         </div>
         @endif
 
+        @if(session('error'))
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
+        </div>
+        @endif
+
         <header class="requests-header">
             <h1><i class="fas fa-inbox"></i> {{ __('Trainee Requests') }}</h1>
             @include('partials.lang-switch', ['class' => 'btn btn-back'])

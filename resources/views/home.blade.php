@@ -242,74 +242,20 @@
             <p class="section-subtitle">{{ __('Meet our team of certified trainers') }}</p>
             
             <div class="trainers-grid">
-                <div class="trainer-card">
-                    <div class="trainer-image">
-                        <img src="{{ asset('images/trainer1.jpg') }}" alt="{{ __('Trainer Omar Al-Saour') }}">
-                        <div class="social-links">
-                            <a href="#"><i class="fab fa-instagram"></i></a>
-                            <a href="#"><i class="fab fa-twitter"></i></a>
+                @forelse($featuredTrainers as $trainer)
+                    <div class="trainer-card">
+                        <div class="trainer-image">
+                            <img src="{{ $trainer->profile_photo ? asset('storage/' . $trainer->profile_photo) : asset('images/avatar.svg') }}" alt="{{ $trainer->name }}">
+                        </div>
+                        <div class="trainer-info">
+                            <h3>{{ $trainer->name }}</h3>
+                            <span class="specialty">{{ __('Online Trainer') }}</span>
+                            <a href="{{ route('trainers') }}" class="btn btn-outline">{{ __('View Trainers') }}</a>
                         </div>
                     </div>
-                    <div class="trainer-info">
-                        <h3>{{ __('Omar Al-Saour') }}</h3>
-                        <span class="specialty">{{ __('Bodybuilding Expert') }}</span>
-                        <div class="rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star-half-alt"></i>
-                            <span>(48)</span>
-                        </div>
-                        <a href="{{ url('/trainers/1') }}" class="btn btn-outline">{{ __('View Profile') }}</a>
-                    </div>
-                </div>
-                
-                <div class="trainer-card">
-                    <div class="trainer-image">
-                        <img src="{{ asset('images/trainer2.jpg') }}" alt="{{ __('Trainer Adnan Sheikh Al-Ard') }}">
-                        <div class="social-links">
-                            <a href="#"><i class="fab fa-instagram"></i></a>
-                            <a href="#"><i class="fab fa-twitter"></i></a>
-                        </div>
-                    </div>
-                    <div class="trainer-info">
-                        <h3>{{ __('Adnan Sheikh Al-Ard') }}</h3>
-                        <span class="specialty">{{ __('Physical Fitness Expert') }}</span>
-                        <div class="rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <span>(36)</span>
-                        </div>
-                        <a href="{{ url('/trainers/2') }}" class="btn btn-outline">{{ __('View Profile') }}</a>
-                    </div>
-                </div>
-                
-                <div class="trainer-card">
-                    <div class="trainer-image">
-                        <img src="{{ asset('images/trainer3.jpg') }}" alt="{{ __('Trainer Mohammed Al-Gharib') }}">
-                        <div class="social-links">
-                            <a href="#"><i class="fab fa-instagram"></i></a>
-                            <a href="#"><i class="fab fa-twitter"></i></a>
-                        </div>
-                    </div>
-                    <div class="trainer-info">
-                        <h3>{{ __('Mohammed Al-Gharib') }}</h3>
-                        <span class="specialty">{{ __('Rehabilitation Expert') }}</span>
-                        <div class="rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="far fa-star"></i>
-                            <span>(29)</span>
-                        </div>
-                        <a href="{{ url('/trainers/3') }}" class="btn btn-outline">{{ __('View Profile') }}</a>
-                    </div>
-                </div>
+                @empty
+                    <p class="section-subtitle">{{ __('Trainers will appear here soon.') }}</p>
+                @endforelse
             </div>
         </div>
     </section>
@@ -334,7 +280,7 @@
                         <li><i class="fas fa-check"></i> {{ __('Adjustments based on progress') }}</li>
                         <li><i class="fas fa-check"></i> {{ __('Healthy recipes') }}</li>
                     </ul>
-                    <a href="#" class="btn btn-primary">{{ __('Subscribe Now') }}</a>
+                    <a href="{{ route('trainers', ['type' => 'nutrition']) }}" class="btn btn-primary">{{ __('Subscribe Now') }}</a>
                 </div>
             </div>
         </div>
@@ -425,7 +371,7 @@
                         <li><i class="fas fa-check"></i> {{ __('Weekly follow-up') }}</li>
                         <li><i class="fas fa-check"></i> {{ __('Gym access') }}</li>
                     </ul>
-                    <a href="#" class="btn btn-outline">{{ __('Choose Package') }}</a>
+                    <a href="{{ route('trainers') }}" class="btn btn-outline">{{ __('Choose Package') }}</a>
                 </div>
             </div>
         </div>
@@ -454,26 +400,27 @@
                         </div>
                     </div>
                     
-                    <div class="social-media">
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-snapchat"></i></a>
-                        <a href="#"><i class="fab fa-youtube"></i></a>
-                    </div>
                 </div>
                 
-                <form class="contact-form">
+                <form class="contact-form" method="POST" action="{{ route('contact.store') }}">
+                    @csrf
+                    @if(session('contact_success'))
+                        <div class="auth-alert auth-alert-ok"><i class="fas fa-check-circle"></i> {{ session('contact_success') }}</div>
+                    @endif
+                    @if($errors->contact->any())
+                        <div class="auth-alert"><i class="fas fa-exclamation-circle"></i> {{ $errors->contact->first() }}</div>
+                    @endif
                     <div class="form-group">
-                        <input type="text" placeholder="{{ __('Full Name') }}" required>
+                        <input type="text" name="name" value="{{ old('name') }}" placeholder="{{ __('Full Name') }}" required>
                     </div>
                     <div class="form-group">
-                        <input type="email" placeholder="{{ __('Email') }}" required>
+                        <input type="email" name="email" value="{{ old('email') }}" placeholder="{{ __('Email') }}" required>
                     </div>
                     <div class="form-group">
-                        <input type="tel" placeholder="{{ __('Phone Number') }}">
+                        <input type="tel" name="phone" value="{{ old('phone') }}" placeholder="{{ __('Phone Number') }}">
                     </div>
                     <div class="form-group">
-                        <textarea placeholder="{{ __('Your Message') }}" rows="5" required></textarea>
+                        <textarea name="message" placeholder="{{ __('Your Message') }}" rows="5" required>{{ old('message') }}</textarea>
                     </div>
                     <button type="submit" class="btn btn-primary">{{ __('Send Message') }}</button>
                 </form>

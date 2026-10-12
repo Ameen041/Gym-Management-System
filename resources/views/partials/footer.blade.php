@@ -14,7 +14,7 @@
             <div class="footer-col">
                 <h4 class="footer-title">{{ __('Quick Links') }}</h4>
                 <ul class="footer-links">
-                    <li><a href="#">{{ __('Home') }}</a></li>
+                    <li><a href="{{ route('home') }}">{{ __('Home') }}</a></li>
                     <li><a href="#trainers">{{ __('Trainers') }}</a></li>
                     <li><a href="#programs">{{ __('Programs') }}</a></li>
                     <li><a href="#pricing">{{ __('Packages') }}</a></li>
@@ -30,13 +30,6 @@
                 </ul>
             </div>
             
-            <div class="footer-col">
-                <h4 class="footer-title">{{ __('Newsletter') }}</h4>
-                <form class="newsletter-form">
-                    <input type="email" placeholder="{{ __('Your Email') }}" required>
-                    <button type="submit" class="btn btn-primary">{{ __('Subscribe') }}</button>
-                </form>
-            </div>
         </div>
         
         <div class="footer-bottom">
