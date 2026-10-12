@@ -58,7 +58,7 @@ class AuthController extends Controller
                 $request->session()->regenerateToken();
     
                 return redirect()->route('login.form')
-                    ->with('error', 'Your account is suspended. Please contact the administrator.');
+                    ->with('error', __('Your account is suspended. Please contact the administrator.'));
             }
     
             return match ($user->role) {
@@ -69,7 +69,7 @@ class AuthController extends Controller
         }
     
         return back()->withErrors([
-            'email' => 'Invalid credentials. Please try again.'
+            'email' => __('Invalid credentials. Please try again.')
         ]);
     }
 
@@ -163,7 +163,7 @@ public function logout(Request $request)
         $plan = WorkoutPlan::where('user_id', $user->id)->first();
 
         if (!$plan) {
-            return redirect()->route('trainee.dashboard')->with('error', 'No workout plan available.');
+            return redirect()->route('trainee.dashboard')->with('error', __('No workout plan available.'));
         }
 
         return view('workout-plan', compact('plan'));

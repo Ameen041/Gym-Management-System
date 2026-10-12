@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\payment;
+use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
@@ -46,7 +46,7 @@ class AdminUserController extends Controller
         ]);
         $data['password'] = Hash::make($data['password']);
         User::create($data);
-        return redirect()->route('admin.users.index')->with('status','User created successfully.');
+        return redirect()->route('admin.users.index')->with('status',__('User created successfully.'));
     }
 
     public function edit($id)
@@ -67,15 +67,15 @@ class AdminUserController extends Controller
         if (!empty($data['password'])) $data['password'] = Hash::make($data['password']);
         else unset($data['password']);
         $user->update($data);
-        return redirect()->route('admin.users.index')->with('status','User updated.');
+        return redirect()->route('admin.users.index')->with('status',__('User updated.'));
     }
 
     public function destroy($id)
     {
         $user = User::findOrFail($id);
-        if (auth()->id() === $user->id) return back()->with('status',"You can't delete your own account.");
+        if (auth()->id() === $user->id) return back()->with('status', __("You can't delete your own account."));
         $user->delete();
-        return redirect()->route('admin.users.index')->with('status','User deleted.');
+        return redirect()->route('admin.users.index')->with('status',__('User deleted.'));
     }
 
 
@@ -84,17 +84,17 @@ class AdminUserController extends Controller
     $user = User::findOrFail($id);
 
     if (auth()->id() === $user->id) {
-        return back()->with('status', "You can't suspend your own account.");
+        return back()->with('status', __("You can't suspend your own account."));
     }
 
     if ($user->role === 'admin') {
-        return back()->with('status', "You can't suspend an admin.");
+        return back()->with('status', __("You can't suspend an admin."));
     }
 
     $user->is_active = !$user->is_active;
     $user->save();
 
-    return back()->with('status', 'User status updated: '.($user->is_active ? 'Activated' : 'Suspended'));
+    return back()->with('status', __('User status updated: :status', ['status' => $user->is_active ? __('Activated') : __('Suspended')]));
 }
 
 public function payments($id)
@@ -105,7 +105,7 @@ public function payments($id)
     if ($user->role !== 'trainee') {
         return redirect()
             ->route('admin.users.index')
-            ->with('status', 'Payments can only be managed for trainees.');
+            ->with('status', __('Payments can only be managed for trainees.'));
     }
 
     $payments = Payment::where('user_id', $user->id)
@@ -136,7 +136,7 @@ public function storePayment(Request $request, $id)
 
     return redirect()
         ->route('admin.users.payments', $user->id)
-        ->with('status', 'Payment recorded successfully.');
+        ->with('status', __('Payment recorded successfully.'));
 }
 
 }

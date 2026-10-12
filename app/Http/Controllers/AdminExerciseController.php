@@ -39,7 +39,7 @@ class AdminExerciseController extends Controller
 
         Exercise::create($data);
 
-        return redirect()->route('admin.exercises.index')->with('status', 'Exercise created successfully.');
+        return redirect()->route('admin.exercises.index')->with('status', __('Exercise created successfully.'));
     }
 
     public function edit($id)
@@ -54,7 +54,7 @@ class AdminExerciseController extends Controller
 
         $exercise->update($this->validated($request, $exercise));
 
-        return redirect()->route('admin.exercises.index')->with('status', 'Exercise updated successfully.');
+        return redirect()->route('admin.exercises.index')->with('status', __('Exercise updated successfully.'));
     }
 
     public function destroy($id)
@@ -65,19 +65,24 @@ class AdminExerciseController extends Controller
         $this->deleteFile($exercise->image_path);
         $exercise->delete();
 
-        return redirect()->route('admin.exercises.index')->with('status', 'Exercise deleted.');
+        return redirect()->route('admin.exercises.index')->with('status', __('Exercise deleted.'));
     }
 
     private function validated(Request $request, ?Exercise $exercise = null): array
     {
         $data = $request->validate([
             'name'         => ['required', 'string', 'max:255'],
+            'name_ar'      => ['nullable', 'string', 'max:255'],
             'muscle_group' => ['required', Rule::in(array_keys(Exercise::MUSCLE_GROUPS))],
             'equipment'    => ['nullable', 'string', 'max:100'],
+            'equipment_ar' => ['nullable', 'string', 'max:100'],
             'difficulty'   => ['required', Rule::in(array_keys(Exercise::DIFFICULTIES))],
             'description'  => ['nullable', 'string'],
+            'description_ar'  => ['nullable', 'string'],
             'instructions' => ['nullable', 'string'],
+            'instructions_ar' => ['nullable', 'string'],
             'tips'         => ['nullable', 'string'],
+            'tips_ar'      => ['nullable', 'string'],
             'video_url'    => ['nullable', 'url', 'max:255'],
             'video_file'   => ['nullable', 'file', 'mimetypes:video/mp4,video/webm,video/ogg,video/quicktime', 'max:102400'],
             'image_file'   => ['nullable', 'image', 'max:4096'],

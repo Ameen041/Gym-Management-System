@@ -163,19 +163,25 @@ public function paymentsDashboard(Request $request)
     $yearlyTotal = (clone $yearlyQuery)->sum('amount');
     $yearlyCount = (clone $yearlyQuery)->count();
 
+    // Grouped in PHP so it works on MySQL, PostgreSQL and SQLite alike
     $yearlyByMonth = (clone $yearlyQuery)
-        ->selectRaw('MONTH(paid_at) as month, SUM(amount) as total, COUNT(*) as count')
-        ->groupBy(DB::raw('MONTH(paid_at)'))
-        ->orderBy('month')
-        ->get();
+        ->get(['paid_at', 'amount'])
+        ->groupBy(fn ($p) => Carbon::parse($p->paid_at)->month)
+        ->map(fn ($rows, $month) => (object) [
+            'month' => $month,
+            'total' => $rows->sum('amount'),
+            'count' => $rows->count(),
+        ])
+        ->sortKeys()
+        ->values();
 
-    $byMethod = Payment::selectRaw('COALESCE(method,"-") as method, SUM(amount) as total, COUNT(*) as count')
+    $byMethod = Payment::selectRaw("COALESCE(method,'-') as method, SUM(amount) as total, COUNT(*) as count")
         ->whereBetween('paid_at', [$monthStart, $monthEnd])
-        ->groupBy(DB::raw('COALESCE(method,"-")'))
+        ->groupBy(DB::raw("COALESCE(method,'-')"))
         ->orderByDesc('total')
         ->get();
 
-    $methods = Payment::selectRaw('COALESCE(method,"-") as method')
+    $methods = Payment::selectRaw("COALESCE(method,'-') as method")
         ->distinct()
         ->orderBy('method')
         ->pluck('method');

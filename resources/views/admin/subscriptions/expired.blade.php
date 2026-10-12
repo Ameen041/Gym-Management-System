@@ -1,24 +1,24 @@
 @extends('layouts.admin')
-@section('title', 'Expired Subscriptions')
-@section('page-title', 'Expired Subscriptions')
+@section('title', __('Expired Subscriptions'))
+@section('page-title', __('Expired Subscriptions'))
 
 @section('content')
 <div class="page-header">
-  <h1>Expired Subscriptions</h1>
-  <p>Manage expired user subscriptions</p>
+  <h1>{{ __('Expired Subscriptions') }}</h1>
+  <p>{{ __('Manage expired user subscriptions') }}</p>
 </div>
 
 <div class="card">
   <div style="margin-bottom: 24px;">
-    <h2 style="color: var(--dark); margin-bottom: 12px;">Expired Subscriptions</h2>
+    <h2 style="color: var(--dark); margin-bottom: 12px;">{{ __('Expired Subscriptions') }}</h2>
     
     <form method="GET" class="filter-bar">
-      <input type="text" name="name" class="filter-input" placeholder="Search by trainee name..." value="{{ request('name') }}">
-      <button class="btn btn-primary" type="submit">Search</button>
+      <input type="text" name="name" class="filter-input" placeholder="{{ __('Search by trainee name...') }}" value="{{ request('name') }}">
+      <button class="btn btn-primary" type="submit">{{ __('Search') }}</button>
       
       @if(request('name'))
         <a href="{{ route('admin.subscriptions.expired') }}" class="btn btn-secondary">
-          Reset
+          {{ __('Reset') }}
         </a>
       @endif
     </form>
@@ -27,8 +27,8 @@
   @if($expiredTrainees->isEmpty())
     <div class="empty-state">
       <i class="fas fa-check-circle" style="color: var(--success);"></i>
-      <h3>All subscriptions are active</h3>
-      <p>No expired subscriptions found. Great job!</p>
+      <h3>{{ __('All subscriptions are active') }}</h3>
+      <p>{{ __('No expired subscriptions found. Great job!') }}</p>
     </div>
   @else
     <div class="table-wrapper">
@@ -36,9 +36,9 @@
         <thead>
           <tr>
             <th>#</th>
-            <th>Trainee</th>
-            <th>Email</th>
-            <th style="width: 180px;">Actions</th>
+            <th>{{ __('Trainee') }}</th>
+            <th>{{ __('Email') }}</th>
+            <th style="width: 180px;">{{ __('Actions') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -60,12 +60,12 @@
                 <div style="display: flex; gap: 8px;">
                   <a href="{{ route('admin.users.payments', $u->id) }}" class="btn btn-sm btn-primary">
                     <i class="fas fa-credit-card"></i>
-                    Add Payment
+                    {{ __('Add Payment') }}
                   </a>
                   <form action="{{ route('admin.users.toggle', $u->id) }}" method="POST" style="display: inline">
                     @csrf
-                    <button class="btn btn-sm {{ $u->is_active ? 'btn-danger' : 'btn-success' }}" onclick="return confirm('{{ $u->is_active ? 'Suspend' : 'Activate' }} this user?')">
-                      {{ $u->is_active ? 'Suspend' : 'Activate' }}
+                    <button class="btn btn-sm {{ $u->is_active ? 'btn-danger' : 'btn-success' }}" onclick="return confirm(@js($u->is_active ? __('Suspend this user?') : __('Activate this user?')))">
+                      {{ $u->is_active ? __('Suspend') : __('Activate') }}
                     </button>
                   </form>
                 </div>

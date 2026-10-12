@@ -24,7 +24,7 @@ class TraineeController extends Controller
         $workoutPlan = WorkoutPlan::where('user_id', $user->id)->first();
     
         if ($workoutPlan && $trainerId) {
-            return redirect()->route('trainee.schedule')->with('error', 'You already have a workout plan. Please delete it before requesting a new one.');
+            return redirect()->route('trainee.schedule')->with('error', __('You already have a workout plan. Please delete it before requesting a new one.'));
         }
     
         if ($workoutPlan) {
@@ -78,7 +78,7 @@ class TraineeController extends Controller
     if (!$hasActivePayment) {
         return redirect()
             ->route('trainee.dashboard')
-            ->with('error', 'You must have an active subscription to request a workout plan.');
+            ->with('error', __('You must have an active subscription to request a workout plan.'));
     }
 
     $data = $request->validate([
@@ -107,7 +107,7 @@ class TraineeController extends Controller
 
     return redirect()
         ->route('trainee.dashboard')
-        ->with('success', 'Request has been sent to the trainer successfully');
+        ->with('success', __('Request has been sent to the trainer successfully'));
 }
 
 public function requestNutrition(Request $request)
@@ -122,7 +122,7 @@ public function requestNutrition(Request $request)
     if (!$hasActivePayment) {
         return redirect()
             ->route('trainee.dashboard')
-            ->with('error', 'You must have an active subscription to request a nutrition plan.');
+            ->with('error', __('You must have an active subscription to request a nutrition plan.'));
     }
 
     $data = $request->validate([
@@ -151,7 +151,7 @@ public function requestNutrition(Request $request)
 
     return redirect()
         ->route('trainee.dashboard')
-        ->with('success', 'Request has been sent to the trainer successfully');
+        ->with('success', __('Request has been sent to the trainer successfully'));
 }
 
     /* ==================== TRAINER DISPLAY METHODS ==================== */
@@ -198,6 +198,6 @@ public function updateProfile(Request $request)
     $user->weight = $data['weight'] ?? null;
     $user->save();
 
-    return redirect()->route('trainee.dashboard')->with('success', 'Profile updated successfully.');
+    return redirect()->route('trainee.dashboard')->with('success', __('Profile updated successfully.'));
 }
 }

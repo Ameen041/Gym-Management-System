@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}" dir="{{ app()->isLocale('ar') ? 'rtl' : 'ltr' }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>@yield('title','Admin') | Ameen Gym</title>
-  @include('partials.pwa')
+  <title>@yield('title', __('Admin')) | {{ __('Ameen Gym') }}</title>
+  @include('partials.head')
   <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -16,8 +16,8 @@
         <div class="logo">
           <i class="fas fa-dumbbell"></i>
           <div>
-            <h1>Ameen Gym</h1>
-            <p>Admin Panel</p>
+            <h1>{{ __('Ameen Gym') }}</h1>
+            <p>{{ __('Admin Panel') }}</p>
           </div>
         </div>
       </div>
@@ -25,37 +25,37 @@
       <nav class="sidebar-nav">
         <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard')?'active':'' }}">
           <i class="fas fa-chart-line"></i>
-          <span>Dashboard</span>
+          <span>{{ __('Dashboard') }}</span>
         </a>
         
         <a href="{{ route('admin.users.index') }}" class="{{ request()->routeIs('admin.users.*')?'active':'' }}">
           <i class="fas fa-users"></i>
-          <span>Users</span>
+          <span>{{ __('Users') }}</span>
         </a>
         
         <a href="{{ route('admin.requests.index') }}" class="{{ request()->routeIs('admin.requests.*')?'active':'' }}">
           <i class="fas fa-envelope"></i>
-          <span>Requests</span>
+          <span>{{ __('Requests') }}</span>
         </a>
         
         <a href="{{ route('admin.templates.index') }}" class="{{ request()->routeIs('admin.templates.*')?'active':'' }}">
           <i class="fas fa-file-alt"></i>
-          <span>Templates</span>
+          <span>{{ __('Templates') }}</span>
         </a>
         
         <a href="{{ route('admin.exercises.index') }}" class="{{ request()->routeIs('admin.exercises.*')?'active':'' }}">
           <i class="fas fa-dumbbell"></i>
-          <span>Exercises</span>
+          <span>{{ __('Exercises') }}</span>
         </a>
         
         <a href="{{ route('admin.payments.dashboard') }}" class="{{ request()->routeIs('admin.payments.*')?'active':'' }}">
           <i class="fas fa-credit-card"></i>
-          <span>Payments</span>
+          <span>{{ __('Payments') }}</span>
         </a>
         
         <a href="{{ route('admin.subscriptions.expired') }}" class="{{ request()->routeIs('admin.subscriptions.*')?'active':'' }}">
           <i class="fas fa-clock"></i>
-          <span>Expired</span>
+          <span>{{ __('Expired') }}</span>
         </a>
       </nav>
 
@@ -64,7 +64,7 @@
           @csrf
           <button type="submit" class="logout-btn">
             <i class="fas fa-sign-out-alt"></i>
-            <span>Logout</span>
+            <span>{{ __('Logout') }}</span>
           </button>
         </form>
       </div>
@@ -78,12 +78,13 @@
           <button class="sidebar-toggle">
             <i class="fas fa-bars"></i>
           </button>
-          <h2>@yield('page-title', 'Dashboard')</h2>
+          <h2>@yield('page-title', __('Dashboard'))</h2>
         </div>
         <div class="header-right">
+          @include('partials.lang-switch', ['class' => 'btn btn-secondary btn-sm'])
           <div class="admin-info">
             <i class="fas fa-user-circle"></i>
-            <span>{{ auth()->user()->name ?? 'Admin' }}</span>
+            <span>{{ auth()->user()->name ?? __('Admin') }}</span>
           </div>
         </div>
       </header>
@@ -116,7 +117,7 @@
 
       <!-- Footer -->
       <footer class="main-footer">
-        <p>© {{ date('Y') }} Ameen Gym — Admin Panel v1.0</p>
+        <p>© {{ date('Y') }} {{ __('Ameen Gym') }} — {{ __('Admin Panel') }} v1.0</p>
       </footer>
     </main>
   </div>

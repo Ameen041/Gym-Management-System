@@ -8,10 +8,14 @@ use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AdminTemplateController;
 use App\Http\Controllers\AdminExerciseController;
 use App\Http\Controllers\ExerciseController;
+use App\Http\Controllers\LocaleController;
 
 
 
 Route::get('/', [AuthController::class, 'showLoginForm'])->name('home'); 
+
+// Language switch (English / Arabic)
+Route::get('/lang/{locale}', [LocaleController::class, 'switch'])->name('lang.switch');
 
 Route::post('/login', [AuthController::class, 'login'])->name('login'); 
 
@@ -73,7 +77,7 @@ Route::middleware(['auth','active','role:admin'])
         Route::get('/users/create',     [AdminUserController::class, 'create'])->name('users.create');
         Route::post('/users',           [AdminUserController::class, 'store'])->name('users.store');
         Route::get('/users/{id}/edit',  [AdminUserController::class, 'edit'])->name('users.edit');
-        Route::post('/users/{id}',      [AdminUserController::class, 'update'])->name('users.update');
+        Route::match(['post', 'put'], '/users/{id}', [AdminUserController::class, 'update'])->name('users.update');
         Route::delete('/users/{id}',    [AdminUserController::class, 'destroy'])->name('users.destroy');
         Route::get('/users/{id}/payments', [AdminUserController::class, 'payments'])
             ->name('users.payments');

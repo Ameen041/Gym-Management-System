@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="{{ app()->getLocale() }}" dir="{{ app()->isLocale('ar') ? 'rtl' : 'ltr' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trainer Dashboard</title>
-    @include('partials.pwa')
+    <title>{{ __('Trainer Dashboard') }}</title>
+    @include('partials.head')
 
     <link rel="stylesheet" href="{{ asset('css/trainer-dashboard.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -33,8 +33,8 @@
     }
 
     $planLabel = $selectedType === 'workout'
-        ? 'Workout Plan'
-        : ($selectedType === 'nutrition' ? 'Nutrition Plan' : null);
+        ? __('Workout Plan')
+        : ($selectedType === 'nutrition' ? __('Nutrition Plan') : null);
 
     $weekDays = ['Saturday','Sunday','Monday','Tuesday','Wednesday','Thursday','Friday'];
 @endphp
@@ -59,14 +59,14 @@
         <div class="brand">
             <div class="brand-icon"><i class="fas fa-dumbbell"></i></div>
             <div class="brand-text">
-                <h1>Trainer Dashboard</h1>
-                <p>Everything you need to manage trainee plans</p>
+                <h1>{{ __('Trainer Dashboard') }}</h1>
+                <p>{{ __('Everything you need to manage trainee plans') }}</p>
             </div>
         </div>
 
         <div class="topbar-right">
             {{-- Requests Bell --}}
-            <a href="{{ route('trainer.requests') }}" class="notification-btn" title="Requests">
+            <a href="{{ route('trainer.requests') }}" class="notification-btn" title="{{ __('Requests') }}">
                 <i class="fas fa-bell"></i>
                 @if($totalPending > 0)
                     <span class="notification-badge">{{ $totalPending }}</span>
@@ -74,21 +74,23 @@
             </a>
 
             <button type="button" class="btn btn-primary" data-install-app hidden>
-                <i class="fas fa-download"></i> Install App
+                <i class="fas fa-download"></i> {{ __('Install App') }}
             </button>
 
             <a href="{{ route('exercises.index') }}" class="btn btn-ghost">
-                <i class="fas fa-dumbbell"></i> Exercises
+                <i class="fas fa-dumbbell"></i> {{ __('Exercises') }}
             </a>
 
+            @include('partials.lang-switch')
+
             <button type="button" class="btn btn-ghost" id="toggleProfileBtn">
-                <i class="fas fa-user"></i> Profile
+                <i class="fas fa-user"></i> {{ __('Profile') }}
             </button>
 
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
                 <button type="submit" class="btn btn-danger">
-                    <i class="fas fa-sign-out-alt"></i> Logout
+                    <i class="fas fa-sign-out-alt"></i> {{ __('Logout') }}
                 </button>
             </form>
         </div>
@@ -97,21 +99,21 @@
     {{-- Welcome --}}
     <div class="welcome">
         <div class="welcome-left">
-            <img src="{{ $trainerPhoto }}" class="avatar" alt="Trainer">
+            <img src="{{ $trainerPhoto }}" class="avatar" alt="{{ __('Trainer') }}">
             <div>
-                <h2>Welcome back, {{ $trainer?->name ?? 'Trainer' }} 👋</h2>
+                <h2>{{ __('Welcome back, :name', ['name' => $trainer?->name ?? __('Trainer')]) }} 👋</h2>
                 <p>
-                    You have <b>{{ $totalPending }}</b> pending request(s).
+                    {{ __('You have') }} <b>{{ $totalPending }}</b> {{ __('pending request(s).') }}
                     @if($trainee)
-                        You are creating a
+                        {{ __('You are creating a') }}
                         @if($planLabel)
                             <b>{{ $planLabel }}</b>
                         @else
-                            plan
+                            {{ __('plan') }}
                         @endif
-                        for <b>{{ $trainee->name }}</b>.
+                        {{ __('for') }} <b>{{ $trainee->name }}</b>.
                     @else
-                        Select a trainee from the Requests page (bell icon) to start.
+                        {{ __('Select a trainee from the Requests page (bell icon) to start.') }}
                     @endif
                 </p>
             </div>
@@ -121,18 +123,18 @@
             @if(!$trainee)
                 <div class="hint-pill">
                     <i class="fas fa-lightbulb"></i>
-                    Tip: Click the bell to pick a trainee.
+                    {{ __('Tip: Click the bell to pick a trainee.') }}
                 </div>
             @else
                 <div class="hint-pill">
                     <i class="fas fa-bolt"></i>
-                    Ready to build
+                    {{ __('Ready to build') }}
                     @if($planLabel)
                         <b>{{ $planLabel }}</b>
                     @else
-                        a plan
+                        {{ __('a plan') }}
                     @endif
-                    for <b>{{ $trainee->name }}</b>
+                    {{ __('for') }} <b>{{ $trainee->name }}</b>
                 </div>
             @endif
         </div>
@@ -143,7 +145,7 @@
         <div class="stat-card">
             <div class="stat-icon"><i class="fas fa-dumbbell"></i></div>
             <div>
-                <div class="stat-label">Workout Requests</div>
+                <div class="stat-label">{{ __('Workout Requests') }}</div>
                 <div class="stat-value">{{ isset($pendingRequests) ? $pendingRequests->count() : 0 }}</div>
             </div>
         </div>
@@ -151,7 +153,7 @@
         <div class="stat-card">
             <div class="stat-icon"><i class="fas fa-utensils"></i></div>
             <div>
-                <div class="stat-label">Nutrition Requests</div>
+                <div class="stat-label">{{ __('Nutrition Requests') }}</div>
                 <div class="stat-value">{{ isset($pendingNutritionRequests) ? $pendingNutritionRequests->count() : 0 }}</div>
             </div>
         </div>
@@ -159,8 +161,8 @@
         <div class="stat-card">
             <div class="stat-icon"><i class="fas fa-users"></i></div>
             <div>
-                <div class="stat-label">Current Trainee</div>
-                <div class="stat-value">{{ $trainee?->name ?? 'None' }}</div>
+                <div class="stat-label">{{ __('Current Trainee') }}</div>
+                <div class="stat-value">{{ $trainee?->name ?? __('None') }}</div>
             </div>
         </div>
     </div>
@@ -170,44 +172,44 @@
         <div class="card-head">
             <div class="card-title">
                 <i class="fas fa-id-card"></i>
-                <h3>Your Profile</h3>
+                <h3>{{ __('Your Profile') }}</h3>
             </div>
             <button class="btn" type="button" id="closeProfileBtn">
-                <i class="fas fa-times"></i> Close
+                <i class="fas fa-times"></i> {{ __('Close') }}
             </button>
         </div>
 
         <div class="profile-box">
             <div class="welcome-left" style="margin-bottom:12px;">
-                <img src="{{ $trainerPhoto }}" class="avatar" alt="Trainer">
+                <img src="{{ $trainerPhoto }}" class="avatar" alt="{{ __('Trainer') }}">
                 <div>
-                    <h2 style="font-size:16px;margin:0">{{ $trainer?->name ?? 'Trainer' }}</h2>
+                    <h2 style="font-size:16px;margin:0">{{ $trainer?->name ?? __('Trainer') }}</h2>
                     <p class="muted small">{{ $trainer?->email ?? '' }}</p>
                 </div>
             </div>
 
             <div class="profile-grid">
                 <div class="info-item">
-                    <span class="info-label">Age</span>
+                    <span class="info-label">{{ __('Age') }}</span>
                     <span class="info-value">{{ $trainer?->age ?? '—' }}</span>
                 </div>
                 <div class="info-item">
-                    <span class="info-label">Height</span>
-                    <span class="info-value">{{ $trainer?->height ? $trainer->height.' cm' : '—' }}</span>
+                    <span class="info-label">{{ __('Height') }}</span>
+                    <span class="info-value">{{ $trainer?->height ? $trainer->height.' '.__('cm') : '—' }}</span>
                 </div>
                 <div class="info-item">
-                    <span class="info-label">Weight</span>
-                    <span class="info-value">{{ $trainer?->weight ? $trainer->weight.' kg' : '—' }}</span>
+                    <span class="info-label">{{ __('Weight') }}</span>
+                    <span class="info-value">{{ $trainer?->weight ? $trainer->weight.' '.__('kg') : '—' }}</span>
                 </div>
                 <div class="info-item">
-                    <span class="info-label">Role</span>
-                    <span class="info-value">Trainer</span>
+                    <span class="info-label">{{ __('Role') }}</span>
+                    <span class="info-value">{{ __('Trainer') }}</span>
                 </div>
             </div>
 
             <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;">
                 <button type="button" class="btn btn-ghost" id="toggleEditBtn">
-                    <i class="fas fa-user-edit"></i> Edit Profile
+                    <i class="fas fa-user-edit"></i> {{ __('Edit Profile') }}
                 </button>
             </div>
 
@@ -220,33 +222,33 @@
 
                 <div class="grid two-col">
                     <div class="form-group">
-                        <label>Name</label>
+                        <label>{{ __('Name') }}</label>
                         <input class="form-control" type="text" name="name" value="{{ $trainer?->name ?? '' }}" required>
                     </div>
                     <div class="form-group">
-                        <label>Age</label>
+                        <label>{{ __('Age') }}</label>
                         <input class="form-control" type="number" name="age" value="{{ $trainer?->age ?? '' }}">
                     </div>
                 </div>
 
                 <div class="grid two-col">
                     <div class="form-group">
-                        <label>Height (cm)</label>
+                        <label>{{ __('Height (cm)') }}</label>
                         <input class="form-control" type="number" name="height" value="{{ $trainer?->height ?? '' }}">
                     </div>
                     <div class="form-group">
-                        <label>Weight (kg)</label>
+                        <label>{{ __('Weight (kg)') }}</label>
                         <input class="form-control" type="number" name="weight" value="{{ $trainer?->weight ?? '' }}">
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label>Profile Photo</label>
+                    <label>{{ __('Profile Photo') }}</label>
                     <input class="form-control" type="file" name="photo" accept="image/*">
                 </div>
 
                 <button type="submit" class="btn btn-primary w-100">
-                    <i class="fas fa-save"></i> Save Changes
+                    <i class="fas fa-save"></i> {{ __('Save Changes') }}
                 </button>
             </form>
         </div>
@@ -257,7 +259,7 @@
 
         @if(!$selectedType)
             <div class="card" style="margin-top:14px;">
-                <b>⚠️ Please open the plan form from the Requests page.</b>
+                <b>{{ __('⚠️ Please open the plan form from the Requests page.') }}</b>
             </div>
         @endif
 
@@ -269,7 +271,7 @@
                     <div class="card-head">
                         <div class="card-title">
                             <i class="fas fa-running"></i>
-                            <h3>Add Workout Plan</h3>
+                            <h3>{{ __('Add Workout Plan') }}</h3>
                         </div>
                     </div>
 
@@ -279,15 +281,15 @@
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
 
                         <div class="form-group">
-                            <label>Plan Title</label>
-                            <input type="text" name="title" required class="form-control" placeholder="e.g. Strength Plan - Week 1">
+                            <label>{{ __('Plan Title') }}</label>
+                            <input type="text" name="title" required class="form-control" placeholder="{{ __('e.g. Strength Plan - Week 1') }}">
                         </div>
 
                         @if(isset($workoutTemplates) && $workoutTemplates->count())
                             <div class="form-group">
-                                <label>Load Workout Template</label>
+                                <label>{{ __('Load Workout Template') }}</label>
                                 <select class="form-control" onchange="loadWorkoutTemplateWeekly(this)">
-                                    <option value="">-- Select Template --</option>
+                                    <option value="">{{ __('-- Select Template --') }}</option>
                                     @foreach($workoutTemplates as $tpl)
                                         <option value="{{ $tpl->id }}" data-body="{{ trim($tpl->plan_details) }}">
                                             {{ $tpl->title }}
@@ -303,11 +305,11 @@
                                     <div class="day-head">
                                         <div class="day-title">
                                             <i class="fas fa-calendar-day"></i>
-                                            <h4>{{ $day }}</h4>
+                                            <h4>{{ __($day) }}</h4>
                                         </div>
 
                                         <button type="button" class="add-mini-btn" data-type="workout" data-day="{{ $day }}">
-                                            <i class="fas fa-plus"></i> Add Exercise
+                                            <i class="fas fa-plus"></i> {{ __('Add Exercise') }}
                                         </button>
                                     </div>
 
@@ -316,17 +318,17 @@
                                             <input type="hidden" name="day[]" value="{{ $day }}">
 
                                             <select name="muscle[]" required>
-                                                <option value="">Muscle</option>
+                                                <option value="">{{ __('Muscle') }}</option>
                                                 @foreach(['Chest','Back','Shoulders','Legs','Abs','Biceps','Triceps'] as $muscle)
-                                                    <option value="{{ $muscle }}">{{ $muscle }}</option>
+                                                    <option value="{{ $muscle }}">{{ \App\Models\Exercise::translateMuscleName($muscle) }}</option>
                                                 @endforeach
                                             </select>
 
-                                            <input type="text" name="exercise[]" placeholder="Exercise (Full name)" required>
-                                            <input type="number" name="sets[]" placeholder="Sets" required>
-                                            <input type="text" name="reps[]" placeholder="Reps (e.g. 10-12)" required>
+                                            <input type="text" name="exercise[]" placeholder="{{ __('Exercise (Full name)') }}" required>
+                                            <input type="number" name="sets[]" placeholder="{{ __('Sets') }}" required>
+                                            <input type="text" name="reps[]" placeholder="{{ __('Reps (e.g. 10-12)') }}" required>
 
-                                            <button type="button" class="remove-row" onclick="removeWorkoutRow(this)" title="Remove Row">
+                                            <button type="button" class="remove-row" onclick="removeWorkoutRow(this)" title="{{ __('Remove Row') }}">
                                                 <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </div>
@@ -336,7 +338,7 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-paper-plane"></i> Submit Workout Plan
+                            <i class="fas fa-paper-plane"></i> {{ __('Submit Workout Plan') }}
                         </button>
                     </form>
                 </div>
@@ -348,7 +350,7 @@
                     <div class="card-head">
                         <div class="card-title">
                             <i class="fas fa-utensils"></i>
-                            <h3>Add Nutrition Plan</h3>
+                            <h3>{{ __('Add Nutrition Plan') }}</h3>
                         </div>
                     </div>
 
@@ -358,15 +360,15 @@
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
 
                         <div class="form-group">
-                            <label>Plan Title</label>
-                            <input type="text" name="title" required class="form-control" placeholder="e.g. Cutting Plan - Week 1">
+                            <label>{{ __('Plan Title') }}</label>
+                            <input type="text" name="title" required class="form-control" placeholder="{{ __('e.g. Cutting Plan - Week 1') }}">
                         </div>
 
                         @if(isset($nutritionTemplates) && $nutritionTemplates->count())
                             <div class="form-group">
-                                <label>Load Nutrition Template</label>
+                                <label>{{ __('Load Nutrition Template') }}</label>
                                 <select class="form-control" onchange="loadNutritionTemplateWeekly(this)">
-                                    <option value="">-- Select Template --</option>
+                                    <option value="">{{ __('-- Select Template --') }}</option>
                                     @foreach($nutritionTemplates as $tpl)
                                         <option value="{{ $tpl->id }}" data-body="{{ trim($tpl->plan_details) }}">
                                             {{ $tpl->title }}
@@ -382,11 +384,11 @@
                                     <div class="day-head">
                                         <div class="day-title">
                                             <i class="fas fa-calendar-day"></i>
-                                            <h4>{{ $day }}</h4>
+                                            <h4>{{ __($day) }}</h4>
                                         </div>
 
                                         <button type="button" class="add-mini-btn" data-type="nutrition" data-day="{{ $day }}">
-                                            <i class="fas fa-plus"></i> Add Meal
+                                            <i class="fas fa-plus"></i> {{ __('Add Meal') }}
                                         </button>
                                     </div>
 
@@ -394,14 +396,14 @@
                                         <div class="nutrition-row">
                                             <input type="hidden" name="day[]" value="{{ $day }}">
 
-                                            <input type="number" name="meal_number[]" placeholder="Meal #" min="1" required>
-                                            <input type="text" name="description[]" placeholder="Meal Description (Full text)" required>
-                                            <input type="number" name="calories[]" placeholder="Calories" required>
-                                            <input type="number" name="protein[]" placeholder="Protein (g)" step="0.1" required>
-                                            <input type="number" name="carbs[]" placeholder="Carbs (g)" step="0.1" required>
-                                            <input type="number" name="fat[]" placeholder="Fat (g)" step="0.1" required>
+                                            <input type="number" name="meal_number[]" placeholder="{{ __('Meal #') }}" min="1" required>
+                                            <input type="text" name="description[]" placeholder="{{ __('Meal Description (Full text)') }}" required>
+                                            <input type="number" name="calories[]" placeholder="{{ __('Calories') }}" required>
+                                            <input type="number" name="protein[]" placeholder="{{ __('Protein (g)') }}" step="0.1" required>
+                                            <input type="number" name="carbs[]" placeholder="{{ __('Carbs (g)') }}" step="0.1" required>
+                                            <input type="number" name="fat[]" placeholder="{{ __('Fat (g)') }}" step="0.1" required>
 
-                                            <button type="button" class="remove-row" onclick="removeNutritionRow(this)" title="Remove Row">
+                                            <button type="button" class="remove-row" onclick="removeNutritionRow(this)" title="{{ __('Remove Row') }}">
                                                 <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </div>
@@ -411,7 +413,7 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100">
-                            <i class="fas fa-paper-plane"></i> Submit Nutrition Plan
+                            <i class="fas fa-paper-plane"></i> {{ __('Submit Nutrition Plan') }}
                         </button>
                     </form>
                 </div>

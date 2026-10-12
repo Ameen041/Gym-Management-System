@@ -1,11 +1,11 @@
 @extends('layouts.admin')
-@section('title', 'Payments Dashboard')
-@section('page-title', 'Payments Dashboard')
+@section('title', __('Payments Dashboard'))
+@section('page-title', __('Payments Dashboard'))
 
 @section('content')
 <div class="page-header">
-  <h1>Payments Dashboard</h1>
-  <p>Financial overview and statistics</p>
+  <h1>{{ __('Payments Dashboard') }}</h1>
+  <p>{{ __('Financial overview and statistics') }}</p>
 </div>
 
 {{-- Filters --}}
@@ -17,8 +17,8 @@
     class="filter-input date-fix"
   >
 
-  <button type="submit" class="btn btn-primary">Filter</button>
-  <a href="{{ route('admin.payments.dashboard') }}" class="btn btn-secondary">Reset</a>
+  <button type="submit" class="btn btn-primary">{{ __('Filter') }}</button>
+  <a href="{{ route('admin.payments.dashboard') }}" class="btn btn-secondary">{{ __('Reset') }}</a>
 </form>
 
 {{-- Stats --}}
@@ -28,9 +28,9 @@
       <i class="fas fa-calendar-day"></i>
     </div>
     <div class="stat-value">{{ number_format($dailyTotal, 0) }}</div>
-    <div class="stat-label">Today's Payments</div>
+    <div class="stat-label">{{ __('Today\'s Payments') }}</div>
     <div style="color: var(--gray-700); font-size: 0.875rem; margin-top: 8px;">
-      {{ $dailyCount }} transactions
+      {{ __(':count transactions', ['count' => $dailyCount]) }}
     </div>
   </div>
 
@@ -39,9 +39,9 @@
       <i class="fas fa-calendar-alt"></i>
     </div>
     <div class="stat-value">{{ number_format($monthlyTotal, 0) }}</div>
-    <div class="stat-label">This Month</div>
+    <div class="stat-label">{{ __('This Month') }}</div>
     <div style="color: var(--gray-700); font-size: 0.875rem; margin-top: 8px;">
-      {{ $monthlyCount }} transactions
+      {{ __(':count transactions', ['count' => $monthlyCount]) }}
     </div>
   </div>
 
@@ -50,9 +50,9 @@
       <i class="fas fa-calendar"></i>
     </div>
     <div class="stat-value">{{ number_format($yearlyTotal, 0) }}</div>
-    <div class="stat-label">This Year</div>
+    <div class="stat-label">{{ __('This Year') }}</div>
     <div style="color: var(--gray-700); font-size: 0.875rem; margin-top: 8px;">
-      {{ $yearlyCount }} transactions
+      {{ __(':count transactions', ['count' => $yearlyCount]) }}
     </div>
   </div>
 </div>
@@ -60,9 +60,9 @@
 {{-- Latest Payments --}}
 <div class="card">
   <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom: 16px;">
-    <h3 style="color: var(--dark); margin: 0;">Latest Payments</h3>
+    <h3 style="color: var(--dark); margin: 0;">{{ __('Latest Payments') }}</h3>
     <div style="color: var(--gray-700); font-size: 0.9rem;">
-      Showing last {{ ($dailyLatest ?? collect())->count() }} records
+      {{ __('Showing last :count records', ['count' => ($dailyLatest ?? collect())->count()]) }}
     </div>
   </div>
 
@@ -70,11 +70,11 @@
     <table class="table">
       <thead>
         <tr>
-          <th>Date</th>
-          <th>User</th>
-          <th>Amount</th>
-          <th>Method</th>
-          <th>Period</th>
+          <th>{{ __('Date') }}</th>
+          <th>{{ __('User') }}</th>
+          <th>{{ __('Amount') }}</th>
+          <th>{{ __('Method') }}</th>
+          <th>{{ __('Period') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -97,7 +97,7 @@
           <tr>
             <td colspan="5" style="text-align: center; padding: 20px; color: var(--gray-700);">
               <i class="fas fa-credit-card" style="font-size: 2rem; margin-bottom: 12px; display: block;"></i>
-              No payments found
+              {{ __('No payments found') }}
             </td>
           </tr>
         @endforelse
@@ -108,15 +108,15 @@
 
 {{-- Monthly breakdown --}}
 <div class="card">
-  <h3 style="color: var(--dark); margin-bottom: 20px;">Monthly Breakdown (Top Days)</h3>
+  <h3 style="color: var(--dark); margin-bottom: 20px;">{{ __('Monthly Breakdown (Top Days)') }}</h3>
 
   <div class="table-wrapper">
     <table class="table">
       <thead>
         <tr>
-          <th>Day</th>
-          <th>Total</th>
-          <th>Count</th>
+          <th>{{ __('Day') }}</th>
+          <th>{{ __('Total') }}</th>
+          <th>{{ __('Count') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -129,7 +129,7 @@
         @empty
           <tr>
             <td colspan="3" style="text-align:center; padding:20px; color: var(--gray-700);">
-              No data for this month
+              {{ __('No data for this month') }}
             </td>
           </tr>
         @endforelse
@@ -140,28 +140,28 @@
 
 {{-- Yearly breakdown --}}
 <div class="card">
-  <h3 style="color: var(--dark); margin-bottom: 20px;">Yearly Breakdown (by month)</h3>
+  <h3 style="color: var(--dark); margin-bottom: 20px;">{{ __('Yearly Breakdown (by month)') }}</h3>
 
   <div class="table-wrapper">
     <table class="table">
       <thead>
         <tr>
-          <th>Month</th>
-          <th>Total</th>
-          <th>Count</th>
+          <th>{{ __('Month') }}</th>
+          <th>{{ __('Total') }}</th>
+          <th>{{ __('Count') }}</th>
         </tr>
       </thead>
       <tbody>
         @forelse($yearlyByMonth as $row)
           <tr>
-            <td>{{ \Carbon\Carbon::create()->month($row->month)->format('M') }}</td>
+            <td>{{ \Carbon\Carbon::create()->month($row->month)->translatedFormat('M') }}</td>
             <td><strong>{{ number_format($row->total, 0) }}</strong></td>
             <td>{{ $row->count }}</td>
           </tr>
         @empty
           <tr>
             <td colspan="3" style="text-align:center; padding:20px; color: var(--gray-700);">
-              No data for this year
+              {{ __('No data for this year') }}
             </td>
           </tr>
         @endforelse
@@ -172,15 +172,15 @@
 
 {{-- By method --}}
 <div class="card">
-  <h3 style="color: var(--dark); margin-bottom: 20px;">This Month by Method</h3>
+  <h3 style="color: var(--dark); margin-bottom: 20px;">{{ __('This Month by Method') }}</h3>
 
   <div class="table-wrapper">
     <table class="table">
       <thead>
         <tr>
-          <th>Method</th>
-          <th>Total</th>
-          <th>Count</th>
+          <th>{{ __('Method') }}</th>
+          <th>{{ __('Total') }}</th>
+          <th>{{ __('Count') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -193,7 +193,7 @@
         @empty
           <tr>
             <td colspan="3" style="text-align:center; padding:20px; color: var(--gray-700);">
-              No method data available
+              {{ __('No method data available') }}
             </td>
           </tr>
         @endforelse

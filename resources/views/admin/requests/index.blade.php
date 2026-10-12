@@ -1,24 +1,24 @@
 @extends('layouts.admin')
-@section('title', 'Requests')
-@section('page-title', 'Requests Management')
+@section('title', __('Requests'))
+@section('page-title', __('Requests Management'))
 
 @section('content')
 <div class="page-header">
-  <h1>Requests Management</h1>
-  <p>Handle user requests and applications</p>
+  <h1>{{ __('Requests Management') }}</h1>
+  <p>{{ __('Handle user requests and applications') }}</p>
 </div>
 
 <div class="card">
   <div style="margin-bottom: 24px;">
-    <h2 style="color: var(--dark); margin-bottom: 12px;">Requests</h2>
+    <h2 style="color: var(--dark); margin-bottom: 12px;">{{ __('Requests') }}</h2>
     
     <form method="GET" class="filter-bar">
-      <input type="text" name="name" class="filter-input" placeholder="Search by trainee name" value="{{ request('name') }}">
-      <button class="btn btn-primary" type="submit">Filter</button>
+      <input type="text" name="name" class="filter-input" placeholder="{{ __('Search by trainee name') }}" value="{{ request('name') }}">
+      <button class="btn btn-primary" type="submit">{{ __('Filter') }}</button>
       
       @if(request('name'))
         <a href="{{ route('admin.requests.index') }}" class="btn btn-secondary">
-          Reset
+          {{ __('Reset') }}
         </a>
       @endif
     </form>
@@ -26,18 +26,18 @@
 
   <div class="tabs">
     <a href="{{ route('admin.requests.index', ['view' => 'pending']) }}" class="tab {{ ($view ?? 'pending') === 'pending' ? 'active' : '' }}">
-      Pending
+      {{ __('Pending') }}
     </a>
     <a href="{{ route('admin.requests.index', ['view' => 'history']) }}" class="tab {{ ($view ?? 'pending') === 'history' ? 'active' : '' }}">
-      History
+      {{ __('History') }}
     </a>
   </div>
 
   @if($requests->isEmpty())
     <div class="empty-state">
       <i class="fas fa-inbox"></i>
-      <h3>No requests found</h3>
-      <p>There are no requests matching your criteria</p>
+      <h3>{{ __('No requests found') }}</h3>
+      <p>{{ __('There are no requests matching your criteria') }}</p>
     </div>
   @else
     <div class="table-wrapper">
@@ -45,12 +45,12 @@
         <thead>
           <tr>
             <th>#</th>
-            <th>Type</th>
-            <th>Trainee</th>
-            <th>Trainer</th>
-            <th>Status</th>
-            <th>Date</th>
-            <th>Actions</th>
+            <th>{{ __('Type') }}</th>
+            <th>{{ __('Trainee') }}</th>
+            <th>{{ __('Trainer') }}</th>
+            <th>{{ __('Status') }}</th>
+            <th>{{ __('Date') }}</th>
+            <th>{{ __('Actions') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -59,18 +59,18 @@
               <td>{{ $r->id }}</td>
               <td>
                 <span class="badge {{ $r->type === 'subscription' ? 'badge-primary' : 'badge-success' }}">
-                  {{ ucfirst($r->type) }}
+                  {{ __(ucfirst($r->type)) }}
                 </span>
               </td>
               <td>{{ $r->trainee_name }}</td>
               <td>{{ $r->trainer_name }}</td>
               <td>
                 @if($r->status === 'pending')
-                  <span class="badge badge-warning">Pending</span>
+                  <span class="badge badge-warning">{{ __('Pending') }}</span>
                 @elseif($r->status === 'approved')
-                  <span class="badge badge-success">Approved</span>
+                  <span class="badge badge-success">{{ __('Approved') }}</span>
                 @else
-                  <span class="badge badge-danger">Rejected</span>
+                  <span class="badge badge-danger">{{ __('Rejected') }}</span>
                 @endif
               </td>
               <td>{{ \Carbon\Carbon::parse($r->created_at)->format('Y-m-d H:i') }}</td>
@@ -79,13 +79,13 @@
                   <form action="{{ route('admin.requests.destroy', ['type' => $r->type, 'id' => $r->id]) }}" method="POST" style="display: inline">
                     @csrf
                     @method('DELETE')
-                    <button class="btn btn-sm btn-danger" onclick="return confirm('Delete this request?')">
+                    <button class="btn btn-sm btn-danger" onclick="return confirm(@js(__('Delete this request?')))">
                       <i class="fas fa-trash"></i>
-                      Delete
+                      {{ __('Delete') }}
                     </button>
                   </form>
                 @else
-                  <span style="color: var(--gray-700); font-size: 0.875rem;">— Archived —</span>
+                  <span style="color: var(--gray-700); font-size: 0.875rem;">{{ __('— Archived —') }}</span>
                 @endif
               </td>
             </tr>

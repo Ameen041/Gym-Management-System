@@ -59,6 +59,15 @@ The system is designed for real gym environments and can be extended into a SaaS
 
 ---
 
+### 🌐 Arabic / English
+- One-click language switch (العربية / English) on every page: home, dashboards, plans, exercises and the admin panel
+- Arabic mode switches the whole layout to right-to-left (`public/css/rtl.css`) with the Tajawal font
+- The choice is remembered (session + cookie)
+- Interface texts live in `lang/ar.json`; validation messages in `lang/ar/`
+- Exercises have Arabic name, equipment, description, steps and tips (empty Arabic fields fall back to English)
+
+---
+
 ### 📱 Installable App (PWA)
 - The system can be installed on Android, iPhone and desktop like a normal app ("Install App" button)
 - Web app manifest, app icons and a service worker (`public/sw.js`) with an offline page

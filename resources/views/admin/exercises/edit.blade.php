@@ -1,6 +1,6 @@
 @extends('layouts.admin')
-@section('title', 'Edit Exercise')
-@section('page-title', 'Edit Exercise')
+@section('title', __('Edit Exercise'))
+@section('page-title', __('Edit Exercise'))
 
 @section('content')
 <div class="card">
@@ -10,9 +10,9 @@
     @include('admin.exercises._form')
 
     <div class="form-actions">
-      <a href="{{ route('admin.exercises.index') }}" class="btn btn-secondary">Cancel</a>
-      <a href="{{ route('exercises.show', $exercise) }}" class="btn btn-secondary" target="_blank"><i class="fas fa-eye"></i> Preview</a>
-      <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Update Exercise</button>
+      <a href="{{ route('admin.exercises.index') }}" class="btn btn-secondary">{{ __('Cancel') }}</a>
+      <a href="{{ route('exercises.show', $exercise) }}" class="btn btn-secondary" target="_blank"><i class="fas fa-eye"></i> {{ __('Preview') }}</a>
+      <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> {{ __('Update Exercise') }}</button>
     </div>
   </form>
 </div>

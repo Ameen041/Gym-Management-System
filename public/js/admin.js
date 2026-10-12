@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const deleteForms = document.querySelectorAll('form[onsubmit*="confirm"]');
   deleteForms.forEach(form => {
       form.addEventListener('submit', function(e) {
-          if (!confirm('Are you sure you want to delete this?')) {
+          if (!confirm((window.I18N && I18N.confirm_delete) || 'Are you sure you want to delete this?')) {
               e.preventDefault();
           }
       });
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
                   if (!field.nextElementSibling || !field.nextElementSibling.classList.contains('text-danger')) {
                       const errorMsg = document.createElement('div');
                       errorMsg.className = 'text-danger';
-                      errorMsg.textContent = 'This field is required';
+                      errorMsg.textContent = (window.I18N && I18N.field_required) || 'This field is required';
                       field.parentNode.appendChild(errorMsg);
                   }
               } else {

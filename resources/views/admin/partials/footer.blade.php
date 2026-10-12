@@ -1,3 +1,3 @@
 <footer class="admin-footer">
-  <span>© {{ date('Y') }} Ameen Gym — Admin Panel</span>
+  <span>© {{ date('Y') }} {{ __('Ameen Gym') }} — {{ __('Admin Panel') }}</span>
 </footer>

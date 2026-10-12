@@ -36,7 +36,7 @@ class AdminTemplateController extends Controller
 
         return redirect()
             ->route('admin.templates.index')
-            ->with('status','Template created successfully.');
+            ->with('status',__('Template created successfully.'));
     }
 
     public function edit($id)
@@ -63,7 +63,7 @@ class AdminTemplateController extends Controller
 
         return redirect()
             ->route('admin.templates.index')
-            ->with('status','Template updated successfully.');
+            ->with('status',__('Template updated successfully.'));
     }
 
     public function destroy($id)
@@ -73,6 +73,6 @@ class AdminTemplateController extends Controller
 
         return redirect()
             ->route('admin.templates.index')
-            ->with('status','Template deleted.');
+            ->with('status',__('Template deleted.'));
     }
 } 

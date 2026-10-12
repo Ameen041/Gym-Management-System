@@ -16,10 +16,13 @@ class ExerciseController extends Controller
             ->when($muscle && isset(Exercise::MUSCLE_GROUPS[$muscle]), fn ($q) => $q->where('muscle_group', $muscle))
             ->when($search !== '', fn ($q) => $q->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('equipment', 'like', "%{$search}%");
+                  ->orWhere('name_ar', 'like', "%{$search}%")
+                  ->orWhere('equipment', 'like', "%{$search}%")
+                  ->orWhere('equipment_ar', 'like', "%{$search}%");
             }))
             ->orderBy('name')
             ->get()
+            ->sortBy(fn ($e) => $e->display_name)
             ->sortBy(fn ($e) => array_search($e->muscle_group, array_keys(Exercise::MUSCLE_GROUPS)))
             ->values();
 
