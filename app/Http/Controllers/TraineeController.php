@@ -11,165 +11,163 @@ use App\Models\WorkoutPlan;
 use App\Models\NutritionPlan;
 use App\Models\Payment;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class TraineeController extends Controller
 {
     /* ==================== WORKOUT PLAN METHODS ==================== */
-    
+
     public function showWorkoutPlan(Request $request)
     {
-        $user = Auth::user();
-        $trainerId = $request->query('trainer_id');
-    
-        $workoutPlan = WorkoutPlan::where('user_id', $user->id)->first();
-    
-        if ($workoutPlan && $trainerId) {
-            return redirect()->route('trainee.schedule')->with('error', __('You already have a workout plan. Please delete it before requesting a new one.'));
+        $plan = WorkoutPlan::where('user_id', auth()->id())->first();
+        $trainer = $this->trainerFromQuery($request);
+
+        if ($plan && $trainer) {
+            return redirect()->route('trainee.schedule')
+                ->with('error', __('You already have a workout plan. Use "Request a new plan" first.'));
         }
-    
-        if ($workoutPlan) {
-            return view('workout-plan', [
-                'workoutPlan' => $workoutPlan,
-                'plan' => $workoutPlan,
-            ]);
+
+        if ($plan) {
+            return view('workout-plan', compact('plan'));
         }
-    
-        if ($trainerId) {
-            return view('workout-plan', [
-                'trainerId' => $trainerId,
-            ]);
+
+        if ($trainer) {
+            return view('workout-plan', ['trainerId' => $trainer->id, 'trainer' => $trainer]);
         }
-    
+
         return view('workout-plan');
     }
 
     /* ==================== NUTRITION PLAN METHODS ==================== */
-    
+
     public function showNutritionPlan(Request $request)
     {
         $plan = NutritionPlan::where('user_id', auth()->id())->first();
-    
+        $trainer = $this->trainerFromQuery($request);
+
+        if ($plan && $trainer) {
+            return redirect()->route('trainee.diet')
+                ->with('error', __('You already have a nutrition plan. Use "Request a new plan" first.'));
+        }
+
         if ($plan) {
             return view('nutrition-plan', compact('plan'));
         }
-    
-        $trainerId = $request->query('trainer_id');
-    
-        if (!$trainerId || !User::where('id', $trainerId)->exists()) {
-            return view('nutrition-plan');
+
+        if ($trainer) {
+            return view('nutrition-plan', ['trainerId' => $trainer->id, 'trainer' => $trainer]);
         }
-    
-        return view('nutrition-plan', [
-            'trainerId' => $trainerId
-        ]);
+
+        return view('nutrition-plan');
     }
 
     /* ==================== REQUEST METHODS ==================== */
-    
+
     public function requestWorkout(Request $request)
-{
-    $user = auth()->user();
-
-    $hasActivePayment = Payment::where('user_id', $user->id)
-        ->whereDate('period_start', '<=', now()->toDateString())
-        ->whereDate('period_end', '>=', now()->toDateString())
-        ->exists();
-
-    if (!$hasActivePayment) {
-        return redirect()
-            ->route('trainee.dashboard')
-            ->with('error', __('You must have an active subscription to request a workout plan.'));
+    {
+        return $this->storeRequest($request, WorkoutRequest::class,
+            __('You must have an active subscription to request a workout plan.'));
     }
 
-    $data = $request->validate([
-        'goal'          => 'required|string|max:255',
-        'notes'         => 'nullable|string',
-        'trainer_id'    => 'required|exists:users,id',
-        'body_photos'   => 'nullable|array',
-        'body_photos.*' => 'image|mimes:jpg,jpeg,png,webp|max:4096',
-    ]);
+    public function requestNutrition(Request $request)
+    {
+        return $this->storeRequest($request, NutritionRequest::class,
+            __('You must have an active subscription to request a nutrition plan.'));
+    }
 
-    $photoPaths = [];
-    if ($request->hasFile('body_photos')) {
-        foreach ($request->file('body_photos') as $file) {
-            $photoPaths[] = $file->store('body_photos', 'public');
+    private function storeRequest(Request $request, string $model, string $noSubscriptionMessage)
+    {
+        $user = auth()->user();
+
+        $hasActivePayment = Payment::where('user_id', $user->id)
+            ->whereDate('period_start', '<=', now()->toDateString())
+            ->whereDate('period_end', '>=', now()->toDateString())
+            ->exists();
+
+        if (!$hasActivePayment) {
+            return redirect()->route('trainee.dashboard')->with('error', $noSubscriptionMessage);
         }
-    }
 
-    WorkoutRequest::create([
-        'user_id'     => $user->id,
-        'trainer_id'  => $data['trainer_id'],
-        'goal'        => $data['goal'],
-        'notes'       => $data['notes'] ?? null,
-        'body_photos' => $photoPaths ? json_encode($photoPaths) : null,
-        'status'      => 'pending',
-    ]);
+        $data = $request->validate([
+            'goal'          => 'required|string|max:255',
+            'notes'         => 'nullable|string',
+            'trainer_id'    => ['required', $this->activeTrainerRule()],
+            'body_photos'   => 'nullable|array',
+            'body_photos.*' => 'image|mimes:jpg,jpeg,png,webp|max:4096',
+        ]);
 
-    return redirect()
-        ->route('trainee.dashboard')
-        ->with('success', __('Request has been sent to the trainer successfully'));
-}
+        $alreadyPending = $model::where('user_id', $user->id)
+            ->where('trainer_id', $data['trainer_id'])
+            ->where('status', 'pending')
+            ->exists();
 
-public function requestNutrition(Request $request)
-{
-    $user = auth()->user();
-
-    $hasActivePayment = Payment::where('user_id', $user->id)
-        ->whereDate('period_start', '<=', now()->toDateString())
-        ->whereDate('period_end', '>=', now()->toDateString())
-        ->exists();
-
-    if (!$hasActivePayment) {
-        return redirect()
-            ->route('trainee.dashboard')
-            ->with('error', __('You must have an active subscription to request a nutrition plan.'));
-    }
-
-    $data = $request->validate([
-        'goal'          => 'required|string|max:255',
-        'notes'         => 'nullable|string',
-        'trainer_id'    => 'required|exists:users,id',
-        'body_photos'   => 'nullable|array',
-        'body_photos.*' => 'image|mimes:jpg,jpeg,png,webp|max:4096',
-    ]);
-
-    $photoPaths = [];
-    if ($request->hasFile('body_photos')) {
-        foreach ($request->file('body_photos') as $file) {
-            $photoPaths[] = $file->store('body_photos', 'public');
+        if ($alreadyPending) {
+            return redirect()->route('trainee.dashboard')
+                ->with('error', __('You already have a pending request with this trainer.'));
         }
+
+        $photoPaths = [];
+        if ($request->hasFile('body_photos')) {
+            foreach ($request->file('body_photos') as $file) {
+                $photoPaths[] = $file->store('body_photos', 'public');
+            }
+        }
+
+        $model::create([
+            'user_id'     => $user->id,
+            'trainer_id'  => $data['trainer_id'],
+            'goal'        => $data['goal'],
+            'notes'       => $data['notes'] ?? null,
+            'body_photos' => $photoPaths ? json_encode($photoPaths) : null,
+            'status'      => 'pending',
+        ]);
+
+        return redirect()->route('trainee.dashboard')
+            ->with('success', __('Request has been sent to the trainer successfully'));
     }
 
-    NutritionRequest::create([
-        'user_id'     => $user->id,
-        'trainer_id'  => $data['trainer_id'],
-        'goal'        => $data['goal'],
-        'notes'       => $data['notes'] ?? null,
-        'body_photos' => $photoPaths ? json_encode($photoPaths) : null,
-        'status'      => 'pending',
-    ]);
+    private function trainerFromQuery(Request $request): ?User
+    {
+        $trainerId = $request->query('trainer_id');
+        if (!$trainerId) {
+            return null;
+        }
 
-    return redirect()
-        ->route('trainee.dashboard')
-        ->with('success', __('Request has been sent to the trainer successfully'));
-}
+        return User::where('id', $trainerId)->where('role', 'trainer')->where('is_active', true)->first();
+    }
 
     /* ==================== TRAINER DISPLAY METHODS ==================== */
     
     public function showTrainers(Request $request)
     {
         $type = $request->query('type');
-        $trainers = User::where('role', 'trainer')->get();
+        $trainers = User::where('role', 'trainer')->where('is_active', true)->orderBy('name')->get();
 
         return view('trainers', compact('trainers', 'type'));
     }
 
+    /* ==================== DELETE PLAN (to request a new one) ==================== */
 
+    public function deleteWorkoutPlan()
+    {
+        WorkoutPlan::where('user_id', auth()->id())->delete();
 
-public function editProfile()
-{
-    return view('trainee.profile-edit');
-}
+        return redirect()->route('trainers', ['type' => 'workout'])
+            ->with('success', __('Your plan was deleted. Choose a trainer to request a new one.'));
+    }
+
+    public function deleteNutritionPlan()
+    {
+        NutritionPlan::where('user_id', auth()->id())->delete();
+
+        return redirect()->route('trainers', ['type' => 'nutrition'])
+            ->with('success', __('Your plan was deleted. Choose a trainer to request a new one.'));
+    }
+
+    private function activeTrainerRule()
+    {
+        return Rule::exists('users', 'id')->where('role', 'trainer')->where('is_active', true);
+    }
 
 public function updateProfile(Request $request)
 {

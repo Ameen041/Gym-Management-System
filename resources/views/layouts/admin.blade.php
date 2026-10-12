@@ -48,6 +48,15 @@
           <span>{{ __('Exercises') }}</span>
         </a>
         
+        @php($unreadMessages = \App\Models\ContactMessage::where('is_read', false)->count())
+        <a href="{{ route('admin.messages.index') }}" class="{{ request()->routeIs('admin.messages.*')?'active':'' }}">
+          <i class="fas fa-inbox"></i>
+          <span>{{ __('Messages') }}</span>
+          @if($unreadMessages)
+            <span class="badge badge-danger" style="margin-inline-start:auto;">{{ $unreadMessages }}</span>
+          @endif
+        </a>
+        
         <a href="{{ route('admin.payments.dashboard') }}" class="{{ request()->routeIs('admin.payments.*')?'active':'' }}">
           <i class="fas fa-credit-card"></i>
           <span>{{ __('Payments') }}</span>

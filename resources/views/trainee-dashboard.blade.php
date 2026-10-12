@@ -78,7 +78,7 @@
   {{-- Quick stats --}}
   @php
     $user = Auth::user();
-    $photo = $user->profile_photo ? asset('storage/' . $user->profile_photo) : 'https://via.placeholder.com/100';
+    $photo = $user->profile_photo ? asset('storage/' . $user->profile_photo) : asset('images/avatar.svg');
     $hasActiveSub = isset($activePayment) && $activePayment;
   @endphp
 

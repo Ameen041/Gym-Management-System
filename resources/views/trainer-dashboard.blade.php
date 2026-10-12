@@ -14,18 +14,14 @@
 
 <body>
 @php
-    use App\Models\User;
-
-    $trainer = auth()->user(); 
+    $trainer = auth()->user();
     $trainerPhoto = ($trainer && $trainer->profile_photo)
         ? asset('storage/' . $trainer->profile_photo)
-        : 'https://via.placeholder.com/100';
+        : asset('images/avatar.svg');
 
-    $selectedType = request()->query('type'); // workout | nutrition
-    $requestId    = request()->query('request_id');
-
-    $traineeId = request()->query('user_id');
-    $trainee   = $traineeId ? User::find($traineeId) : null;
+    // $selectedType, $activeRequest and $trainee come from the controller
+    // (only set for a pending request that was sent to this trainer)
+    $requestId = $activeRequest?->id;
 
     $totalPending = 0;
     if(isset($pendingRequests) && isset($pendingNutritionRequests)){
@@ -44,6 +40,12 @@
     @if(session('success'))
         <div class="alert alert-success" style="margin-bottom:12px;">
             <i class="fas fa-check-circle"></i> {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger" style="margin-bottom:12px;">
+            <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
         </div>
     @endif
 
@@ -194,14 +196,6 @@
                     <span class="info-value">{{ $trainer?->age ?? '—' }}</span>
                 </div>
                 <div class="info-item">
-                    <span class="info-label">{{ __('Height') }}</span>
-                    <span class="info-value">{{ $trainer?->height ? $trainer->height.' '.__('cm') : '—' }}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">{{ __('Weight') }}</span>
-                    <span class="info-value">{{ $trainer?->weight ? $trainer->weight.' '.__('kg') : '—' }}</span>
-                </div>
-                <div class="info-item">
                     <span class="info-label">{{ __('Role') }}</span>
                     <span class="info-value">{{ __('Trainer') }}</span>
                 </div>
@@ -228,17 +222,6 @@
                     <div class="form-group">
                         <label>{{ __('Age') }}</label>
                         <input class="form-control" type="number" name="age" value="{{ $trainer?->age ?? '' }}">
-                    </div>
-                </div>
-
-                <div class="grid two-col">
-                    <div class="form-group">
-                        <label>{{ __('Height (cm)') }}</label>
-                        <input class="form-control" type="number" name="height" value="{{ $trainer?->height ?? '' }}">
-                    </div>
-                    <div class="form-group">
-                        <label>{{ __('Weight (kg)') }}</label>
-                        <input class="form-control" type="number" name="weight" value="{{ $trainer?->weight ?? '' }}">
                     </div>
                 </div>
 
@@ -277,7 +260,6 @@
 
                     <form method="POST" action="{{ route('trainer.addWorkout') }}" class="form">
                         @csrf
-                        <input type="hidden" name="user_id" value="{{ $trainee->id }}">
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
 
                         <div class="form-group">
@@ -356,7 +338,6 @@
 
                     <form method="POST" action="{{ route('trainer.addNutrition') }}" class="form">
                         @csrf
-                        <input type="hidden" name="user_id" value="{{ $trainee->id }}">
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
 
                         <div class="form-group">

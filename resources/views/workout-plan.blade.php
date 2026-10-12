@@ -21,6 +21,16 @@
                     <button id="print-btn" class="action-btn">
                         <i class="fas fa-print"></i> {{ __('Print Plan') }}
                     </button>
+                    @isset($plan)
+                        <form action="{{ route('trainee.schedule.destroy') }}" method="POST" style="display:inline"
+                              onsubmit="return confirm(@js(__('Request a new workout plan? Your current plan will be deleted.')))">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="action-btn">
+                                <i class="fas fa-redo"></i> {{ __('Request a new plan') }}
+                            </button>
+                        </form>
+                    @endisset
                 </div>
             </div>
             
@@ -97,6 +107,11 @@
                     <form action="{{ route('trainee.requestWorkout') }}" method="POST" class="plan-form" enctype="multipart/form-data">
                         @csrf
                         <input type="hidden" name="trainer_id" value="{{ $trainerId }}">
+                        @isset($trainer)
+                            <div class="alert alert-success" style="margin-bottom:14px;">
+                                <i class="fas fa-user-tie"></i> {{ __('Your request will be sent to :name', ['name' => $trainer->name]) }}
+                            </div>
+                        @endisset
 
                         <div class="form-group">
                             <label for="goal"><i class="fas fa-bullseye"></i> {{ __('Your Goal:') }}</label>

@@ -16,12 +16,22 @@ class Role
                 ->with('error', __('Please log in first.'));
         }
 
-        // يدعم: role:admin أو role:trainee أو role:trainer,admin
+        // Supports: role:admin, role:trainee or role:trainer,admin
         if (!in_array($u->role, $roles, true)) {
-            return redirect()->route('login.form')
+            // Logged in with another account type: send them to their own dashboard
+            return redirect()->route(self::homeRoute($u->role))
                 ->with('error', __('You are not allowed to access this page!'));
         }
 
         return $next($request);
+    }
+
+    public static function homeRoute(?string $role): string
+    {
+        return match ($role) {
+            'admin'   => 'admin.dashboard',
+            'trainer' => 'trainer.dashboard',
+            default   => 'trainee.dashboard',
+        };
     }
 }

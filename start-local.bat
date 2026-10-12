@@ -81,6 +81,12 @@ for %%D in (storage\app\public storage\framework\cache\data storage\framework\se
 if not exist "database\database.sqlite" type nul > "database\database.sqlite"
 
 "%PHP%" %PHPX% artisan config:clear >nul 2>nul
+rem Make uploaded photos (storage\app\public) reachable at /storage
+if exist "public\storage\.gitignore" (
+  del "public\storage\.gitignore"
+  rmdir "public\storage" 2>nul
+)
+if not exist "public\storage" "%PHP%" %PHPX% artisan storage:link >nul 2>nul
 findstr /b /c:"APP_KEY=base64:" ".env.local" >nul || "%PHP%" %PHPX% artisan key:generate --force || goto :fail
 echo  [3/5] Settings OK
 
