@@ -75,7 +75,7 @@ class TrainerController extends Controller
             'user_id' => $request->user_id,
             'type' => 'nutrition',
             'request_id' => $request->request_id
-        ])->with('success', 'Nutrition plan has been submitted successfully.');
+        ])->with('success', __('Nutrition plan has been submitted successfully.'));
     }
 
     /* ==================== DASHBOARD & REQUESTS METHODS ==================== */
@@ -141,7 +141,7 @@ class TrainerController extends Controller
         'status' => 'pending',
     ]);
 
-    return redirect()->route('trainee.dashboard')->with('success', 'Request has been sent to the trainer successfully');
+    return redirect()->route('trainee.dashboard')->with('success', __('Request has been sent to the trainer successfully'));
 }
 
 public function addWorkout(Request $request)
@@ -196,7 +196,7 @@ public function addWorkout(Request $request)
         'user_id' => $request->user_id,
         'type' => 'workout',
         'request_id' => $request->request_id
-    ])->with('success', 'Workout plan has been submitted successfully.');
+    ])->with('success', __('Workout plan has been submitted successfully.'));
 }
 
     /* ==================== REQUEST MANAGEMENT METHODS ==================== */
@@ -207,7 +207,7 @@ public function addWorkout(Request $request)
         $request->status = 'rejected';
         $request->save();
 
-        return back()->with('success', 'Request has been rejected successfully.');
+        return back()->with('success', __('Request has been rejected successfully.'));
     }
 
     public function rejectNutrition($id)
@@ -216,7 +216,7 @@ public function addWorkout(Request $request)
         $request->status = 'rejected';
         $request->save();
 
-        return back()->with('success', 'Request has been rejected successfully.');
+        return back()->with('success', __('Request has been rejected successfully.'));
     }
 
     public function showNutritionRequests()
@@ -245,7 +245,7 @@ public function addWorkout(Request $request)
         'status' => 'pending',
     ]);
 
-    return redirect()->route('trainee.dashboard')->with('success', 'Request has been sent to the trainer successfully');
+    return redirect()->route('trainee.dashboard')->with('success', __('Request has been sent to the trainer successfully'));
 }
 
 public function updateProfile(Request $request)
@@ -274,7 +274,7 @@ public function updateProfile(Request $request)
     $trainer->weight = $data['weight'] ?? null;
     $trainer->save();
 
-    return redirect()->route('trainer.dashboard')->with('success', 'Profile updated successfully.');
+    return redirect()->route('trainer.dashboard')->with('success', __('Profile updated successfully.'));
 }
 
 }

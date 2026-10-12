@@ -14,7 +14,7 @@ class EnsureUserIsActive
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
-            return redirect()->route('home')->with('error', 'Your account is suspended.');
+            return redirect()->route('home')->with('error', __('Your account is suspended.'));
         }
         return $next($request);
     }

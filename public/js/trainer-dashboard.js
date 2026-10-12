@@ -52,9 +52,10 @@
         if (container.querySelectorAll(selector).length > 1) {
           row.remove();
         } else {
+          const i18n = window.I18N || {};
           alert(isWorkout
-            ? "This day must contain at least one exercise row."
-            : "This day must contain at least one meal row."
+            ? (i18n.min_exercise_row || "This day must contain at least one exercise row.")
+            : (i18n.min_meal_row || "This day must contain at least one meal row.")
           );
         }
         return;

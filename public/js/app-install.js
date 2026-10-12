@@ -42,7 +42,7 @@
             show(false);
           });
         } else if (isIos) {
-          alert('To install Ameen Gym: tap the Share button, then "Add to Home Screen".\n\nلتثبيت التطبيق: اضغط زر المشاركة ثم "إضافة إلى الشاشة الرئيسية".');
+          alert((window.I18N && I18N.install_ios) || 'To install Ameen Gym: tap the Share button, then "Add to Home Screen".');
         }
       });
     });

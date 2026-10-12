@@ -61,8 +61,13 @@ body{
   border-radius: var(--radius);
   padding:16px 18px;
   margin-bottom:14px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
 }
 .requests-header h1{
+  flex:1;
   display:flex;
   align-items:center;
   justify-content:center;

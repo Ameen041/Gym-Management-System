@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title','Gym-System | Homepage')
+@section('title', __('Gym-System | Homepage'))
 
 @section('custom_css')
     <link rel="stylesheet" href="{{ asset('css/home.css') }}">
@@ -14,25 +14,25 @@
     <section class="hero">
         <div class="container">
             <div class="hero-content">
-                <h2>Create the best version of yourself!</h2>
-                <p class="subtitle">Personal training and nutrition programs with the best trainers to achieve your goals</p>
+                <h2>{{ __('Create the best version of yourself!') }}</h2>
+                <p class="subtitle">{{ __('Personal training and nutrition programs with the best trainers to achieve your goals') }}</p>
                 <div class="cta-buttons">
-                    <a href="{{ url('/trainers') }}" class="btn btn-primary btn-lg">Browse Trainers</a>
-                    <a href="#programs" class="btn btn-outline btn-lg">View Programs</a>
+                    <a href="{{ url('/trainers') }}" class="btn btn-primary btn-lg">{{ __('Browse Trainers') }}</a>
+                    <a href="#programs" class="btn btn-outline btn-lg">{{ __('View Programs') }}</a>
                 </div>
                 
                 <div class="stats">
                     <div class="stat-item">
                     <span class="number">+{{ $traineesCount }}</span>
-                    <span class="label">Trainees</span>
+                    <span class="label">{{ __('Trainees') }}</span>
                     </div>
                     <div class="stat-item">
                     <span class="number">+{{ $trainersCount }}</span>
-                    <span class="label">Professional Trainers</span>
+                    <span class="label">{{ __('Professional Trainers') }}</span>
                     </div>
                     <div class="stat-item">
                         <span class="number">+95%</span>
-                        <span class="label">Customer Satisfaction</span>
+                        <span class="label">{{ __('Customer Satisfaction') }}</span>
                     </div>
                 </div>
             </div>
@@ -42,56 +42,56 @@
     <!-- Features Section -->
     <section class="features" id="features">
         <div class="container">
-            <h2 class="section-title">Why Our Gym System?</h2>
-            <p class="section-subtitle">We provide you with a unique and comprehensive sports experience</p>
+            <h2 class="section-title">{{ __('Why Our Gym System?') }}</h2>
+            <p class="section-subtitle">{{ __('We provide you with a unique and comprehensive sports experience') }}</p>
             
             <div class="features-grid">
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-calendar-check"></i>
                     </div>
-                    <h3>Appointment Booking</h3>
-                    <p>Book your session with the trainer at a time that suits you</p>
+                    <h3>{{ __('Appointment Booking') }}</h3>
+                    <p>{{ __('Book your session with the trainer at a time that suits you') }}</p>
                 </div>
                 
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-chart-line"></i>
                     </div>
-                    <h3>Progress Tracking</h3>
-                    <p>Analyze your progress with detailed charts and reports</p>
+                    <h3>{{ __('Progress Tracking') }}</h3>
+                    <p>{{ __('Analyze your progress with detailed charts and reports') }}</p>
                 </div>
                 
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-dumbbell"></i>
                     </div>
-                    <h3>Personal Training</h3>
-                    <p>Training programs designed specifically for your goals</p>
+                    <h3>{{ __('Personal Training') }}</h3>
+                    <p>{{ __('Training programs designed specifically for your goals') }}</p>
                 </div>
                 
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-utensils"></i>
                     </div>
-                    <h3>Nutrition Plans</h3>
-                    <p>Dietary schedules calculated with calories</p>
+                    <h3>{{ __('Nutrition Plans') }}</h3>
+                    <p>{{ __('Dietary schedules calculated with calories') }}</p>
                 </div>
                 
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-video"></i>
                     </div>
-                    <h3>Online Sessions</h3>
-                    <p>Train from anywhere with virtual sessions</p>
+                    <h3>{{ __('Online Sessions') }}</h3>
+                    <p>{{ __('Train from anywhere with virtual sessions') }}</p>
                 </div>
                 
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-award"></i>
                     </div>
-                    <h3>Certified Certificates</h3>
-                    <p>Get accredited achievement certificates</p>
+                    <h3>{{ __('Certified Certificates') }}</h3>
+                    <p>{{ __('Get accredited achievement certificates') }}</p>
                 </div>
             </div>
         </div>
@@ -100,8 +100,8 @@
    <!-- Programs Section -->
 <section class="programs" id="programs">
   <div class="container">
-    <h2 class="section-title">Latest Programs</h2>
-    <p class="section-subtitle">Recently added training and nutrition programs</p>
+    <h2 class="section-title">{{ __('Latest Programs') }}</h2>
+    <p class="section-subtitle">{{ __('Recently added training and nutrition programs') }}</p>
 
     <div class="programs-content">
       <div class="programs-grid">
@@ -109,12 +109,12 @@
         {{-- WORKOUT CARD --}}
         <div class="program-card">
           <div class="program-info">
-            <h3>Workout Program</h3>
+            <h3>{{ __('Workout Program') }}</h3>
 
             @if($latestWorkout)
               <h4 class="program-subtitle">{{ $latestWorkout->title }}</h4>
               <p class="program-desc">
-                {{ $latestWorkout->description ?: 'Weekly workout plan template ready to use.' }}
+                {{ $latestWorkout->description ?: __('Weekly workout plan template ready to use.') }}
               </p>
 
               @php
@@ -127,13 +127,13 @@
                   $p = array_map('trim', explode('|', $line));
                   if(count($p) < 5) continue;
                   [$day,$muscle,$exercise,$sets,$reps] = $p;
-                  $pretty[] = "{$day} • {$exercise} — {$sets} × {$reps}";
+                  $pretty[] = __($day)." • {$exercise} — {$sets} × {$reps}";
                 }
               @endphp
 
               @if(count($pretty))
                 <div class="program-features">
-                  <p class="muted small">Quick preview:</p>
+                  <p class="muted small">{{ __('Quick preview:') }}</p>
                   <ul class="preview-list">
                     @foreach($pretty as $item)
                       <li>{{ $item }}</li>
@@ -141,13 +141,13 @@
                   </ul>
 
                   @if(count($lines) > 6)
-                    <p class="muted tiny">+{{ count($lines) - 6 }} more items…</p>
+                    <p class="muted tiny">{{ __('+:count more items…', ['count' => count($lines) - 6]) }}</p>
                   @endif
                 </div>
               @endif
 
             @else
-              <p class="muted">No workout templates yet.</p>
+              <p class="muted">{{ __('No workout templates yet.') }}</p>
             @endif
           </div>
         </div>
@@ -155,12 +155,12 @@
         {{-- NUTRITION CARD --}}
         <div class="program-card">
           <div class="program-info">
-            <h3>Nutrition Program</h3>
+            <h3>{{ __('Nutrition Program') }}</h3>
 
             @if($latestNutrition)
               <h4 class="program-subtitle">{{ $latestNutrition->title }}</h4>
               <p class="program-desc">
-                {{ $latestNutrition->description ?: 'Weekly nutrition plan template with calories & macros.' }}
+                {{ $latestNutrition->description ?: __('Weekly nutrition plan template with calories & macros.') }}
               </p>
 
               @php
@@ -173,13 +173,13 @@
                   $p = array_map('trim', explode('|', $line));
                   if(count($p) < 7) continue;
                   [$day,$meal,$desc,$cal,$pro,$carb,$fat] = $p;
-                  $pretty[] = "{$day} • Meal {$meal}: {$desc} — {$cal} kcal (P{$pro}/C{$carb}/F{$fat})";
+                  $pretty[] = __($day)." • ".__('Meal :number', ['number' => $meal]).": {$desc} — {$cal} ".__('kcal')." (P{$pro}/C{$carb}/F{$fat})";
                 }
               @endphp
 
               @if(count($pretty))
                 <div class="program-features">
-                  <p class="muted small">Quick preview:</p>
+                  <p class="muted small">{{ __('Quick preview:') }}</p>
                   <ul class="preview-list">
                     @foreach($pretty as $item)
                       <li>{{ $item }}</li>
@@ -187,13 +187,13 @@
                   </ul>
 
                   @if(count($lines) > 6)
-                    <p class="muted tiny">+{{ count($lines) - 6 }} more items…</p>
+                    <p class="muted tiny">{{ __('+:count more items…', ['count' => count($lines) - 6]) }}</p>
                   @endif
                 </div>
               @endif
 
             @else
-              <p class="muted">No nutrition templates yet.</p>
+              <p class="muted">{{ __('No nutrition templates yet.') }}</p>
             @endif
           </div>
         </div>
@@ -224,7 +224,7 @@
 
   .preview-list{
     margin:8px 0 0;
-    padding-left:18px;
+    padding-inline-start:18px;
     line-height:1.75;
   }
 
@@ -238,21 +238,21 @@
     <!-- Trainers Section -->
     <section class="trainers" id="trainers">
         <div class="container">
-            <h2 class="section-title">Our Professional Trainers</h2>
-            <p class="section-subtitle">Meet our team of certified trainers</p>
+            <h2 class="section-title">{{ __('Our Professional Trainers') }}</h2>
+            <p class="section-subtitle">{{ __('Meet our team of certified trainers') }}</p>
             
             <div class="trainers-grid">
                 <div class="trainer-card">
                     <div class="trainer-image">
-                        <img src="{{ asset('images/trainer1.jpg') }}" alt="Trainer Omar Al-Saour">
+                        <img src="{{ asset('images/trainer1.jpg') }}" alt="{{ __('Trainer Omar Al-Saour') }}">
                         <div class="social-links">
                             <a href="#"><i class="fab fa-instagram"></i></a>
                             <a href="#"><i class="fab fa-twitter"></i></a>
                         </div>
                     </div>
                     <div class="trainer-info">
-                        <h3>Omar Al-Saour</h3>
-                        <span class="specialty">Bodybuilding Expert</span>
+                        <h3>{{ __('Omar Al-Saour') }}</h3>
+                        <span class="specialty">{{ __('Bodybuilding Expert') }}</span>
                         <div class="rating">
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
@@ -261,21 +261,21 @@
                             <i class="fas fa-star-half-alt"></i>
                             <span>(48)</span>
                         </div>
-                        <a href="{{ url('/trainers/1') }}" class="btn btn-outline">View Profile</a>
+                        <a href="{{ url('/trainers/1') }}" class="btn btn-outline">{{ __('View Profile') }}</a>
                     </div>
                 </div>
                 
                 <div class="trainer-card">
                     <div class="trainer-image">
-                        <img src="{{ asset('images/trainer2.jpg') }}" alt="Trainer Adnan Sheikh Al-Ard">
+                        <img src="{{ asset('images/trainer2.jpg') }}" alt="{{ __('Trainer Adnan Sheikh Al-Ard') }}">
                         <div class="social-links">
                             <a href="#"><i class="fab fa-instagram"></i></a>
                             <a href="#"><i class="fab fa-twitter"></i></a>
                         </div>
                     </div>
                     <div class="trainer-info">
-                        <h3>Adnan Sheikh Al-Ard</h3>
-                        <span class="specialty">Physical Fitness Expert</span>
+                        <h3>{{ __('Adnan Sheikh Al-Ard') }}</h3>
+                        <span class="specialty">{{ __('Physical Fitness Expert') }}</span>
                         <div class="rating">
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
@@ -284,21 +284,21 @@
                             <i class="fas fa-star"></i>
                             <span>(36)</span>
                         </div>
-                        <a href="{{ url('/trainers/2') }}" class="btn btn-outline">View Profile</a>
+                        <a href="{{ url('/trainers/2') }}" class="btn btn-outline">{{ __('View Profile') }}</a>
                     </div>
                 </div>
                 
                 <div class="trainer-card">
                     <div class="trainer-image">
-                        <img src="{{ asset('images/trainer3.jpg') }}" alt="Trainer Mohammed Al-Gharib">
+                        <img src="{{ asset('images/trainer3.jpg') }}" alt="{{ __('Trainer Mohammed Al-Gharib') }}">
                         <div class="social-links">
                             <a href="#"><i class="fab fa-instagram"></i></a>
                             <a href="#"><i class="fab fa-twitter"></i></a>
                         </div>
                     </div>
                     <div class="trainer-info">
-                        <h3>Mohammed Al-Gharib</h3>
-                        <span class="specialty">Rehabilitation Expert</span>
+                        <h3>{{ __('Mohammed Al-Gharib') }}</h3>
+                        <span class="specialty">{{ __('Rehabilitation Expert') }}</span>
                         <div class="rating">
                             <i class="fas fa-star"></i>
                             <i class="fas fa-star"></i>
@@ -307,7 +307,7 @@
                             <i class="far fa-star"></i>
                             <span>(29)</span>
                         </div>
-                        <a href="{{ url('/trainers/3') }}" class="btn btn-outline">View Profile</a>
+                        <a href="{{ url('/trainers/3') }}" class="btn btn-outline">{{ __('View Profile') }}</a>
                     </div>
                 </div>
             </div>
@@ -318,23 +318,23 @@
     <section class="nutrition" id="nutrition">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Nutrition Programs</h2>
-                <p class="section-subtitle">Diet plans designed according to your goals</p>
+                <h2 class="section-title">{{ __('Nutrition Programs') }}</h2>
+                <p class="section-subtitle">{{ __('Diet plans designed according to your goals') }}</p>
             </div>
             
             <div class="nutrition-plans">
                 <div class="plan-card">
                     <div class="plan-header">
-                        <h3>Basic Plan</h3>
-                        <span class="price">299 SAR/month</span>
+                        <h3>{{ __('Basic Plan') }}</h3>
+                        <span class="price">{{ __('299 SAR/month') }}</span>
                     </div>
                     <ul class="plan-features">
-                        <li><i class="fas fa-check"></i> Weekly diet plan</li>
-                        <li><i class="fas fa-check"></i> Weekly follow-up</li>
-                        <li><i class="fas fa-check"></i> Adjustments based on progress</li>
-                        <li><i class="fas fa-check"></i> Healthy recipes</li>
+                        <li><i class="fas fa-check"></i> {{ __('Weekly diet plan') }}</li>
+                        <li><i class="fas fa-check"></i> {{ __('Weekly follow-up') }}</li>
+                        <li><i class="fas fa-check"></i> {{ __('Adjustments based on progress') }}</li>
+                        <li><i class="fas fa-check"></i> {{ __('Healthy recipes') }}</li>
                     </ul>
-                    <a href="#" class="btn btn-primary">Subscribe Now</a>
+                    <a href="#" class="btn btn-primary">{{ __('Subscribe Now') }}</a>
                 </div>
             </div>
         </div>
@@ -343,8 +343,8 @@
     <!-- Testimonials Section -->
     <section class="testimonials">
         <div class="container">
-            <h2 class="section-title">Customer Reviews</h2>
-            <p class="section-subtitle">Inspiring success stories</p>
+            <h2 class="section-title">{{ __('Customer Reviews') }}</h2>
+            <p class="section-subtitle">{{ __('Inspiring success stories') }}</p>
             
             <div class="testimonials-slider">
                 <div class="testimonial-card">
@@ -353,13 +353,13 @@
                             <i class="fas fa-quote-right"></i>
                         </div>
                         <p class="testimonial-text">
-                            "Thanks to the system and the dedicated trainer, I was able to lose 15 kilos in just 4 months. The diet program was easy and delicious!"
+                            {{ __('"Thanks to the system and the dedicated trainer, I was able to lose 15 kilos in just 4 months. The diet program was easy and delicious!"') }}
                         </p>
                         <div class="client-info">
-                            <img src="{{ asset('images/client1.jpg') }}" alt="Sarah Mohammed">
+                            <img src="{{ asset('images/client1.jpg') }}" alt="{{ __('Sarah Mohammed') }}">
                             <div>
-                                <h4>Sarah Mohammed</h4>
-                                <span>Lost 15 kilos</span>
+                                <h4>{{ __('Sarah Mohammed') }}</h4>
+                                <span>{{ __('Lost 15 kilos') }}</span>
                             </div>
                         </div>
                     </div>
@@ -371,13 +371,13 @@
                             <i class="fas fa-quote-right"></i>
                         </div>
                         <p class="testimonial-text">
-                            "The trainer was very professional and helped me build muscle and gain strength in record time. I recommend this experience to everyone!"
+                            {{ __('"The trainer was very professional and helped me build muscle and gain strength in record time. I recommend this experience to everyone!"') }}
                         </p>
                         <div class="client-info">
-                            <img src="{{ asset('images/client2.jpg') }}" alt="Ahmed Khalid">
+                            <img src="{{ asset('images/client2.jpg') }}" alt="{{ __('Ahmed Khalid') }}">
                             <div>
-                                <h4>Ahmed Khalid</h4>
-                                <span>Gained 8 kilos of muscle</span>
+                                <h4>{{ __('Ahmed Khalid') }}</h4>
+                                <span>{{ __('Gained 8 kilos of muscle') }}</span>
                             </div>
                         </div>
                     </div>
@@ -389,13 +389,13 @@
                             <i class="fas fa-quote-right"></i>
                         </div>
                         <p class="testimonial-text">
-                            "After suffering from back pain, the rehabilitation program helped me regain my movement and daily activity. Thanks to the training team!"
+                            {{ __('"After suffering from back pain, the rehabilitation program helped me regain my movement and daily activity. Thanks to the training team!"') }}
                         </p>
                         <div class="client-info">
-                            <img src="{{ asset('images/client3.jpg') }}" alt="Nora Abdullah">
+                            <img src="{{ asset('images/client3.jpg') }}" alt="{{ __('Nora Abdullah') }}">
                             <div>
-                                <h4>Nora Abdullah</h4>
-                                <span>Full back improvement</span>
+                                <h4>{{ __('Nora Abdullah') }}</h4>
+                                <span>{{ __('Full back improvement') }}</span>
                             </div>
                         </div>
                     </div>
@@ -407,25 +407,25 @@
     <!-- Pricing Section -->
     <section class="pricing" id="pricing">
         <div class="container">
-            <h2 class="section-title">Membership Packages</h2>
-            <p class="section-subtitle">Choose the package that suits you</p>
+            <h2 class="section-title">{{ __('Membership Packages') }}</h2>
+            <p class="section-subtitle">{{ __('Choose the package that suits you') }}</p>
             
             <div class="pricing-plans">
                 <div class="pricing-card">
                     <div class="pricing-header">
-                        <h3>Basic Package</h3>
+                        <h3>{{ __('Basic Package') }}</h3>
                         <div class="price">
                             <span>499</span>
-                            <span>SAR/month</span>
+                            <span>{{ __('SAR/month') }}</span>
                         </div>
                     </div>
                     <ul class="pricing-features">
-                        <li><i class="fas fa-check"></i> 8 monthly sessions</li>
-                        <li><i class="fas fa-check"></i> Training program</li>
-                        <li><i class="fas fa-check"></i> Weekly follow-up</li>
-                        <li><i class="fas fa-check"></i> Gym access</li>
+                        <li><i class="fas fa-check"></i> {{ __('8 monthly sessions') }}</li>
+                        <li><i class="fas fa-check"></i> {{ __('Training program') }}</li>
+                        <li><i class="fas fa-check"></i> {{ __('Weekly follow-up') }}</li>
+                        <li><i class="fas fa-check"></i> {{ __('Gym access') }}</li>
                     </ul>
-                    <a href="#" class="btn btn-outline">Choose Package</a>
+                    <a href="#" class="btn btn-outline">{{ __('Choose Package') }}</a>
                 </div>
             </div>
         </div>
@@ -436,8 +436,8 @@
         <div class="container">
             <div class="contact-grid">
                 <div class="contact-info">
-                    <h2 class="section-title">Contact Us</h2>
-                    <p class="contact-text">Have a question or want to book a session? Contact us and we'll be happy to help you</p>
+                    <h2 class="section-title">{{ __('Contact Us') }}</h2>
+                    <p class="contact-text">{{ __('Have a question or want to book a session? Contact us and we\'ll be happy to help you') }}</p>
                     
                     <div class="contact-methods">
                         <div class="contact-item">
@@ -450,7 +450,7 @@
                         </div>
                         <div class="contact-item">
                             <i class="fas fa-map-marker-alt"></i>
-                            <span>Damascus Countryside, Syrian Arab Republic</span>
+                            <span>{{ __('Damascus Countryside, Syrian Arab Republic') }}</span>
                         </div>
                     </div>
                     
@@ -464,18 +464,18 @@
                 
                 <form class="contact-form">
                     <div class="form-group">
-                        <input type="text" placeholder="Full Name" required>
+                        <input type="text" placeholder="{{ __('Full Name') }}" required>
                     </div>
                     <div class="form-group">
-                        <input type="email" placeholder="Email" required>
+                        <input type="email" placeholder="{{ __('Email') }}" required>
                     </div>
                     <div class="form-group">
-                        <input type="tel" placeholder="Phone Number">
+                        <input type="tel" placeholder="{{ __('Phone Number') }}">
                     </div>
                     <div class="form-group">
-                        <textarea placeholder="Your Message" rows="5" required></textarea>
+                        <textarea placeholder="{{ __('Your Message') }}" rows="5" required></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary">Send Message</button>
+                    <button type="submit" class="btn btn-primary">{{ __('Send Message') }}</button>
                 </form>
             </div>
         </div>

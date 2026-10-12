@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="{{ app()->getLocale() }}" dir="{{ app()->isLocale('ar') ? 'rtl' : 'ltr' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Training Requests | Trainer Dashboard</title>
-    @include('partials.pwa')
+    <title>{{ __('Training Requests | Trainer Dashboard') }}</title>
+    @include('partials.head')
     <link rel="stylesheet" href="{{ asset('css/trainer-requests.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -12,8 +12,8 @@
 <body>
 
     <div id="photoModal" class="photo-modal" onclick="closePhotoModal(event)">
-        <button class="close-btn" type="button" onclick="hidePhotoModal()">Close ✕</button>
-        <img id="photoModalImg" src="" alt="Body Photo">
+        <button class="close-btn" type="button" onclick="hidePhotoModal()">{{ __('Close ✕') }}</button>
+        <img id="photoModalImg" src="" alt="{{ __('Body Photo') }}">
     </div>
 
     <div class="trainer-requests-container">
@@ -24,18 +24,19 @@
         @endif
 
         <header class="requests-header">
-            <h1><i class="fas fa-inbox"></i> Trainee Requests</h1>
+            <h1><i class="fas fa-inbox"></i> {{ __('Trainee Requests') }}</h1>
+            @include('partials.lang-switch', ['class' => 'btn btn-back'])
         </header>
 
         <main class="requests-content">
             <!-- Workout Requests Section -->
             <section class="requests-section">
-                <h2 class="section-title"><i class="fas fa-dumbbell"></i> Workout Plan Requests</h2>
+                <h2 class="section-title"><i class="fas fa-dumbbell"></i> {{ __('Workout Plan Requests') }}</h2>
 
                 @if ($workoutRequests->isEmpty())
                     <div class="empty-state">
                         <i class="fas fa-clipboard-list"></i>
-                        <p>No workout requests available</p>
+                        <p>{{ __('No workout requests available') }}</p>
                     </div>
                 @else
                     <div class="requests-grid">
@@ -50,7 +51,7 @@
                                     @endphp
 
                                     @if($photo)
-                                        <img src="{{ $photo }}" alt="User Photo" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                                        <img src="{{ $photo }}" alt="{{ __('User Photo') }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
                                     @else
                                         <i class="fas fa-user"></i>
                                     @endif
@@ -64,11 +65,11 @@
 <div class="request-details">
                                 <div class="detail-item">
                                     <i class="fas fa-bullseye"></i>
-                                    <span>Goal: {{ $request->goal }}</span>
+                                    <span>{{ __('Goal:') }} {{ $request->goal }}</span>
                                 </div>
                                 <div class="detail-item">
                                     <i class="fas fa-sticky-note"></i>
-                                    <span>Notes: {{ $request->notes ?? 'None' }}</span>
+                                    <span>{{ __('Notes:') }} {{ $request->notes ?? __('None') }}</span>
                                 </div>
 
                              
@@ -83,14 +84,14 @@
                                     <div class="detail-item">
                                         <i class="fas fa-images"></i>
                                         <span>
-                                            Photos:
+                                            {{ __('Photos:') }}
                                             @foreach($photos as $p)
                                                 @php $url = asset('storage/' . $p); @endphp
                                                 <img
                                                     src="{{ $url }}"
-                                                    alt="photo"
+                                                    alt="{{ __('photo') }}"
                                                     onclick="showPhotoModal('{{ $url }}')"
-                                                    style="width:38px;height:38px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:6px;cursor:pointer;"
+                                                    style="width:38px;height:38px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-inline-end:6px;cursor:pointer;"
                                                 >
                                             @endforeach
                                         </span>
@@ -99,15 +100,15 @@
 
                                 <div class="detail-item">
                                     <i class="fas fa-user-clock"></i>
-                                    <span>Age: {{ $request->user->age ?? 'N/A' }}</span>
+                                    <span>{{ __('Age:') }} {{ $request->user->age ?? __('N/A') }}</span>
                                 </div>
                                 <div class="detail-item">
                                     <i class="fas fa-weight"></i>
-                                    <span>Weight: {{ $request->user->weight ?? 'N/A' }} kg</span>
+                                    <span>{{ __('Weight:') }} {{ $request->user->weight ?? __('N/A') }} {{ __('kg') }}</span>
                                 </div>
                                 <div class="detail-item">
                                     <i class="fas fa-ruler-vertical"></i>
-                                    <span>Height: {{ $request->user->height ?? 'N/A' }} cm</span>
+                                    <span>{{ __('Height:') }} {{ $request->user->height ?? __('N/A') }} {{ __('cm') }}</span>
                                 </div>
                             </div>
 
@@ -117,15 +118,15 @@
     'type' => 'workout',
     'request_id' => $request->id
 ]) }}" class="btn btn-accept">
-    <i class="fas fa-plus"></i> Create Plan
+    <i class="fas fa-plus"></i> {{ __('Create Plan') }}
 </a>
 
     <form action="{{ route('trainer.rejectWorkout', $request->id) }}" method="POST">
         @csrf
         @method('DELETE')
         <button type="submit" class="btn btn-reject"
-                onclick="return confirm('Are you sure you want to reject this request?')">
-            <i class="fas fa-times"></i> Reject
+                onclick="return confirm(@js(__('Are you sure you want to reject this request?')))">
+            <i class="fas fa-times"></i> {{ __('Reject') }}
         </button>
     </form>
 </div>
@@ -138,12 +139,12 @@
 
 <!-- Nutrition Requests Section -->
             <section class="requests-section">
-                <h2 class="section-title"><i class="fas fa-utensils"></i> Nutrition Plan Requests</h2>
+                <h2 class="section-title"><i class="fas fa-utensils"></i> {{ __('Nutrition Plan Requests') }}</h2>
 
                 @if ($nutritionRequests->isEmpty())
                     <div class="empty-state">
                         <i class="fas fa-clipboard-list"></i>
-                        <p>No nutrition requests available</p>
+                        <p>{{ __('No nutrition requests available') }}</p>
                     </div>
                 @else
                     <div class="requests-grid">
@@ -158,7 +159,7 @@
                                     @endphp
 
                                     @if($photo)
-                                        <img src="{{ $photo }}" alt="User Photo" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                                        <img src="{{ $photo }}" alt="{{ __('User Photo') }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
                                     @else
                                         <i class="fas fa-user"></i>
                                     @endif
@@ -172,11 +173,11 @@
                             <div class="request-details">
                                 <div class="detail-item">
                                     <i class="fas fa-bullseye"></i>
-                                    <span>Goal: {{ $request->goal }}</span>
+                                    <span>{{ __('Goal:') }} {{ $request->goal }}</span>
                                 </div>
                                 <div class="detail-item">
                                     <i class="fas fa-sticky-note"></i>
-                                    <span>Notes: {{ $request->notes ?? 'None' }}</span>
+                                    <span>{{ __('Notes:') }} {{ $request->notes ?? __('None') }}</span>
                                 </div>
 
                               
@@ -191,14 +192,14 @@
                                     <div class="detail-item">
                                         <i class="fas fa-images"></i>
                                         <span>
-                                            Photos:
+                                            {{ __('Photos:') }}
                                             @foreach($photos as $p)
                                                 @php $url = asset('storage/' . $p); @endphp
                                                 <img
                                                     src="{{ $url }}"
-                                                    alt="photo"
+                                                    alt="{{ __('photo') }}"
                                                     onclick="showPhotoModal('{{ $url }}')"
-                                                    style="width:38px;height:38px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:6px;cursor:pointer;"
+                                                    style="width:38px;height:38px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-inline-end:6px;cursor:pointer;"
                                                 >
                                             @endforeach
                                         </span>
@@ -207,15 +208,15 @@
 
 <div class="detail-item">
                                     <i class="fas fa-user-clock"></i>
-                                    <span>Age: {{ $request->user->age ?? 'N/A' }}</span>
+                                    <span>{{ __('Age:') }} {{ $request->user->age ?? __('N/A') }}</span>
                                 </div>
                                 <div class="detail-item">
                                     <i class="fas fa-weight"></i>
-                                    <span>Weight: {{ $request->user->weight ?? 'N/A' }} kg</span>
+                                    <span>{{ __('Weight:') }} {{ $request->user->weight ?? __('N/A') }} {{ __('kg') }}</span>
                                 </div>
                                 <div class="detail-item">
                                     <i class="fas fa-ruler-vertical"></i>
-                                    <span>Height: {{ $request->user->height ?? 'N/A' }} cm</span>
+                                    <span>{{ __('Height:') }} {{ $request->user->height ?? __('N/A') }} {{ __('cm') }}</span>
                                 </div>
                             </div>
 
@@ -225,15 +226,15 @@
     'type' => 'nutrition',
     'request_id' => $request->id
 ]) }}" class="btn btn-accept">
-    <i class="fas fa-plus"></i> Create Plan
+    <i class="fas fa-plus"></i> {{ __('Create Plan') }}
 </a>
 
     <form action="{{ route('trainer.rejectNutrition', $request->id) }}" method="POST">
         @csrf
         @method('DELETE')
         <button type="submit" class="btn btn-reject"
-                onclick="return confirm('Are you sure you want to reject this request?')">
-            <i class="fas fa-times"></i> Reject
+                onclick="return confirm(@js(__('Are you sure you want to reject this request?')))">
+            <i class="fas fa-times"></i> {{ __('Reject') }}
         </button>
     </form>
 </div>
@@ -246,7 +247,7 @@
 
         <footer class="requests-footer">
             <a href="{{ route('trainer.dashboard') }}" class="btn btn-back">
-                <i class="fas fa-arrow-left"></i> Back to Dashboard
+                <i class="fas fa-arrow-left"></i> {{ __('Back to Dashboard') }}
             </a>
         </footer>
     </div>

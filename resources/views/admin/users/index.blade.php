@@ -1,11 +1,11 @@
 @extends('layouts.admin')
-@section('title', 'Users')
-@section('page-title', 'Users Management')
+@section('title', __('Users'))
+@section('page-title', __('Users Management'))
 
 @section('content')
 <div class="page-header">
-  <h1>Users Management</h1>
-  <p>Manage all system users</p>
+  <h1>{{ __('Users Management') }}</h1>
+  <p>{{ __('Manage all system users') }}</p>
 </div>
 
 <form method="GET" action="{{ route('admin.users.index') }}" class="filter-bar">
@@ -13,49 +13,49 @@
         type="text"
         name="name"
         value="{{ request('name') }}"
-        placeholder="Search by name..."
+        placeholder="{{ __('Search by name...') }}"
         class="filter-input"
     >
 
     <select name="role" class="filter-input">
-        <option value="">All roles</option>
-        <option value="admin"   {{ request('role')=='admin' ? 'selected' : '' }}>Admin</option>
-        <option value="trainer" {{ request('role')=='trainer' ? 'selected' : '' }}>Trainer</option>
-        <option value="trainee" {{ request('role')=='trainee' ? 'selected' : '' }}>Trainee</option>
+        <option value="">{{ __('All roles') }}</option>
+        <option value="admin"   {{ request('role')=='admin' ? 'selected' : '' }}>{{ __('Admin') }}</option>
+        <option value="trainer" {{ request('role')=='trainer' ? 'selected' : '' }}>{{ __('Trainer') }}</option>
+        <option value="trainee" {{ request('role')=='trainee' ? 'selected' : '' }}>{{ __('Trainee') }}</option>
     </select>
 
     <button type="submit" class="btn btn-primary">
         <i class="fas fa-filter"></i>
-        Filter
+        {{ __('Filter') }}
     </button>
 
     <a href="{{ route('admin.users.index') }}" class="btn btn-light">
         <i class="fas fa-rotate-left"></i>
-        Reset
+        {{ __('Reset') }}
     </a>
 </form>
 
 <div class="card">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
     <div>
-      <h2 style="color: var(--dark); margin: 0;">All Users</h2>
-      <p style="color: var(--gray-700); margin-top: 4px;">Total: {{ $users->count() }} users</p>
+      <h2 style="color: var(--dark); margin: 0;">{{ __('All Users') }}</h2>
+      <p style="color: var(--gray-700); margin-top: 4px;">{{ __('Total: :count users', ['count' => $users->count()]) }}</p>
     </div>
 
     <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
       <i class="fas fa-plus"></i>
-      Add New User
+      {{ __('Add New User') }}
     </a>
   </div>
 
   @if($users->isEmpty())
     <div class="empty-state">
       <i class="fas fa-users"></i>
-      <h3>No users found</h3>
-      <p>Start by adding your first user</p>
+      <h3>{{ __('No users found') }}</h3>
+      <p>{{ __('Start by adding your first user') }}</p>
       <a href="{{ route('admin.users.create') }}" class="btn btn-primary" style="margin-top: 16px;">
         <i class="fas fa-plus"></i>
-        Add User
+        {{ __('Add User') }}
       </a>
     </div>
   @else
@@ -63,13 +63,13 @@
       <table class="table">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>User</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Status</th>
-            <th>Joined</th>
-            <th>Actions</th>
+            <th>{{ __('ID') }}</th>
+            <th>{{ __('User') }}</th>
+            <th>{{ __('Email') }}</th>
+            <th>{{ __('Role') }}</th>
+            <th>{{ __('Status') }}</th>
+            <th>{{ __('Joined') }}</th>
+            <th>{{ __('Actions') }}</th>
           </tr>
         </thead>
 
@@ -93,19 +93,19 @@
 
               <td>
                 @if($user->role === 'admin')
-                  <span class="badge badge-primary">Admin</span>
+                  <span class="badge badge-primary">{{ __('Admin') }}</span>
                 @elseif($user->role === 'trainer')
-                  <span class="badge badge-success">Trainer</span>
+                  <span class="badge badge-success">{{ __('Trainer') }}</span>
                 @else
-                  <span class="badge badge-warning">Trainee</span>
+                  <span class="badge badge-warning">{{ __('Trainee') }}</span>
                 @endif
               </td>
 
               <td>
                 @if($user->is_active)
-                  <span class="badge badge-success">Active</span>
+                  <span class="badge badge-success">{{ __('Active') }}</span>
                 @else
-                  <span class="badge badge-danger">Suspended</span>
+                  <span class="badge badge-danger">{{ __('Suspended') }}</span>
                 @endif
               </td>
 
@@ -116,13 +116,13 @@
                   {{-- Edit --}}
                   <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-sm btn-secondary">
                     <i class="fas fa-edit"></i>
-                    Edit
+                    {{ __('Edit') }}
                   </a>
                  
                   @if($user->role === 'trainee')
                     <a href="{{ route('admin.users.payments', $user->id) }}" class="btn btn-sm btn-primary">
                       <i class="fas fa-credit-card"></i>
-                      Payments
+                      {{ __('Payments') }}
                     </a>
                   @endif
 
@@ -132,20 +132,20 @@
                     <button
                       type="submit"
                       class="btn btn-sm {{ $user->is_active ? 'btn-danger' : 'btn-success' }}"
-                      onclick="return confirm('{{ $user->is_active ? 'Suspend' : 'Activate' }} this user?')">
+                      onclick="return confirm(@js($user->is_active ? __('Suspend this user?') : __('Activate this user?')))">
                       <i class="fas {{ $user->is_active ? 'fa-user-slash' : 'fa-user-check' }}"></i>
-                      {{ $user->is_active ? 'Suspend' : 'Activate' }}
+                      {{ $user->is_active ? __('Suspend') : __('Activate') }}
                     </button>
                   </form>
 
                   {{-- ✅ Delete --}}
                   <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display:inline;"
-                        onsubmit="return confirm('Are you sure you want to delete this user permanently?')">
+                        onsubmit="return confirm(@js(__('Are you sure you want to delete this user permanently?')))">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-sm btn-danger">
                       <i class="fas fa-trash"></i>
-                      Delete
+                      {{ __('Delete') }}
                     </button>
                   </form>
                 </div>

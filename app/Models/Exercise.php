@@ -25,14 +25,22 @@ class Exercise extends Model
         'advanced'     => 'Advanced',
     ];
 
+    // Fields that have an Arabic version stored in "{field}_ar"
+    public const TRANSLATABLE = ['name', 'equipment', 'description', 'instructions', 'tips'];
+
     protected $fillable = [
         'name',
+        'name_ar',
         'muscle_group',
         'equipment',
+        'equipment_ar',
         'difficulty',
         'description',
+        'description_ar',
         'instructions',
+        'instructions_ar',
         'tips',
+        'tips_ar',
         'video_url',
         'video_path',
         'image_path',
@@ -49,24 +57,73 @@ class Exercise extends Model
         return $query->where('is_active', true);
     }
 
-    public function getMuscleLabelAttribute(): string
+    public static function muscleLabel(string $key): string
     {
-        return self::MUSCLE_GROUPS[$this->muscle_group]['label'] ?? ucfirst($this->muscle_group);
+        $group = self::MUSCLE_GROUPS[$key] ?? null;
+        if (!$group) {
+            return ucfirst($key);
+        }
+
+        return app()->isLocale('ar') ? $group['label_ar'] : $group['label'];
     }
 
-    public function getMuscleLabelArAttribute(): string
+    /**
+     * Translate a free-text muscle name used in workout plans ("Chest", "Back"...).
+     * Unknown names are returned unchanged.
+     */
+    public static function translateMuscleName(?string $name): string
     {
-        return self::MUSCLE_GROUPS[$this->muscle_group]['label_ar'] ?? '';
+        $key = str_replace(' ', '_', strtolower(trim((string) $name)));
+
+        return isset(self::MUSCLE_GROUPS[$key]) ? self::muscleLabel($key) : (string) $name;
+    }
+
+    /**
+     * Value of a translatable field in the current language,
+     * falling back to English when no Arabic text was added.
+     */
+    public function localized(string $field): ?string
+    {
+        if (app()->isLocale('ar') && filled($this->{$field . '_ar'})) {
+            return $this->{$field . '_ar'};
+        }
+
+        return $this->{$field};
+    }
+
+    public function getDisplayNameAttribute(): string
+    {
+        return (string) $this->localized('name');
+    }
+
+    public function getDisplayEquipmentAttribute(): ?string
+    {
+        return $this->localized('equipment');
+    }
+
+    public function getDisplayDescriptionAttribute(): ?string
+    {
+        return $this->localized('description');
+    }
+
+    public function getMuscleLabelAttribute(): string
+    {
+        return self::muscleLabel((string) $this->muscle_group);
+    }
+
+    public function getDifficultyLabelAttribute(): string
+    {
+        return __(self::DIFFICULTIES[$this->difficulty] ?? (string) $this->difficulty);
     }
 
     public function getStepsAttribute(): array
     {
-        return self::lines($this->instructions);
+        return self::lines($this->localized('instructions'));
     }
 
     public function getTipsListAttribute(): array
     {
-        return self::lines($this->tips);
+        return self::lines($this->localized('tips'));
     }
 
     /**

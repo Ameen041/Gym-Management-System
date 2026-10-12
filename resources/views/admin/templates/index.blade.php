@@ -1,33 +1,33 @@
 @extends('layouts.admin')
-@section('title', 'Templates')
-@section('page-title', 'Plan Templates')
+@section('title', __('Templates'))
+@section('page-title', __('Plan Templates'))
 
 @section('content')
 <div class="page-header">
-  <h1>Templates</h1>
-  <p>Manage workout and nutrition templates</p>
+  <h1>{{ __('Templates') }}</h1>
+  <p>{{ __('Manage workout and nutrition templates') }}</p>
 </div>
 
 <div class="card">
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
     <div>
-      <h2 style="color: var(--dark); margin: 0;">Plan Templates</h2>
-      <p style="color: var(--gray-700); margin-top: 4px;">{{ $templates->count() }} templates available</p>
+      <h2 style="color: var(--dark); margin: 0;">{{ __('Plan Templates') }}</h2>
+      <p style="color: var(--gray-700); margin-top: 4px;">{{ __(':count templates available', ['count' => $templates->count()]) }}</p>
     </div>
     <a href="{{ route('admin.templates.create') }}" class="btn btn-primary">
       <i class="fas fa-plus"></i>
-      New Template
+      {{ __('New Template') }}
     </a>
   </div>
 
   @if($templates->isEmpty())
     <div class="empty-state">
       <i class="fas fa-file-alt"></i>
-      <h3>No templates found</h3>
-      <p>Create your first workout or nutrition template</p>
+      <h3>{{ __('No templates found') }}</h3>
+      <p>{{ __('Create your first workout or nutrition template') }}</p>
       <a href="{{ route('admin.templates.create') }}" class="btn btn-primary" style="margin-top: 16px;">
         <i class="fas fa-plus"></i>
-        Create Template
+        {{ __('Create Template') }}
       </a>
     </div>
   @else
@@ -36,11 +36,11 @@
         <thead>
           <tr>
             <th>#</th>
-            <th>Type</th>
-            <th>Title</th>
-            <th>Active</th>
-            <th>Updated</th>
-            <th>Actions</th>
+            <th>{{ __('Type') }}</th>
+            <th>{{ __('Title') }}</th>
+            <th>{{ __('Active') }}</th>
+            <th>{{ __('Updated') }}</th>
+            <th>{{ __('Actions') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -49,9 +49,9 @@
               <td>{{ $tpl->id }}</td>
               <td>
                 @if($tpl->type == 'workout')
-                  <span class="badge badge-primary">Workout</span>
+                  <span class="badge badge-primary">{{ __('Workout') }}</span>
                 @else
-                  <span class="badge badge-success">Nutrition</span>
+                  <span class="badge badge-success">{{ __('Nutrition') }}</span>
                 @endif
               </td>
               <td>
@@ -64,9 +64,9 @@
               </td>
               <td>
                 @if($tpl->is_active)
-                  <span class="badge badge-success">Active</span>
+                  <span class="badge badge-success">{{ __('Active') }}</span>
                 @else
-                  <span class="badge badge-secondary">Inactive</span>
+                  <span class="badge badge-secondary">{{ __('Inactive') }}</span>
                 @endif
               </td>
               <td>{{ $tpl->updated_at->format('Y-m-d') }}</td>
@@ -74,17 +74,17 @@
                 <div style="display: flex; gap: 8px;">
                   <a href="{{ route('admin.templates.edit',$tpl->id) }}" class="btn btn-sm btn-secondary">
                     <i class="fas fa-edit"></i>
-                    Edit
+                    {{ __('Edit') }}
                   </a>
                   <form action="{{ route('admin.templates.destroy',$tpl->id) }}"
                         method="POST"
                         style="display:inline"
-                        onsubmit="return confirm('Delete this template?')">
+                        onsubmit="return confirm(@js(__('Delete this template?')))">
                     @csrf
                     @method('DELETE')
                     <button class="btn btn-sm btn-danger">
                       <i class="fas fa-trash"></i>
-                      Delete
+                      {{ __('Delete') }}
                     </button>
                   </form>
                 </div>

@@ -15,11 +15,12 @@
   </div>
   <div class="topbar-right">
     <button type="button" class="btn btn-primary" data-install-app hidden>
-      <i class="fas fa-download"></i><span>Install App</span>
+      <i class="fas fa-download"></i><span>{{ __('Install App') }}</span>
     </button>
+    @include('partials.lang-switch')
     @if(isset($back))
-      <a href="{{ $back }}" class="btn btn-ghost"><i class="fas fa-arrow-left"></i><span>Exercises</span></a>
+      <a href="{{ $back }}" class="btn btn-ghost"><i class="fas fa-arrow-left"></i><span>{{ __('Exercises') }}</span></a>
     @endif
-    <a href="{{ $dashboardRoute }}" class="btn btn-ghost"><i class="fas fa-home"></i><span>Dashboard</span></a>
+    <a href="{{ $dashboardRoute }}" class="btn btn-ghost"><i class="fas fa-home"></i><span>{{ __('Dashboard') }}</span></a>
   </div>
 </header>
