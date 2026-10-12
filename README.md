@@ -87,6 +87,19 @@ The system is designed for real gym environments and can be extended into a SaaS
 
 ---
 
+## ▶️ Quick Start on Windows (one click)
+
+Double-click **`start-local.bat`** in the project folder. It finds PHP (from your PATH or Laragon),
+installs dependencies on the first run, creates a local SQLite database with the demo accounts and
+exercises, starts the server and opens the browser at `http://127.0.0.1:8000`.
+
+- No MySQL or Laragon services need to be running.
+- Local settings are stored in `.env.local` and `database/database.sqlite` (your `.env` is not touched).
+- Keep the window open while using the system; close it to stop the server.
+- Requires PHP 8 (Laragon's PHP works) and, only for the first run without a `vendor` folder, Composer.
+
+---
+
 ## ⚙ Installation Guide
 
 ### 1️⃣ Clone Repository
