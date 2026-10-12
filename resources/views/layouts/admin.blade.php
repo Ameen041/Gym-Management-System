@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>@yield('title','Admin') | Ameen Gym</title>
+  @include('partials.pwa')
   <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -40,6 +41,11 @@
         <a href="{{ route('admin.templates.index') }}" class="{{ request()->routeIs('admin.templates.*')?'active':'' }}">
           <i class="fas fa-file-alt"></i>
           <span>Templates</span>
+        </a>
+        
+        <a href="{{ route('admin.exercises.index') }}" class="{{ request()->routeIs('admin.exercises.*')?'active':'' }}">
+          <i class="fas fa-dumbbell"></i>
+          <span>Exercises</span>
         </a>
         
         <a href="{{ route('admin.payments.dashboard') }}" class="{{ request()->routeIs('admin.payments.*')?'active':'' }}">

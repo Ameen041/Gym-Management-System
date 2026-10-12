@@ -47,6 +47,22 @@ The system is designed for real gym environments and can be extended into a SaaS
 - Monitor workout & nutrition requests
 - Subscription monitoring
 - Payment dashboard (extendable)
+- Manage the exercise library (add exercises, video links or uploaded videos)
+
+---
+
+### 🎥 Exercise Library
+- Weight-training exercises grouped by muscle (chest, back, shoulders, arms, legs, abs...)
+- Each exercise has a video explanation (YouTube / Vimeo link or uploaded MP4), step-by-step instructions and tips
+- Search and filter by muscle group, available to trainees and trainers at `/exercises`
+- Managed by the admin at `/admin/exercises`; a starter set of 20 exercises is seeded automatically
+
+---
+
+### 📱 Installable App (PWA)
+- The system can be installed on Android, iPhone and desktop like a normal app ("Install App" button)
+- Web app manifest, app icons and a service worker (`public/sw.js`) with an offline page
+- Requires HTTPS in production (installation is disabled on plain HTTP)
 
 ---
 
@@ -68,6 +84,19 @@ The system is designed for real gym environments and can be extended into a SaaS
 - MySQL
 - Laravel 9+
 - Apache or Nginx
+
+---
+
+## ▶️ Quick Start on Windows (one click)
+
+Double-click **`start-local.bat`** in the project folder. It finds PHP (from your PATH or Laragon),
+installs dependencies on the first run, creates a local SQLite database with the demo accounts and
+exercises, starts the server and opens the browser at `http://127.0.0.1:8000`.
+
+- No MySQL or Laragon services need to be running.
+- Local settings are stored in `.env.local` and `database/database.sqlite` (your `.env` is not touched).
+- Keep the window open while using the system; close it to stop the server.
+- Requires PHP 8 (Laragon's PHP works) and, only for the first run without a `vendor` folder, Composer.
 
 ---
 

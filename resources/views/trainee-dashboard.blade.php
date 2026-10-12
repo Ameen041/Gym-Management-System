@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trainee Dashboard | Ameen Gym</title>
+    @include('partials.pwa')
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="{{ asset('css/trainee-dashboard.css') }}">
@@ -42,6 +43,16 @@
     </div>
 
     <div class="topbar-right">
+      <button type="button" class="btn btn-primary" data-install-app hidden>
+        <i class="fas fa-download"></i>
+        <span>Install App</span>
+      </button>
+
+      <a href="{{ route('exercises.index') }}" class="btn btn-ghost">
+        <i class="fas fa-dumbbell"></i>
+        <span>Exercises</span>
+      </a>
+
       <button class="btn btn-ghost" data-toggle="#profileCard">
         <i class="fas fa-user"></i>
         <span>Profile</span>

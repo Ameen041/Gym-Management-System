@@ -82,6 +82,8 @@ body{
   gap:10px;
   text-decoration:none;
   transition: var(--transition);
+  font-family:inherit;
+  font-size:.85rem;
   font-weight:700;
 }
 .btn:hover{transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,.07)}

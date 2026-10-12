@@ -12,13 +12,13 @@ class Role
     {
         $u = Auth::user();
         if (!$u) {
-            return redirect()->route('login_form')
+            return redirect()->route('login.form')
                 ->with('error', 'يرجى تسجيل الدخول أولاً');
         }
 
         // يدعم: role:admin أو role:trainee أو role:trainer,admin
         if (!in_array($u->role, $roles, true)) {
-            return redirect()->route('login_form')
+            return redirect()->route('login.form')
                 ->with('error', 'غير مسموح لك بالدخول إلى هذه الصفحة! 🙃');
         }
 

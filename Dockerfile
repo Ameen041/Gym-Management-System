@@ -14,6 +14,13 @@ RUN apt-get update && apt-get install -y \
  && docker-php-ext-install pdo pdo_mysql mysqli pdo_pgsql pgsql \
  && rm -rf /var/lib/apt/lists/*
 
+# Allow exercise video uploads (default PHP limit is 2MB)
+RUN { \
+      echo 'upload_max_filesize=100M'; \
+      echo 'post_max_size=110M'; \
+      echo 'memory_limit=256M'; \
+    } > /usr/local/etc/php/conf.d/uploads.ini
+
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 

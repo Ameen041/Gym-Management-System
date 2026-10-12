@@ -5,6 +5,7 @@
 <link rel="stylesheet" href="{{ asset('css/layout.css') }}">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
 <head>
+@include('partials.pwa')
 <title> @yield('title')
 
 </title>
