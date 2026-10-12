@@ -6,6 +6,8 @@ use App\Http\Controllers\TraineeController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AdminTemplateController;
+use App\Http\Controllers\AdminExerciseController;
+use App\Http\Controllers\ExerciseController;
 
 
 
@@ -49,6 +51,12 @@ Route::get('/trainer/nutrition-requests', [TrainerController::class, 'showNutrit
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login.form');
 
+// Exercise library (weight training exercises with video explanations)
+Route::middleware(['auth', 'active'])->group(function () {
+    Route::get('/exercises', [ExerciseController::class, 'index'])->name('exercises.index');
+    Route::get('/exercises/{exercise}', [ExerciseController::class, 'show'])->whereNumber('exercise')->name('exercises.show');
+});
+
 Route::get('/trainee/profile/edit', [TraineeController::class, 'editProfile'])->name('trainee.profile.edit');
 
 Route::match(['POST','PUT','PATCH'], '/trainee/profile/update', [TraineeController::class, 'updateProfile'])
@@ -84,6 +92,12 @@ Route::middleware(['auth','active','role:admin'])
         Route::put('/templates/{id}',       [AdminTemplateController::class,'update'])->name('templates.update'); // ✅ هنا
         
         Route::delete('/templates/{id}',    [AdminTemplateController::class,'destroy'])->name('templates.destroy');
+        Route::get('/exercises',           [AdminExerciseController::class,'index'])->name('exercises.index');
+        Route::get('/exercises/create',    [AdminExerciseController::class,'create'])->name('exercises.create');
+        Route::post('/exercises',          [AdminExerciseController::class,'store'])->name('exercises.store');
+        Route::get('/exercises/{id}/edit', [AdminExerciseController::class,'edit'])->name('exercises.edit');
+        Route::put('/exercises/{id}',      [AdminExerciseController::class,'update'])->name('exercises.update');
+        Route::delete('/exercises/{id}',   [AdminExerciseController::class,'destroy'])->name('exercises.destroy');
         Route::get('/payments', [AdminController::class, 'paymentsDashboard'])->name('payments.dashboard');
         Route::get('/subscriptions/expired', [AdminController::class, 'expiredSubscriptions'])
     ->name('subscriptions.expired');

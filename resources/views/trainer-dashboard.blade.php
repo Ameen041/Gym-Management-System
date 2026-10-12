@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trainer Dashboard</title>
+    @include('partials.pwa')
 
     <link rel="stylesheet" href="{{ asset('css/trainer-dashboard.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -70,6 +71,14 @@
                 @if($totalPending > 0)
                     <span class="notification-badge">{{ $totalPending }}</span>
                 @endif
+            </a>
+
+            <button type="button" class="btn btn-primary" data-install-app hidden>
+                <i class="fas fa-download"></i> Install App
+            </button>
+
+            <a href="{{ route('exercises.index') }}" class="btn btn-ghost">
+                <i class="fas fa-dumbbell"></i> Exercises
             </a>
 
             <button type="button" class="btn btn-ghost" id="toggleProfileBtn">

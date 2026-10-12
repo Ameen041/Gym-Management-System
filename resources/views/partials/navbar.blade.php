@@ -17,6 +17,7 @@
             </ul>
             
             <div class="auth-buttons">
+                <button type="button" class="btn" data-install-app hidden><i class="fas fa-download"></i> Install App</button>
                 <button class="btn login-btn">Login</button>
                 <button class="btn btn-primary signup-btn">Sign Up</button>
             </div>
