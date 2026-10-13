@@ -11,6 +11,7 @@ class Setting extends Model
 {
     public const DEFAULTS = [
         'commission_rate'      => '15',
+        'payout_hold_days'     => '7',
         'shamcash_name'        => '',
         'shamcash_account'     => '',
         'shamcash_qr'          => '',

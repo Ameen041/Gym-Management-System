@@ -54,7 +54,7 @@
     @endif
 
     <section class="panel">
-      <div class="panel-head"><h2><i class="fas fa-star"></i> {{ __('Reviews') }}</h2></div>
+      <div class="panel-head" id="reviews"><h2><i class="fas fa-star"></i> {{ __('Reviews') }}</h2></div>
       @forelse($reviews as $review)
         <div class="review">
           <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">

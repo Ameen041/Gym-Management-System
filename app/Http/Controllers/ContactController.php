@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ContactMessage;
+use App\Support\Notify;
 use Illuminate\Http\Request;
 
 class ContactController extends Controller
@@ -17,6 +18,9 @@ class ContactController extends Controller
         ]);
 
         ContactMessage::create($data);
+
+        Notify::admins('New message from :name on the contact form.', ['name' => $data['name']],
+            Notify::link('admin.messages.index'), 'fa-envelope');
 
         return redirect()->to(route('home') . '#contact')
             ->with('contact_success', __('Thank you! Your message has been sent. We will get back to you soon.'));

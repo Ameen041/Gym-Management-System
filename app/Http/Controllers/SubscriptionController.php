@@ -7,6 +7,8 @@ use App\Models\Review;
 use App\Models\Setting;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Support\Money;
+use App\Support\Notify;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -143,6 +145,12 @@ class SubscriptionController extends Controller
             'admin_note'           => null,
         ]);
 
+        Notify::admins('New payment receipt from :trainee: :amount for coach :coach.', [
+            'trainee' => $subscription->trainee->name,
+            'amount'  => Money::format($subscription->price),
+            'coach'   => $subscription->coach->name,
+        ], Notify::link('admin.subscriptions.index', ['tab' => 'review']), 'fa-receipt');
+
         return redirect()->route('trainee.dashboard')
             ->with('success', __('Thank you! Your payment is being reviewed. Your subscription starts as soon as it is confirmed.'));
     }
@@ -178,6 +186,11 @@ class SubscriptionController extends Controller
         ]);
 
         $subscription->coach->ensureCoachProfile()->refreshRating();
+
+        Notify::user($subscription->coach, ':trainee rated you :rating/5.', [
+            'trainee' => $subscription->trainee->name,
+            'rating'  => $data['rating'],
+        ], Notify::link('coaches.show', $subscription->coach_id) . '#reviews', 'fa-star');
 
         return back()->with('success', __('Thank you for your review!'));
     }

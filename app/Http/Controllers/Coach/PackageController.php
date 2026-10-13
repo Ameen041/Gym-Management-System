@@ -22,6 +22,7 @@ class PackageController extends Controller
     public function store(Request $request)
     {
         auth()->user()->packages()->create($this->validated($request));
+        auth()->user()->ensureCoachProfile()->notifyAdminsIfReady();
 
         return redirect()->route('coach.packages.index')->with('success', __('Package saved.'));
     }

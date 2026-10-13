@@ -119,11 +119,39 @@ public function payments()
     }
 
     /** Earnings of a coach: confirmed subscriptions minus payouts already sent. */
+    /**
+     * Money of a coach (after the platform commission).
+     *  - earned:    all confirmed subscriptions
+     *  - paid:      payouts already sent
+     *  - balance:   earned - paid (everything still owed)
+     *  - available: part of the balance that can be paid now. A subscription's money
+     *               becomes available once its plans were sent AND the hold period
+     *               (Setting payout_hold_days) after the payment confirmation passed,
+     *               so a trainee can still be refunded if the coach never delivers.
+     *  - pending:   balance - available
+     */
     public function coachEarnings(): array
     {
-        $earned = (float) $this->coachSubscriptions()->confirmed()->sum('coach_amount');
-        $paid   = (float) $this->payouts()->sum('amount');
+        $holdDays = max(0, (int) Setting::get('payout_hold_days'));
+        $subscriptions = $this->coachSubscriptions()->confirmed()->with(['workoutPlan', 'nutritionPlan'])->get();
 
-        return ['earned' => $earned, 'paid' => $paid, 'balance' => round($earned - $paid, 2)];
+        $earned = (float) $subscriptions->sum('coach_amount');
+        $released = (float) $subscriptions
+            ->filter(fn (Subscription $s) => !$s->missingPlans()
+                && ($s->confirmed_at ?? $s->starts_at)?->copy()->addDays($holdDays)->isPast())
+            ->sum('coach_amount');
+        $paid = (float) $this->payouts()->sum('amount');
+
+        $balance = round($earned - $paid, 2);
+        $available = round(min($balance, max(0, $released - $paid)), 2);
+
+        return [
+            'earned'    => $earned,
+            'paid'      => $paid,
+            'balance'   => $balance,
+            'available' => $available,
+            'pending'   => round(max(0, $balance - $available), 2),
+            'hold_days' => $holdDays,
+        ];
     }
 }

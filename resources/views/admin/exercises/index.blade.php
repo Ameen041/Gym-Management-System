@@ -15,7 +15,11 @@
       <p style="color: var(--gray-700); margin-top: 4px;">{{ __(':count exercises', ['count' => $exercises->count()]) }}</p>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <form method="GET" action="{{ route('admin.exercises.index') }}">
+      <form method="GET" action="{{ route('admin.exercises.index') }}" style="display:flex;gap:8px;align-items:center">
+        <label style="display:flex;gap:6px;align-items:center;white-space:nowrap;font-size:.9rem">
+          <input type="checkbox" name="missing_video" value="1" @checked($missingVideo) onchange="this.form.submit()">
+          {{ __('Without video (:count)', ['count' => $withoutVideo]) }}
+        </label>
         <select name="muscle" class="form-control" onchange="this.form.submit()">
           <option value="">{{ __('All muscles') }}</option>
           @foreach(\App\Models\Exercise::MUSCLE_GROUPS as $key => $group)
@@ -68,12 +72,19 @@
               </td>
               <td><span class="badge badge-primary">{{ $exercise->muscle_label }}</span></td>
               <td>{{ $exercise->difficulty_label }}</td>
-              <td>
+              <td style="min-width:230px">
                 @if($exercise->has_video)
                   <span class="badge badge-success"><i class="fas fa-video"></i> {{ __('Yes') }}</span>
                 @else
                   <span class="badge badge-warning">{{ __('Missing') }}</span>
+                  <a href="{{ $exercise->youtube_search_url }}" target="_blank" rel="noopener" style="font-size:.8rem;margin-inline-start:6px">{{ __('Find on YouTube') }}</a>
                 @endif
+                <form method="POST" action="{{ route('admin.exercises.video', $exercise->id) }}" style="display:flex;gap:4px;margin-top:6px">
+                  @csrf
+                  <input type="url" name="video_url" value="{{ $exercise->video_url }}" class="form-control" dir="ltr"
+                         placeholder="https://youtu.be/..." style="padding:6px 8px;font-size:.8rem;min-width:150px">
+                  <button class="btn btn-sm btn-secondary" title="{{ __('Save') }}"><i class="fas fa-save"></i></button>
+                </form>
               </td>
               <td>
                 @if($exercise->is_active)

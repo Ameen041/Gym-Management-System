@@ -6,6 +6,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AdminTemplateController;
 use App\Http\Controllers\AdminExerciseController;
+use App\Http\Controllers\AdminFoodController;
 use App\Http\Controllers\AdminCoachController;
 use App\Http\Controllers\AdminSubscriptionController;
 use App\Http\Controllers\AdminPayoutController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\CoachDirectoryController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Coach\DashboardController as CoachDashboardController;
 use App\Http\Controllers\Coach\ProfileController as CoachProfileController;
 use App\Http\Controllers\Coach\PackageController as CoachPackageController;
@@ -89,6 +91,10 @@ Route::middleware(['auth', 'active', 'role:trainee'])->group(function () {
 
 // Exercise library (weight training exercises with video explanations)
 Route::middleware(['auth', 'active'])->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.readAll');
+    Route::get('/notifications/{id}', [NotificationController::class, 'open'])->name('notifications.open');
+
     Route::get('/exercises', [ExerciseController::class, 'index'])->name('exercises.index');
     Route::get('/exercises/{exercise}', [ExerciseController::class, 'show'])->whereNumber('exercise')->name('exercises.show');
 });
@@ -140,6 +146,15 @@ Route::middleware(['auth','active','role:admin'])
         Route::get('/exercises/{id}/edit', [AdminExerciseController::class,'edit'])->name('exercises.edit');
         Route::put('/exercises/{id}',      [AdminExerciseController::class,'update'])->name('exercises.update');
         Route::delete('/exercises/{id}',   [AdminExerciseController::class,'destroy'])->name('exercises.destroy');
+        Route::post('/exercises/{id}/video', [AdminExerciseController::class,'updateVideo'])->name('exercises.video');
+
+        // Food library for the nutrition calculator
+        Route::get('/foods',              [AdminFoodController::class, 'index'])->name('foods.index');
+        Route::get('/foods/create',       [AdminFoodController::class, 'create'])->name('foods.create');
+        Route::post('/foods',             [AdminFoodController::class, 'store'])->name('foods.store');
+        Route::get('/foods/{food}/edit',  [AdminFoodController::class, 'edit'])->name('foods.edit');
+        Route::put('/foods/{food}',       [AdminFoodController::class, 'update'])->name('foods.update');
+        Route::delete('/foods/{food}',    [AdminFoodController::class, 'destroy'])->name('foods.destroy');
 
         Route::get('/messages', [AdminMessageController::class, 'index'])->name('messages.index');
         Route::post('/messages/{message}/read', [AdminMessageController::class, 'markRead'])->name('messages.read');

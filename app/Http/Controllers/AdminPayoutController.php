@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\CoachPayout;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Support\Money;
+use App\Support\Notify;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -12,25 +14,20 @@ class AdminPayoutController extends Controller
 {
     public function index()
     {
-        $earned = Subscription::confirmed()->selectRaw('coach_id, SUM(coach_amount) as total')->groupBy('coach_id')->pluck('total', 'coach_id');
-        $paid = CoachPayout::selectRaw('coach_id, SUM(amount) as total')->groupBy('coach_id')->pluck('total', 'coach_id');
+        $coachIds = Subscription::confirmed()->distinct()->pluck('coach_id');
 
-        $coaches = User::whereIn('id', $earned->keys())
+        $coaches = User::whereIn('id', $coachIds)
             ->orderBy('name')
             ->get()
-            ->map(function (User $coach) use ($earned, $paid) {
-                $coach->earned  = (float) ($earned[$coach->id] ?? 0);
-                $coach->paid    = (float) ($paid[$coach->id] ?? 0);
-                $coach->balance = round($coach->earned - $coach->paid, 2);
-                return $coach;
-            })
-            ->sortByDesc('balance')
+            ->each(fn (User $coach) => $coach->earnings = $coach->coachEarnings())
+            ->sortByDesc(fn (User $coach) => [$coach->earnings['available'], $coach->earnings['balance']])
             ->values();
 
         $totals = [
             'sales'      => (float) Subscription::confirmed()->sum('price'),
             'commission' => (float) Subscription::confirmed()->sum('commission_amount'),
-            'owed'       => $coaches->sum('balance'),
+            'owed'       => $coaches->sum(fn ($c) => $c->earnings['balance']),
+            'available'  => $coaches->sum(fn ($c) => $c->earnings['available']),
         ];
 
         $payouts = CoachPayout::with('coach')->latest()->limit(30)->get();
@@ -47,7 +44,11 @@ class AdminPayoutController extends Controller
             'note'      => ['nullable', 'string', 'max:255'],
         ]);
 
-        CoachPayout::create($data + ['method' => 'sham_cash', 'created_by' => auth()->id()]);
+        $payout = CoachPayout::create($data + ['method' => 'sham_cash', 'created_by' => auth()->id()]);
+
+        Notify::user($payout->coach, 'A payout of :amount was sent to you on Sham Cash.', [
+            'amount' => Money::format($payout->amount),
+        ], Notify::link('trainer.dashboard'), 'fa-hand-holding-usd');
 
         return back()->with('status', __('Payout recorded.'));
     }

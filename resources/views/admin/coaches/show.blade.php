@@ -70,7 +70,7 @@
 
 <div class="card">
   <h3 style="margin-bottom:12px">{{ __('Earnings') }}</h3>
-  <p>{{ __('Total earned (after commission)') }}: <strong>{{ Money::format($earnings['earned']) }}</strong> · {{ __('Paid') }}: <strong>{{ Money::format($earnings['paid']) }}</strong> · {{ __('Balance') }}: <strong>{{ Money::format($earnings['balance']) }}</strong></p>
+  <p>{{ __('Total earned (after commission)') }}: <strong>{{ Money::format($earnings['earned']) }}</strong> · {{ __('Paid') }}: <strong>{{ Money::format($earnings['paid']) }}</strong> · {{ __('On hold') }}: <strong>{{ Money::format($earnings['pending']) }}</strong> · {{ __('Ready to pay') }}: <strong>{{ Money::format($earnings['available']) }}</strong></p>
   @if($subscriptions->isNotEmpty())
     <div class="table-wrapper" style="margin-top:12px">
       <table class="table">

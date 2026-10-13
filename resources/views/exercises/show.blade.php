@@ -35,6 +35,11 @@
           <div class="video-missing">
             <i class="fas fa-video"></i>
             <p>{{ __('The video explanation for this exercise hasn\'t been added yet.') }}</p>
+            @if(app()->isLocale('ar') && $exercise->youtube_search_url_ar)
+              <a href="{{ $exercise->youtube_search_url_ar }}" target="_blank" rel="noopener" class="btn btn-youtube">
+                <i class="fab fa-youtube"></i> {{ __('Watch Arabic explanations on YouTube') }}
+              </a>
+            @endif
             <a href="{{ $exercise->youtube_search_url }}" target="_blank" rel="noopener" class="btn btn-youtube">
               <i class="fab fa-youtube"></i> {{ __('Watch examples on YouTube') }}
             </a>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\NutritionPlan;
 use App\Models\Subscription;
 use App\Models\WorkoutPlan;
+use App\Support\Notify;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -20,12 +21,35 @@ class TraineeController extends Controller
             ->latest()
             ->get();
 
+        $running = $subscriptions->filter->isRunning()->values();
+        $this->remindRenewals($running, $subscriptions);
+
         return view('trainee-dashboard', [
             'user'      => $user,
-            'running'   => $subscriptions->filter->isRunning()->values(),
+            'running'   => $running,
             'pending'   => $subscriptions->whereIn('status', ['awaiting_payment', 'payment_review', 'rejected'])->values(),
             'history'   => $subscriptions->filter(fn ($s) => $s->display_status === 'expired')->values(),
         ]);
+    }
+
+    /**
+     * Subscriptions ending within 3 days get a one-time renewal reminder
+     * (unless a renewal with the same coach is already on its way).
+     */
+    private function remindRenewals($running, $subscriptions): void
+    {
+        foreach ($running as $sub) {
+            if ($sub->ends_at->gt(now()->addDays(3))) {
+                continue;
+            }
+            $renewing = $subscriptions->contains(fn ($s) => $s->id !== $sub->id && $s->coach_id === $sub->coach_id
+                && ($s->created_at->gt($sub->created_at)) && $s->status !== 'rejected');
+            if (!$renewing) {
+                Notify::user(auth()->user(), 'Your subscription with :coach ends soon. Renew it to keep getting your plans.', [
+                    'coach' => $sub->coach->name,
+                ], Notify::link('coaches.show', $sub->coach_id), 'fa-redo', 'renew-' . $sub->id, true);
+            }
+        }
     }
 
     /* ==================== PLANS ==================== */

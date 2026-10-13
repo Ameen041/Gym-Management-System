@@ -16,6 +16,12 @@
     <small style="color:var(--gray-700)">{{ __('Applied to new payments when you confirm them. Past subscriptions keep their rate.') }}</small>
   </div>
 
+  <div class="form-group">
+    <label class="form-label">{{ __('Hold period before paying coaches (days)') }}</label>
+    <input type="number" name="payout_hold_days" step="1" min="0" max="60" class="form-control" style="max-width:200px" value="{{ old('payout_hold_days', $settings['payout_hold_days']) }}" required>
+    <small style="color:var(--gray-700)">{{ __('A payment becomes payable to the coach after the coach sends the plan and this many days pass since you confirmed it. This leaves time to refund a trainee if something goes wrong. 0 = right after the plan is sent.') }}</small>
+  </div>
+
   <h3 style="margin:24px 0 16px"><i class="fas fa-wallet"></i> {{ __('Sham Cash account (shown to trainees when they pay)') }}</h3>
   <div class="form-group">
     <label class="form-label">{{ __('Account name') }}</label>

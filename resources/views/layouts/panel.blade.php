@@ -7,6 +7,7 @@
   @include('partials.head')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="{{ asset('css/panel.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/notifications.css') }}">
   @stack('styles')
 </head>
 <body>
@@ -55,6 +56,8 @@
       <button type="button" class="btn btn-sm btn-primary" data-install-app hidden>
         <i class="fas fa-download"></i> {{ __('Install App') }}
       </button>
+
+      @include('partials.notification-bell')
 
       @include('partials.lang-switch', ['class' => 'btn btn-sm btn-light'])
 

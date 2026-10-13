@@ -19,6 +19,14 @@ their clients on WhatsApp.
 6. The coach sees the new client, builds the plan (exercises picked from the library get a video link) and both sides get a WhatsApp button.
 7. The trainee reviews the coach; the admin records payouts to coaches from Admin → Coach payouts.
 
+**Coach payouts:** all payments arrive in the platform's Sham Cash account. A client's money becomes *ready to pay*
+once the coach has sent the plan and the hold period has passed (default 7 days after the payment is confirmed,
+set in Admin → Settings). The suggested routine is a weekly payout: send each coach the "Ready to pay" amount on
+Sham Cash, then record it in Admin → Coach payouts (the coach gets a notification).
+
+**Notifications:** a bell in every dashboard shows what happened: new payment receipts and coaches waiting for review
+(admin), new clients, reviews and payouts (coach), confirmed / rejected payments, new plans and renewal reminders (trainee).
+
 ---
 
 ## 🚀 Main Features
@@ -59,7 +67,8 @@ their clients on WhatsApp.
 - Monitor workout & nutrition requests
 - Subscription monitoring
 - Payment dashboard (extendable)
-- Manage the exercise library (add exercises, video links or uploaded videos)
+- Manage the exercise library (add exercises, video links or uploaded videos; paste a YouTube link straight from the list)
+- Manage the food library used by the nutrition calculator (`/admin/foods`)
 
 ---
 
@@ -67,7 +76,19 @@ their clients on WhatsApp.
 - Weight-training exercises grouped by muscle (chest, back, shoulders, arms, legs, abs...)
 - Each exercise has a video explanation (YouTube / Vimeo link or uploaded MP4), step-by-step instructions and tips
 - Search and filter by muscle group, available to trainees and trainers at `/exercises`
-- Managed by the admin at `/admin/exercises`; a starter set of 20 exercises is seeded automatically
+- Managed by the admin at `/admin/exercises`; about 140 exercises (including cardio) are seeded automatically,
+  with English and Arabic steps and tips written for this project
+- Videos: the admin pastes a YouTube link per exercise (embedding is allowed by YouTube); until then the page offers a
+  YouTube search in Arabic and English. Exercise videos/images from other apps or sites are copyrighted and are not copied.
+
+### 🥗 Nutrition Calculator
+- Coaches build each meal from foods (eggs, chicken, rice, bulgur, hummus, pita bread...) and enter the amount in grams
+  or in servings ("3 × 1 large egg", "1 large loaf")
+- Calories, protein, carbs and fat are calculated per food, per meal, per day and as a weekly average
+- Starter library of 141 foods with values per 100 g from the **USDA National Nutrient Database for Standard Reference,
+  Release 28** (published as FoodData Central "SR Legacy"), a public-domain reference: `database/seeders/data/foods.php`
+- Local products (labneh, akkawi cheese, bakery bread...) are added by the admin from the package nutrition label,
+  and a coach can also type a food that is not in the list with its own values
 
 ---
 
@@ -201,10 +222,10 @@ Saturday
 - Chest | Bench Press | 4 | 10  
 - Chest | Incline Press | 3 | 12  
 
-Example Nutrition Structure:
+Example Nutrition Structure (each meal lists its foods; totals are calculated):
 
 Saturday  
-- Meal 1 | 450 kcal | 20g Protein | 65g Carbs | 12g Fat  
+- Meal 1 (Breakfast): 3 × boiled egg (150 g) + 1 pita bread (60 g) → 398 kcal | 24.4 g protein | 35.1 g carbs | 16.6 g fat  
 
 This structure allows flexible weekly scheduling and clean UI rendering.
 
@@ -216,7 +237,6 @@ This structure allows flexible weekly scheduling and clean UI rendering.
 - Multi-gym SaaS architecture
 - Mobile App API support
 - Progress analytics & charts
-- Notification system
 - QR-based gym entry tracking
 
 ---

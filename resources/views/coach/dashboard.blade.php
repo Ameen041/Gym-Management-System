@@ -47,7 +47,7 @@
 <div class="stats">
   <div class="stat"><div class="label">{{ __('Active clients') }}</div><div class="value">{{ $clients->count() }}</div></div>
   <div class="stat"><div class="label">{{ __('Waiting for a plan') }}</div><div class="value" style="color:{{ $waitingPlans ? 'var(--danger)' : 'inherit' }}">{{ $waitingPlans }}</div></div>
-  <div class="stat"><div class="label">{{ __('Balance to receive') }}</div><div class="value">{{ Money::format($earnings['balance']) }}</div></div>
+  <div class="stat"><div class="label">{{ __('Ready to be paid') }}</div><div class="value">{{ Money::format($earnings['available']) }}</div></div>
   <div class="stat"><div class="label">{{ __('Rating') }}</div><div class="value" style="font-size:1rem;margin-top:8px">@include('partials.stars', ['rating' => $profile->rating_avg, 'count' => $profile->rating_count])</div></div>
 </div>
 
@@ -84,8 +84,9 @@
       <div class="panel-head"><h2><i class="fas fa-wallet"></i> {{ __('Earnings') }}</h2></div>
       <div class="list-row"><span class="grow">{{ __('Total earned (after commission)') }}</span><strong>{{ Money::format($earnings['earned']) }}</strong></div>
       <div class="list-row"><span class="grow">{{ __('Already paid to you') }}</span><strong>{{ Money::format($earnings['paid']) }}</strong></div>
-      <div class="list-row"><span class="grow">{{ __('Balance to receive') }}</span><strong style="color:var(--primary)">{{ Money::format($earnings['balance']) }}</strong></div>
-      <p class="muted small" style="margin-top:8px">{{ __('Earnings are sent to your Sham Cash account by the platform.') }}</p>
+      <div class="list-row"><span class="grow">{{ __('On hold') }}</span><strong>{{ Money::format($earnings['pending']) }}</strong></div>
+      <div class="list-row"><span class="grow">{{ __('Ready to be paid') }}</span><strong style="color:var(--primary)">{{ Money::format($earnings['available']) }}</strong></div>
+      <p class="muted small" style="margin-top:8px">{{ __('The money of each client becomes ready :days days after the payment is confirmed, once you have sent the plan. The platform sends ready earnings to your Sham Cash account every week.', ['days' => $earnings['hold_days']]) }}</p>
     </section>
 
     <section class="panel">

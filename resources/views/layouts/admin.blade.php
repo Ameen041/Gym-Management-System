@@ -6,6 +6,7 @@
   <title>@yield('title', __('Admin')) | {{ __('Ameen Gym') }}</title>
   @include('partials.head')
   <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/notifications.css') }}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="admin">
@@ -34,6 +35,7 @@
               ['admin.payouts.index',       'admin.payouts.*',       'fa-hand-holding-usd',  __('Coach payouts'), 0],
               ['admin.users.index',         'admin.users.*',         'fa-users',             __('Users'),         0],
               ['admin.exercises.index',     'admin.exercises.*',     'fa-dumbbell',          __('Exercises'),     0],
+              ['admin.foods.index',         'admin.foods.*',         'fa-apple-alt',         __('Foods'),         0],
               ['admin.templates.index',     'admin.templates.*',     'fa-file-alt',          __('Templates'),     0],
               ['admin.messages.index',      'admin.messages.*',      'fa-inbox',             __('Messages'),      $unreadMessages],
               ['admin.settings.edit',       'admin.settings.*',      'fa-cog',               __('Settings'),      0],
@@ -72,6 +74,7 @@
           <h2>@yield('page-title', __('Dashboard'))</h2>
         </div>
         <div class="header-right">
+          @include('partials.notification-bell')
           @include('partials.lang-switch', ['class' => 'btn btn-secondary btn-sm'])
           <div class="admin-info">
             <i class="fas fa-user-circle"></i>

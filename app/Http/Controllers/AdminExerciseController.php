@@ -16,15 +16,34 @@ class AdminExerciseController extends Controller
     public function index(Request $request)
     {
         $muscle = $request->query('muscle');
+        $missingVideo = $request->boolean('missing_video');
 
         $exercises = Exercise::query()
             ->when($muscle, fn ($q) => $q->where('muscle_group', $muscle))
+            ->when($missingVideo, fn ($q) => $q->where(fn ($q) => $q->whereNull('video_url')->orWhere('video_url', ''))->whereNull('video_path'))
             ->orderBy('name')
             ->get()
             ->sortBy(fn ($e) => array_search($e->muscle_group, array_keys(Exercise::MUSCLE_GROUPS)))
             ->values();
 
-        return view('admin.exercises.index', compact('exercises', 'muscle'));
+        $withoutVideo = Exercise::where(fn ($q) => $q->whereNull('video_url')->orWhere('video_url', ''))->whereNull('video_path')->count();
+
+        return view('admin.exercises.index', compact('exercises', 'muscle', 'missingVideo', 'withoutVideo'));
+    }
+
+    /** Quick add / change of the YouTube (or Vimeo / mp4) link from the list. */
+    public function updateVideo(Request $request, $id)
+    {
+        $exercise = Exercise::findOrFail($id);
+        $data = $request->validate(['video_url' => ['nullable', 'url', 'max:255']]);
+
+        $exercise->update(['video_url' => $data['video_url'] ?? null]);
+
+        if ($exercise->video_url && !$exercise->has_video) {
+            return back()->with('error', __('This link is not a YouTube, Vimeo or direct video link.'));
+        }
+
+        return back()->with('status', __('Video saved for ":name".', ['name' => $exercise->display_name]));
     }
 
     public function create()

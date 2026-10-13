@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Coach;
 
 use App\Http\Controllers\Controller;
 use App\Models\Exercise;
+use App\Models\Food;
 use App\Models\NutritionPlan;
 use App\Models\PlanTemplate;
 use App\Models\Subscription;
 use App\Models\WorkoutPlan;
+use App\Support\Notify;
+use App\Support\NutritionMath;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
@@ -27,6 +30,17 @@ class PlanController extends Controller
 
         $plan = $type === 'workout' ? $subscription->workoutPlan : $subscription->nutritionPlan;
 
+        if ($type === 'nutrition') {
+            return view('coach.nutrition-builder', [
+                'subscription' => $subscription,
+                'plan'         => $plan,
+                'days'         => NutritionMath::builderDays($plan ? (json_decode($plan->plan_details, true) ?: []) : [], self::WEEK_DAYS),
+                'templates'    => PlanTemplate::where('type', 'nutrition')->where('is_active', true)->orderBy('title')->get(),
+                'foods'        => Food::active()->get()->sortBy(fn ($f) => $f->display_name)->values(),
+                'weekDays'     => self::WEEK_DAYS,
+            ]);
+        }
+
         return view('coach.plan-builder', [
             'subscription' => $subscription,
             'type'         => $type,
@@ -43,6 +57,13 @@ class PlanController extends Controller
     public function save(Request $request, Subscription $subscription, string $type)
     {
         $this->authorizePlan($subscription, $type);
+
+        if ($type === 'nutrition') {
+            $request->validate(['title' => 'required|string|max:255', 'meals' => 'nullable|array|max:100']);
+            $details = NutritionMath::fromRequest((array) $request->input('meals', []), self::WEEK_DAYS);
+
+            return $this->store($subscription, $type, $request->title, $details);
+        }
 
         $request->validate([
             'title' => 'required|string|max:255',
@@ -86,16 +107,32 @@ class PlanController extends Controller
             throw ValidationException::withMessages([$mainField => __('The plan is empty. Add at least one row.')]);
         }
 
+        return $this->store($subscription, $type, $request->title, $details);
+    }
+
+    private function store(Subscription $subscription, string $type, string $title, array $details)
+    {
         $model = $type === 'workout' ? WorkoutPlan::class : NutritionPlan::class;
+        $isUpdate = $model::where('subscription_id', $subscription->id)->exists();
         $model::updateOrCreate(
             ['subscription_id' => $subscription->id],
             [
                 'user_id'      => $subscription->trainee_id,
                 'trainer_id'   => $subscription->coach_id,
-                'title'        => $request->title,
+                'title'        => $title,
                 'plan_details' => json_encode($details, JSON_UNESCAPED_UNICODE),
             ]
         );
+
+        $message = match (true) {
+            $type === 'workout' && $isUpdate  => ':coach updated your workout plan.',
+            $type === 'workout'               => ':coach sent your workout plan.',
+            $isUpdate                         => ':coach updated your nutrition plan.',
+            default                           => ':coach sent your nutrition plan.',
+        };
+        Notify::user($subscription->trainee, $message, ['coach' => $subscription->coach->name],
+            Notify::link($type === 'workout' ? 'trainee.schedule' : 'trainee.diet', ['subscription' => $subscription->id]),
+            $type === 'workout' ? 'fa-dumbbell' : 'fa-apple-alt');
 
         return redirect()->route('coach.clients.show', $subscription)
             ->with('success', __('The plan was sent to your client.'));
