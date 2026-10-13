@@ -15,10 +15,10 @@
                 <h4 class="footer-title">{{ __('Quick Links') }}</h4>
                 <ul class="footer-links">
                     <li><a href="{{ route('home') }}">{{ __('Home') }}</a></li>
-                    <li><a href="#trainers">{{ __('Trainers') }}</a></li>
-                    <li><a href="#programs">{{ __('Programs') }}</a></li>
-                    <li><a href="#pricing">{{ __('Packages') }}</a></li>
-                    <li><a href="#contact">{{ __('Contact Us') }}</a></li>
+                    <li><a href="{{ route('coaches.index') }}">{{ __('Coaches') }}</a></li>
+                    <li><a href="{{ route('home') }}#how">{{ __('How it works') }}</a></li>
+                    <li><a href="{{ route('home') }}#for-coaches">{{ __('For coaches') }}</a></li>
+                    <li><a href="{{ route('home') }}#contact">{{ __('Contact Us') }}</a></li>
                 </ul>
             </div>
             

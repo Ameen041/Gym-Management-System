@@ -1,358 +1,173 @@
-<!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}" dir="{{ app()->isLocale('ar') ? 'rtl' : 'ltr' }}">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ __('Trainee Dashboard | Ameen Gym') }}</title>
-    @include('partials.head')
+@extends('layouts.panel')
+@section('title', __('Trainee Dashboard'))
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="{{ asset('css/trainee-dashboard.css') }}">
-</head>
-<body>
+@section('content')
+@php use App\Support\Money; @endphp
 
-<div class="page">
+<div class="page-title">
+  <h1>{{ __('Welcome back, :name', ['name' => $user->name]) }} 👋</h1>
+  <p>{{ __('Your coaching subscriptions and plans in one place.') }}</p>
+</div>
 
-  {{-- Alerts --}}
-  <div class="alerts">
-    @if(session('error'))
-      <div class="alert alert-danger">
-        <i class="fas fa-exclamation-circle"></i>
-        <span>{{ session('error') }}</span>
-      </div>
-    @endif
-
-    @if(session('success'))
-      <div class="alert alert-success">
-        <i class="fas fa-check-circle"></i>
-        <span>{{ session('success') }}</span>
-      </div>
-    @endif
-  </div>
-
-  {{-- Header --}}
-  <header class="topbar">
-    <div class="topbar-left">
-      <div class="brand">
-        <div class="brand-icon"><i class="fas fa-dumbbell"></i></div>
-        <div class="brand-text">
-          <h1>{{ __('Trainee Dashboard') }}</h1>
-          <p>{{ __('Manage your profile, payments, and plans') }}</p>
+{{-- Running subscriptions --}}
+@forelse($running as $sub)
+  <section class="panel">
+    <div class="panel-head">
+      <div class="profile-head" style="gap:12px">
+        <img src="{{ $sub->coach->photo_url }}" alt="" class="avatar-sm">
+        <div>
+          <h2 style="font-size:1.1rem">{{ $sub->coach->name }}</h2>
+          <div class="muted small">{{ $sub->package_title }}</div>
         </div>
       </div>
+      <span class="badge badge-ok"><i class="fas fa-check-circle"></i> {{ __('Active until :date', ['date' => $sub->ends_at->translatedFormat('j M Y')]) }}</span>
     </div>
 
-    <div class="topbar-right">
-      <button type="button" class="btn btn-primary" data-install-app hidden>
-        <i class="fas fa-download"></i>
-        <span>{{ __('Install App') }}</span>
-      </button>
-
-      <a href="{{ route('exercises.index') }}" class="btn btn-ghost">
-        <i class="fas fa-dumbbell"></i>
-        <span>{{ __('Exercises') }}</span>
-      </a>
-
-      @include('partials.lang-switch')
-
-      <button class="btn btn-ghost" data-toggle="#profileCard">
-        <i class="fas fa-user"></i>
-        <span>{{ __('Profile') }}</span>
-      </button>
-
-      <button class="btn btn-ghost" data-toggle="#editProfileCard">
-        <i class="fas fa-user-edit"></i>
-        <span>{{ __('Edit') }}</span>
-      </button>
-
-      <form action="{{ route('logout') }}" method="POST">
-        @csrf
-        <button type="submit" class="btn btn-danger">
-          <i class="fas fa-sign-out-alt"></i>
-          <span>{{ __('Logout') }}</span>
-        </button>
-      </form>
-    </div>
-  </header>
-
-  {{-- Quick stats --}}
-  @php
-    $user = Auth::user();
-    $photo = $user->profile_photo ? asset('storage/' . $user->profile_photo) : asset('images/avatar.svg');
-    $hasActiveSub = isset($activePayment) && $activePayment;
-  @endphp
-
-  <section class="stats">
-    <div class="stat-card">
-      <div class="stat-icon"><i class="fas fa-id-badge"></i></div>
-      <div class="stat-meta">
-        <div class="stat-label">{{ __('Welcome') }}</div>
-        <div class="stat-value">{{ $user->name }}</div>
-      </div>
-    </div>
-
-    <div class="stat-card {{ $hasActiveSub ? 'ok' : 'warn' }}">
-      <div class="stat-icon"><i class="fas fa-credit-card"></i></div>
-      <div class="stat-meta">
-        <div class="stat-label">{{ __('Subscription') }}</div>
-        <div class="stat-value">
-          @if($hasActiveSub)
-            {{ __('Active') }}
+    <div class="grid-2">
+      <div class="stack">
+        @if($sub->includes_workout)
+          @if($sub->workoutPlan)
+            <a href="{{ route('trainee.schedule', ['subscription' => $sub->id]) }}" class="btn btn-primary btn-block"><i class="fas fa-dumbbell"></i> {{ __('View Workout Plan') }}</a>
           @else
-            {{ __('Not Active') }}
+            <div class="alert alert-warning" style="margin:0"><i class="fas fa-hourglass-half"></i><div>{{ __('Your coach is preparing your workout plan (expected by :date).', ['date' => $sub->plan_due_at->translatedFormat('j M')]) }}</div></div>
           @endif
-        </div>
-        <div class="stat-sub">
-          @if($hasActiveSub)
-            {{ __('Until :date', ['date' => \Carbon\Carbon::parse($activePayment->period_end)->format('Y-m-d')]) }}
+        @endif
+        @if($sub->includes_nutrition)
+          @if($sub->nutritionPlan)
+            <a href="{{ route('trainee.diet', ['subscription' => $sub->id]) }}" class="btn btn-primary btn-block"><i class="fas fa-apple-alt"></i> {{ __('View Nutrition Plan') }}</a>
           @else
-            {{ __('Payment required') }}
+            <div class="alert alert-warning" style="margin:0"><i class="fas fa-hourglass-half"></i><div>{{ __('Your coach is preparing your nutrition plan (expected by :date).', ['date' => $sub->plan_due_at->translatedFormat('j M')]) }}</div></div>
           @endif
-        </div>
+        @endif
+        @if($sub->coach->whatsapp_url)
+          <a href="{{ $sub->coach->whatsapp_url }}" target="_blank" rel="noopener" class="btn btn-whatsapp btn-block"><i class="fab fa-whatsapp"></i> {{ __('Chat with your coach on WhatsApp') }}</a>
+        @endif
       </div>
-    </div>
 
-    <div class="stat-card {{ ($workoutPlan || $nutritionPlan) ? 'ok' : 'warn' }}">
-      <div class="stat-icon"><i class="fas fa-clipboard-check"></i></div>
-      <div class="stat-meta">
-        <div class="stat-label">{{ __('Plans') }}</div>
-        <div class="stat-value">{{ ($workoutPlan || $nutritionPlan) ? __('Available') : __('None') }}</div>
-        <div class="stat-sub">{{ __('Workout / Nutrition') }}</div>
+      <div>
+        @if($sub->review)
+          <div class="muted small">{{ __('Your review') }}</div>
+          @include('partials.stars', ['rating' => $sub->review->rating, 'count' => null])
+          @if($sub->review->comment)<p class="small" style="margin-top:4px">{{ $sub->review->comment }}</p>@endif
+        @else
+          <form method="POST" action="{{ route('subscriptions.review', $sub) }}">
+            @csrf
+            <div class="form-group">
+              <label>{{ __('Rate your coach') }}</label>
+              <select name="rating" required>
+                @for($r = 5; $r >= 1; $r--)
+                  <option value="{{ $r }}">{{ str_repeat('★', $r) }} ({{ $r }})</option>
+                @endfor
+              </select>
+            </div>
+            <div class="form-group">
+              <textarea name="comment" rows="2" placeholder="{{ __('Write a short review (optional)') }}"></textarea>
+            </div>
+            <button class="btn btn-sm"><i class="fas fa-star"></i> {{ __('Send review') }}</button>
+          </form>
+        @endif
       </div>
     </div>
   </section>
-
-  {{-- Main grid --}}
-  <main class="grid">
-
-    {{-- Profile card --}}
-    <section id="profileCard" class="card">
-      <div class="card-head">
-        <div class="card-title">
-          <i class="fas fa-user"></i>
-          <h2>{{ __('Your Profile') }}</h2>
-        </div>
-        <button class="icon-btn" data-toggle="#profileCard" title="{{ __('Close') }}">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-
-      <div class="profile-row">
-        <img src="{{ $photo }}" alt="{{ __('Profile photo') }}" class="avatar">
-        <div class="profile-main">
-          <h3>{{ $user->name }}</h3>
-          <p class="muted">{{ $user->email }}</p>
-        </div>
-      </div>
-
-      <div class="info-grid">
-        <div class="info-item">
-          <span class="info-label">{{ __('Age') }}</span>
-          <span class="info-value">{{ $user->age ?? '—' }}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">{{ __('Height (cm)') }}</span>
-          <span class="info-value">{{ $user->height ?? '—' }}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">{{ __('Weight (kg)') }}</span>
-          <span class="info-value">{{ $user->weight ?? '—' }}</span>
-        </div>
-        <div class="info-item">
-          <span class="info-label">{{ __('Status') }}</span>
-          <span class="info-value {{ $hasActiveSub ? 'text-ok' : 'text-warn' }}">
-            {{ $hasActiveSub ? __('Paid') : __('Not Paid') }}
-          </span>
-        </div>
-      </div>
+@empty
+  @if($pending->isEmpty())
+    <section class="panel empty">
+      <i class="fas fa-user-tie"></i>
+      <h3>{{ __('You have no coach yet') }}</h3>
+      <p>{{ __('Choose an online coach to get your workout and nutrition plan.') }}</p>
+      <a href="{{ route('coaches.index') }}" class="btn btn-primary" style="margin-top:12px"><i class="fas fa-search"></i> {{ __('Find your coach') }}</a>
     </section>
+  @endif
+@endforelse
 
-    {{-- Edit profile card --}}
-    <section id="editProfileCard" class="card hidden">
-      <div class="card-head">
-        <div class="card-title">
-          <i class="fas fa-user-edit"></i>
-          <h2>{{ __('Edit Profile') }}</h2>
-        </div>
-        <button class="icon-btn" data-toggle="#editProfileCard" title="{{ __('Close') }}">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-
-      <form method="POST" action="{{ route('trainee.profile.update') }}" enctype="multipart/form-data" class="form">
-        @csrf
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>{{ __('Name') }}</label>
-            <input class="form-control" type="text" name="name" value="{{ $user->name }}" required>
-          </div>
-
-          <div class="form-group">
-            <label>{{ __('Age') }}</label>
-            <input class="form-control" type="number" name="age" value="{{ $user->age }}">
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>{{ __('Height (cm)') }}</label>
-            <input class="form-control" type="number" name="height" value="{{ $user->height }}">
-          </div>
-
-          <div class="form-group">
-            <label>{{ __('Weight (kg)') }}</label>
-            <input class="form-control" type="number" name="weight" value="{{ $user->weight }}">
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>{{ __('Profile Photo') }}</label>
-            <input class="form-control" type="file" name="photo" accept="image/*">
-          </div>
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="btn btn-primary">
-            <i class="fas fa-save"></i>
-            <span>{{ __('Save') }}</span>
-          </button>
-          <button type="button" class="btn btn-ghost" data-toggle="#editProfileCard">
-            <i class="fas fa-times"></i>
-            <span>{{ __('Cancel') }}</span>
-          </button>
-        </div>
-      </form>
-    </section>
-
-    {{-- Payments / subscription card --}}
-    <section class="card">
-      <div class="card-head">
-        <div class="card-title">
-          <i class="fas fa-credit-card"></i>
-          <h2>{{ __('Subscription & Payments') }}</h2>
+{{-- Waiting for payment / review --}}
+@foreach($pending as $sub)
+  <section class="panel">
+    <div class="list-row" style="padding:0">
+      <img src="{{ $sub->coach->photo_url }}" alt="" class="avatar-sm">
+      <div class="grow">
+        <strong>{{ $sub->coach->name }}</strong> · <span class="muted">{{ $sub->package_title }} · {{ Money::format($sub->price) }}</span>
+        <div>
+          @if($sub->status === 'payment_review')
+            <span class="badge badge-warn"><i class="fas fa-hourglass-half"></i> {{ $sub->status_label }}</span>
+          @elseif($sub->status === 'rejected')
+            <span class="badge badge-danger"><i class="fas fa-times-circle"></i> {{ $sub->status_label }}</span>
+            @if($sub->admin_note)<span class="muted small">{{ $sub->admin_note }}</span>@endif
+          @else
+            <span class="badge badge-muted"><i class="fas fa-wallet"></i> {{ $sub->status_label }}</span>
+          @endif
         </div>
       </div>
-
-      @if($hasActiveSub)
-        <div class="pill pill-ok">
-          <i class="fas fa-check-circle"></i>
-          <span>{{ __('Active subscription until') }} <b>{{ \Carbon\Carbon::parse($activePayment->period_end)->format('Y-m-d') }}</b></span>
-        </div>
-      @else
-        <div class="pill pill-warn">
-          <i class="fas fa-exclamation-triangle"></i>
-          <span><b>{{ __('No active subscription') }}</b> {{ __('— you can’t request plans until admin adds a payment.') }}</span>
-        </div>
+      @if(in_array($sub->status, ['awaiting_payment', 'rejected']))
+        <a href="{{ route('subscriptions.pay', $sub) }}" class="btn btn-primary"><i class="fas fa-wallet"></i> {{ __('Complete payment') }}</a>
       @endif
+    </div>
+  </section>
+@endforeach
 
-      <div class="table-wrap">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>{{ __('Date') }}</th>
-              <th>{{ __('Amount') }}</th>
-              <th>{{ __('Method') }}</th>
-              <th>{{ __('Period') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            @if(isset($payments) && $payments->count())
-              @foreach($payments->take(5) as $p)
-                <tr>
-                  <td>{{ \Carbon\Carbon::parse($p->paid_at)->format('Y-m-d') }}</td>
-                  <td><b>{{ $p->amount }}</b></td>
-                  <td>{{ $p->method ?? '-' }}</td>
-                  <td>
-                    {{ \Carbon\Carbon::parse($p->period_start)->format('Y-m-d') }}
-                    →
-                    {{ \Carbon\Carbon::parse($p->period_end)->format('Y-m-d') }}
-                  </td>
-                </tr>
-              @endforeach
-            @else
-              <tr>
-                <td colspan="4" class="table-empty">{{ __('No payments recorded yet.') }}</td>
-              </tr>
-            @endif
-          </tbody>
-        </table>
+<div class="grid-2" style="margin-top:16px;align-items:start">
+  {{-- Profile --}}
+  <section class="panel">
+    <div class="panel-head"><h2><i class="fas fa-user"></i> {{ __('Your Profile') }}</h2></div>
+    <form method="POST" action="{{ route('trainee.profile.update') }}" enctype="multipart/form-data">
+      @csrf
+      <div class="profile-head" style="margin-bottom:14px">
+        <img src="{{ $user->photo_url }}" alt="" class="avatar-sm" style="width:64px;height:64px">
+        <div class="form-group" style="flex:1;margin:0">
+          <label>{{ __('Profile Photo') }}</label>
+          <input type="file" name="photo" accept="image/*">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>{{ __('Name') }}</label>
+          <input type="text" name="name" value="{{ old('name', $user->name) }}" required>
+        </div>
+        <div class="form-group">
+          <label>{{ __('WhatsApp number') }}</label>
+          <input type="tel" name="phone" value="{{ old('phone', $user->phone) }}" placeholder="09xxxxxxxx">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>{{ __('Age') }}</label>
+          <input type="number" name="age" value="{{ old('age', $user->age) }}">
+        </div>
+        <div class="form-group">
+          <label>{{ __('Height (cm)') }}</label>
+          <input type="number" name="height" value="{{ old('height', $user->height) }}">
+        </div>
+        <div class="form-group">
+          <label>{{ __('Weight (kg)') }}</label>
+          <input type="number" name="weight" step="0.1" value="{{ old('weight', $user->weight) }}">
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> {{ __('Save') }}</button>
+    </form>
+  </section>
 
-        @if(isset($payments) && $payments->count() > 5)
-          <div class="muted small" style="margin-top:10px;">{{ __('Showing latest 5 payments.') }}</div>
+  {{-- History --}}
+  <section class="panel">
+    <div class="panel-head"><h2><i class="fas fa-history"></i> {{ __('Previous subscriptions') }}</h2></div>
+    @forelse($history as $sub)
+      <div class="list-row">
+        <div class="grow">
+          <strong>{{ $sub->coach->name }}</strong> · <span class="muted small">{{ $sub->package_title }}</span>
+          <div class="muted small">{{ $sub->starts_at?->translatedFormat('j M Y') }} → {{ $sub->ends_at?->translatedFormat('j M Y') }}</div>
+        </div>
+        @if($sub->workoutPlan)
+          <a href="{{ route('trainee.schedule', ['subscription' => $sub->id]) }}" class="btn btn-sm">{{ __('Workout Plan') }}</a>
+        @endif
+        @if($sub->nutritionPlan)
+          <a href="{{ route('trainee.diet', ['subscription' => $sub->id]) }}" class="btn btn-sm">{{ __('Nutrition Plan') }}</a>
+        @endif
+        @if($sub->package_id)
+          <a href="{{ route('coaches.show', $sub->coach_id) }}" class="btn btn-sm btn-primary"><i class="fas fa-redo"></i> {{ __('Renew') }}</a>
         @endif
       </div>
-    </section>
-
-    {{-- Plans card --}}
-    <section class="card">
-      <div class="card-head">
-        <div class="card-title">
-          <i class="fas fa-clipboard-list"></i>
-          <h2>{{ __('Your Plans') }}</h2>
-        </div>
-      </div>
-
-      <div class="plans">
-        {{-- Workout --}}
-        <div class="plan-box">
-          <div class="plan-head">
-            <i class="fas fa-dumbbell"></i>
-            <div>
-              <h3>{{ __('Workout Plan') }}</h3>
-              <p class="muted">{{ __('Training schedule assigned by trainer') }}</p>
-            </div>
-          </div>
-
-          @if($workoutPlan)
-            <a href="{{ route('trainee.schedule') }}" class="btn btn-primary w-100">
-              <i class="fas fa-eye"></i><span>{{ __('View Workout Plan') }}</span>
-            </a>
-          @else
-            <a href="{{ route('trainers', ['type' => 'workout']) }}" class="btn btn-ghost w-100">
-              <i class="fas fa-plus"></i><span>{{ __('Request Workout Plan') }}</span>
-            </a>
-          @endif
-        </div>
-
-        {{-- Nutrition --}}
-        <div class="plan-box">
-          <div class="plan-head">
-            <i class="fas fa-utensils"></i>
-            <div>
-              <h3>{{ __('Nutrition Plan') }}</h3>
-              <p class="muted">{{ __('Diet plan assigned by trainer') }}</p>
-            </div>
-          </div>
-
-          @if($nutritionPlan)
-            <a href="{{ route('trainee.diet') }}" class="btn btn-primary w-100">
-              <i class="fas fa-eye"></i><span>{{ __('View Nutrition Plan') }}</span>
-            </a>
-          @else
-            <a href="{{ route('trainers', ['type' => 'nutrition']) }}" class="btn btn-ghost w-100">
-              <i class="fas fa-plus"></i><span>{{ __('Request Nutrition Plan') }}</span>
-            </a>
-          @endif
-        </div>
-      </div>
-
-      <div class="note">
-        <i class="fas fa-info-circle"></i>
-        <span>
-          @if($hasActiveSub)
-            {{ __('You can request plans normally.') }}
-          @else
-            {{ __('Requests are disabled until admin adds a payment.') }}
-          @endif
-        </span>
-      </div>
-    </section>
-
-  </main>
+    @empty
+      <p class="muted">{{ __('No previous subscriptions.') }}</p>
+    @endforelse
+  </section>
 </div>
-
-<script src="{{ asset('js/trainee-dashboard.js') }}"></script>
-</body>
-</html>
+@endsection

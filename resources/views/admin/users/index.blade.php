@@ -119,10 +119,10 @@
                     {{ __('Edit') }}
                   </a>
                  
-                  @if($user->role === 'trainee')
-                    <a href="{{ route('admin.users.payments', $user->id) }}" class="btn btn-sm btn-primary">
-                      <i class="fas fa-credit-card"></i>
-                      {{ __('Payments') }}
+                  @if($user->role === 'trainer')
+                    <a href="{{ route('admin.coaches.show', $user->id) }}" class="btn btn-sm btn-primary">
+                      <i class="fas fa-id-card"></i>
+                      {{ __('Coach profile') }}
                     </a>
                   @endif
 

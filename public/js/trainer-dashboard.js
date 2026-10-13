@@ -79,8 +79,11 @@
      ========================================================== */
   function resetRowFields(row) {
     row.querySelectorAll("input, select, textarea").forEach((el) => {
-      // keep hidden day[] intact
-      if (el.type === "hidden") return;
+      // keep hidden day[] intact (but forget the linked library exercise)
+      if (el.type === "hidden") {
+        if (el.name === "exercise_id[]") el.value = "";
+        return;
+      }
   
       // reset values safely
       if (el.tagName === "SELECT") {
@@ -184,6 +187,7 @@
       row.querySelector('input[name="exercise[]"]').value = exercise || "";
       row.querySelector('input[name="sets[]"]').value = sets || "";
       row.querySelector('input[name="reps[]"]').value = reps || "";
+      syncExerciseFromLibrary(row.querySelector('input[name="exercise[]"]'), false);
     });
   }
   
@@ -226,6 +230,46 @@
     });
   }
   
+  /* ==========================================================
+     Exercise library picker (plan builder)
+     - The exercise input uses <datalist id="exercise-library">
+     - When the typed name matches a library exercise, remember its id
+       (so the client gets the video) and fill in the muscle.
+     ========================================================== */
+  function findLibraryOption(value) {
+    const list = document.getElementById("exercise-library");
+    if (!list || !value) return null;
+    const wanted = value.trim().toLowerCase();
+    return Array.from(list.options).find((opt) =>
+      opt.value.trim().toLowerCase() === wanted ||
+      (opt.dataset.en || "").trim().toLowerCase() === wanted
+    ) || null;
+  }
+
+  function syncExerciseFromLibrary(input, fillMuscle = true) {
+    if (!input) return;
+    const row = input.closest(".workout-row");
+    if (!row) return;
+    const hidden = row.querySelector('input[name="exercise_id[]"]');
+    const option = findLibraryOption(input.value);
+
+    if (hidden) hidden.value = option ? option.dataset.id : "";
+    input.classList.toggle("from-library", !!option);
+
+    const muscle = row.querySelector('select[name="muscle[]"]');
+    if (option && muscle && option.dataset.muscle && (fillMuscle || !muscle.value)) {
+      muscle.value = option.dataset.muscle;
+    }
+  }
+
+  document.addEventListener("input", (e) => {
+    if (e.target.matches && e.target.matches('input[name="exercise[]"]')) syncExerciseFromLibrary(e.target);
+  });
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll('input[name="exercise[]"]').forEach((input) => syncExerciseFromLibrary(input, false));
+  });
+
   /* ==========================================================
      Export functions to global scope
      (so Blade onchange="" still works)
