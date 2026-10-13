@@ -17,6 +17,7 @@ class Exercise extends Model
         'abs'       => ['label' => 'Abs',       'label_ar' => 'البطن'],
         'forearms'  => ['label' => 'Forearms',  'label_ar' => 'الساعد'],
         'full_body' => ['label' => 'Full Body', 'label_ar' => 'الجسم كامل'],
+        'cardio'    => ['label' => 'Cardio',    'label_ar' => 'الكارديو'],
     ];
 
     public const DIFFICULTIES = [
@@ -188,6 +189,14 @@ class Exercise extends Model
     public function getYoutubeSearchUrlAttribute(): string
     {
         return 'https://www.youtube.com/results?search_query=' . urlencode($this->name . ' exercise proper form');
+    }
+
+    /** Same search in Arabic (videos explained in Arabic), when the Arabic name exists. */
+    public function getYoutubeSearchUrlArAttribute(): ?string
+    {
+        return filled($this->name_ar)
+            ? 'https://www.youtube.com/results?search_query=' . urlencode($this->name_ar . ' طريقة الأداء الصحيحة')
+            : null;
     }
 
     private static function lines(?string $text): array

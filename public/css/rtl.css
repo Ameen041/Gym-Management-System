@@ -53,6 +53,7 @@ html[dir="rtl"] .table td { text-align: right; }
 html[dir="rtl"] .alert-success { border-left: 0; border-right: 4px solid var(--success); }
 html[dir="rtl"] .alert-error   { border-left: 0; border-right: 4px solid var(--danger); }
 html[dir="rtl"] .alert-danger  { border-left: 0; border-right: 4px solid var(--danger); }
+html[dir="rtl"] .alert-info    { border-left: 0; border-right: 4px solid var(--primary); }
 html[dir="rtl"] .pill-ok       { border-left: 0; border-right: 4px solid var(--success); }
 html[dir="rtl"] .pill-warn     { border-left: 0; border-right: 4px solid var(--warning); }
 

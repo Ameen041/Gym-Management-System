@@ -11,7 +11,7 @@ class AdminSettingController extends Controller
 {
     public function edit()
     {
-        $settings = collect(Setting::DEFAULTS)->map(fn ($default, $key) => Setting::get($key, ''));
+        $settings = collect(Setting::DEFAULTS)->map(fn ($default, $key) => Setting::get($key) ?? '');
 
         return view('admin.settings.edit', compact('settings'));
     }
@@ -20,6 +20,7 @@ class AdminSettingController extends Controller
     {
         $data = $request->validate([
             'commission_rate'      => ['required', 'numeric', 'min:0', 'max:50'],
+            'payout_hold_days'     => ['required', 'integer', 'min:0', 'max:60'],
             'shamcash_name'        => ['nullable', 'string', 'max:255'],
             'shamcash_account'     => ['nullable', 'string', 'max:255'],
             'payment_instructions' => ['nullable', 'string', 'max:2000'],
@@ -28,7 +29,7 @@ class AdminSettingController extends Controller
             'remove_qr'            => ['nullable', 'boolean'],
         ]);
 
-        foreach (['commission_rate', 'shamcash_name', 'shamcash_account', 'payment_instructions', 'support_whatsapp'] as $key) {
+        foreach (['commission_rate', 'payout_hold_days', 'shamcash_name', 'shamcash_account', 'payment_instructions', 'support_whatsapp'] as $key) {
             Setting::put($key, $data[$key] ?? '');
         }
 

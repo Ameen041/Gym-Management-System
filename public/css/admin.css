@@ -488,6 +488,12 @@ textarea.form-control {
   color: #a51526;
 }
 
+.alert-info {
+  background: rgba(67, 97, 238, 0.08);
+  border-left: 4px solid var(--primary);
+  color: #1e3a8a;
+}
+
 .alert i {
   font-size: 1.25rem;
 }

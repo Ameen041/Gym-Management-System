@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Exercise;
+use App\Models\Setting;
 use Illuminate\Database\Seeder;
 
 /**
@@ -27,6 +28,25 @@ class ExercisesSeeder extends Seeder
             }
             $model->save();
         }
+
+        $this->importMoreExercises();
+    }
+
+    /**
+     * ~120 more exercises (data/exercises.php). Imported once: exercises the
+     * admin deletes later are not brought back on the next deploy.
+     */
+    private function importMoreExercises(): void
+    {
+        if (Setting::get('seeded_exercises_v2')) {
+            return;
+        }
+
+        foreach (require __DIR__ . '/data/exercises.php' as $exercise) {
+            Exercise::firstOrCreate(['name' => $exercise['name']], $exercise + ['is_active' => true]);
+        }
+
+        Setting::put('seeded_exercises_v2', now()->toDateTimeString());
     }
 
     private function exercises(): array

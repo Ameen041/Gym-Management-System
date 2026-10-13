@@ -87,6 +87,18 @@ class CoachProfile extends Model
         return $missing;
     }
 
+    /** Tell the admins when a pending profile has everything needed for review. */
+    public function notifyAdminsIfReady(): void
+    {
+        if ($this->status !== 'pending' || $this->missingSteps()) {
+            return;
+        }
+
+        \App\Support\Notify::admins('Coach :name completed the profile and is waiting for your review.', [
+            'name' => $this->user->name,
+        ], \App\Support\Notify::link('admin.coaches.show', $this->user_id), 'fa-user-clock', 'coach-review-' . $this->user_id);
+    }
+
     public function refreshRating(): void
     {
         $stats = Review::where('coach_id', $this->user_id)

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Setting;
 use App\Models\Subscription;
+use App\Support\Notify;
 use Illuminate\Http\Request;
 
 class AdminSubscriptionController extends Controller
@@ -67,6 +68,16 @@ class AdminSubscriptionController extends Controller
             'admin_note'        => null,
         ]);
 
+        Notify::user($subscription->trainee, 'Your payment was confirmed. Your subscription with :coach is active.', [
+            'coach' => $subscription->coach->name,
+        ], Notify::link('trainee.dashboard'), 'fa-check-circle');
+
+        Notify::user($subscription->coach, 'New client: :trainee subscribed to ":package". Please send the plan within :days days.', [
+            'trainee' => $subscription->trainee->name,
+            'package' => $subscription->package_title,
+            'days'    => Subscription::PLAN_DUE_DAYS,
+        ], Notify::link('coach.clients.show', $subscription), 'fa-user-plus');
+
         return back()->with('status', __('Payment confirmed. The subscription is active.'));
     }
 
@@ -76,6 +87,10 @@ class AdminSubscriptionController extends Controller
         $data = $request->validate(['reason' => ['required', 'string', 'max:255']]);
 
         $subscription->update(['status' => 'rejected', 'admin_note' => $data['reason']]);
+
+        Notify::user($subscription->trainee, 'Your payment receipt was not accepted: :reason', [
+            'reason' => $data['reason'],
+        ], Notify::link('subscriptions.pay', $subscription), 'fa-times-circle');
 
         return back()->with('status', __('Payment rejected. The trainee can upload a new receipt.'));
     }

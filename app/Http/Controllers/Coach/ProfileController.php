@@ -72,6 +72,7 @@ class ProfileController extends Controller
             $profile->rejection_reason = null;
         }
         $profile->save();
+        $profile->notifyAdminsIfReady();
 
         return redirect()->route('trainer.dashboard')->with('success', __('Profile updated successfully.'));
     }

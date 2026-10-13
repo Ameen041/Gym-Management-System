@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CoachProfile;
 use App\Models\User;
+use App\Support\Notify;
 use Illuminate\Http\Request;
 
 class AdminCoachController extends Controller
@@ -51,6 +52,9 @@ class AdminCoachController extends Controller
         abort_unless($coach->role === 'trainer', 404);
         $coach->ensureCoachProfile()->update(['status' => 'approved', 'rejection_reason' => null]);
 
+        Notify::user($coach, 'Your coach profile was approved. Trainees can now find you and subscribe.', [],
+            Notify::link('coaches.show', $coach), 'fa-check-circle');
+
         return back()->with('status', __('Coach approved. The profile is now visible to trainees.'));
     }
 
@@ -60,6 +64,9 @@ class AdminCoachController extends Controller
         $data = $request->validate(['reason' => ['required', 'string', 'max:255']]);
 
         $coach->ensureCoachProfile()->update(['status' => 'rejected', 'rejection_reason' => $data['reason']]);
+
+        Notify::user($coach, 'Your coach profile needs changes: :reason', ['reason' => $data['reason']],
+            Notify::link('coach.profile.edit'), 'fa-exclamation-circle');
 
         return back()->with('status', __('Coach profile rejected.'));
     }
