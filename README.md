@@ -2,10 +2,22 @@
 
 ## 🏋️ Project Overview
 
-Ameen Gym is a complete Gym Management System built with Laravel.
-It provides a structured environment for managing trainees, trainers, workout plans, nutrition plans, and administrative control through a clean role-based architecture.
+Ameen Gym is an online coaching marketplace for Syria, built with Laravel.
+Coaches publish their profile and packages, trainees choose a coach and pay with
+**Sham Cash**, and the platform keeps a commission. Coaches build workout and
+nutrition plans from a ready exercise library with videos, and follow up with
+their clients on WhatsApp.
 
-The system is designed for real gym environments and can be extended into a SaaS-ready product.
+---
+
+### 🛒 How the marketplace works
+1. A coach signs up, completes the profile (photo, bio, specialties, city, WhatsApp, certificates) and adds packages with their own prices.
+2. The admin reviews the profile and certificates, then approves it; the coach appears on `/coaches`.
+3. A trainee filters coaches (specialty, city, gender, price), picks a package and answers the intake questions.
+4. The trainee transfers the amount with Sham Cash and uploads the receipt.
+5. The admin checks the transfer and confirms it: the subscription starts (30/60/90 days) and the commission is calculated (default 15%, set in Admin → Settings).
+6. The coach sees the new client, builds the plan (exercises picked from the library get a video link) and both sides get a WhatsApp button.
+7. The trainee reviews the coach; the admin records payouts to coaches from Admin → Coach payouts.
 
 ---
 
@@ -160,33 +172,21 @@ http://127.0.0.1:8000
 
 ---
 
-## 🔑 Demo Accounts (Ready to Test)
+## 🔑 Demo Accounts (local testing only)
 
-Use the following demo accounts to test the system roles after seeding the database:
+The seeders create these accounts **only when `APP_ENV` is not `production`**:
 
-### ✅ Admin
-- Email: admin@demo.com  
-- Password: 12345678  
+| Role | Email | Password |
+|---|---|---|
+| Admin | admin@demo.com | Admin@12345 |
+| Coach | trainer@demo.com | Trainer@12345 |
+| Coach | coach.lina@demo.com / coach.omar@demo.com | Trainer@12345 |
+| Trainee | trainee@demo.com | Trainee@12345 |
 
-### ✅ Trainer
-- Email: trainer@demo.com  
-- Password: 12345678  
+On a real server set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `.env` before the first deploy.
+The admin account is created once and never overwritten, so a changed password is kept.
+If the server already has `admin@demo.com`, change its password from Admin → Users.
 
-### ✅ Trainee
-- Email: trainee@demo.com  
-- Password: 12345678  
-
-> If you don’t have these accounts yet, run the demo seeder (if included in the project):
-> 
->
-> php artisan db:seed
-> 
-> 
-> Or (if you created a specific seeder like DemoUsersSeeder):
-> 
->
-> php artisan db:seed --class=DemoUsersSeeder
-> 
 ---
 
 ## 📊 Plan Data Structure

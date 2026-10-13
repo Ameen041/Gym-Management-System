@@ -10,22 +10,25 @@ class DemoUsersSeeder extends Seeder
 {
     public function run(): void
     {
-        // Admin
-        User::updateOrCreate(
-            ['email' => 'admin@demo.com'],
+        // Admin account. Created once and never overwritten, so a changed
+        // password survives the seeder that runs on every deploy.
+        // On a real server set ADMIN_EMAIL / ADMIN_PASSWORD in .env.
+        User::firstOrCreate(
+            ['email' => env('ADMIN_EMAIL', 'admin@demo.com')],
             [
-                'name' => 'Demo Admin',
-                'password' => Hash::make('Admin@12345'),
+                'name' => 'Admin',
+                'password' => Hash::make(env('ADMIN_PASSWORD', 'Admin@12345')),
                 'role' => 'admin',
                 'is_active' => 1,
-                'age' => 30,
-                'height' => 175,
-                'weight' => 75,
             ]
         );
 
-        // Trainer
-        User::updateOrCreate(
+        // Demo trainer / trainee accounts only for local testing
+        if (app()->environment('production')) {
+            return;
+        }
+
+        User::firstOrCreate(
             ['email' => 'trainer@demo.com'],
             [
                 'name' => 'Demo Trainer',
@@ -33,13 +36,10 @@ class DemoUsersSeeder extends Seeder
                 'role' => 'trainer',
                 'is_active' => 1,
                 'age' => 28,
-                'height' => 178,
-                'weight' => 78,
             ]
         );
 
-        // Trainee
-        User::updateOrCreate(
+        User::firstOrCreate(
             ['email' => 'trainee@demo.com'],
             [
                 'name' => 'Demo Trainee',

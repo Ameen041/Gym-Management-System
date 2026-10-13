@@ -3,60 +3,49 @@
 @section('page-title', __('Dashboard Overview'))
 
 @section('content')
+@php use App\Support\Money; @endphp
 <div class="stats-grid">
+  <a class="stat-card" href="{{ route('admin.subscriptions.index', ['tab' => 'review']) }}" style="text-decoration:none;color:inherit">
+    <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+    <div class="stat-value">{{ $stats['payments_to_review'] }}</div>
+    <div class="stat-label">{{ __('Payments to confirm') }}</div>
+  </a>
+  <a class="stat-card" href="{{ route('admin.coaches.index') }}" style="text-decoration:none;color:inherit">
+    <div class="stat-icon"><i class="fas fa-user-check"></i></div>
+    <div class="stat-value">{{ $stats['coaches_pending'] }}</div>
+    <div class="stat-label">{{ __('Coaches waiting for approval') }}</div>
+  </a>
+  <a class="stat-card" href="{{ route('admin.subscriptions.index', ['tab' => 'running']) }}" style="text-decoration:none;color:inherit">
+    <div class="stat-icon"><i class="fas fa-bolt"></i></div>
+    <div class="stat-value">{{ $stats['active_subs'] }}</div>
+    <div class="stat-label">{{ __('Active subscriptions') }}</div>
+  </a>
   <div class="stat-card">
-    <div class="stat-icon">
-      <i class="fas fa-users"></i>
-    </div>
-    <div class="stat-value">{{ $stats['users'] }}</div>
-    <div class="stat-label">{{ __('Total Users') }}</div>
-  </div>
-
-
-  <div class="stat-card">
-    <div class="stat-icon">
-      <i class="fas fa-user-tie"></i>
-    </div>
-    <div class="stat-value">{{ $stats['trainers'] }}</div>
-    <div class="stat-label">{{ __('Trainers') }}</div>
-  </div>
-
-  <div class="stat-card">
-    <div class="stat-icon">
-      <i class="fas fa-user-graduate"></i>
-    </div>
-    <div class="stat-value">{{ $stats['trainees'] }}</div>
-    <div class="stat-label">{{ __('Trainees') }}</div>
-  </div>
-
-  <div class="stat-card">
-    <div class="stat-icon">
-      <i class="fas fa-clock"></i>
-    </div>
-    <div class="stat-value">{{ $stats['pending_requests'] }}</div>
-    <div class="stat-label">{{ __('Pending Requests') }}</div>
+    <div class="stat-icon"><i class="fas fa-coins"></i></div>
+    <div class="stat-value">{{ Money::format($stats['month_commission']) }}</div>
+    <div class="stat-label">{{ __('Platform commission this month') }} ({{ __('sales') }}: {{ Money::format($stats['month_sales']) }})</div>
   </div>
 </div>
 
+@if($stats['late_plans'])
+  <div class="alert alert-error">
+    <i class="fas fa-exclamation-triangle"></i>
+    {{ __(':count active subscriptions are still waiting for a plan after :days days.', ['count' => $stats['late_plans'], 'days' => \App\Models\Subscription::PLAN_DUE_DAYS]) }}
+  </div>
+@endif
+
 <div class="card">
   <h3 style="margin-bottom: 20px; color: var(--dark);">{{ __('Quick Actions') }}</h3>
-  <div style="display: flex; gap: 16px; flex-wrap: wrap;">
-    <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
-      <i class="fas fa-user-plus"></i>
-      {{ __('Add New User') }}
-    </a>
-    <a href="{{ route('admin.templates.create') }}" class="btn btn-success">
-      <i class="fas fa-file-alt"></i>
-      {{ __('Create Template') }}
-    </a>
-    <a href="{{ route('admin.requests.index') }}" class="btn btn-warning">
-      <i class="fas fa-envelope"></i>
-      {{ __('View Requests') }}
-    </a>
-    <a href="{{ route('admin.subscriptions.expired') }}" class="btn btn-danger">
-      <i class="fas fa-clock"></i>
-      {{ __('Check Expired') }}
-    </a>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;">
+    <a href="{{ route('admin.subscriptions.index') }}" class="btn btn-primary"><i class="fas fa-receipt"></i> {{ __('Review payments') }}</a>
+    <a href="{{ route('admin.coaches.index') }}" class="btn btn-success"><i class="fas fa-user-check"></i> {{ __('Review coaches') }}</a>
+    <a href="{{ route('admin.payouts.index') }}" class="btn btn-warning"><i class="fas fa-hand-holding-usd"></i> {{ __('Coach payouts') }}</a>
+    <a href="{{ route('admin.settings.edit') }}" class="btn btn-secondary"><i class="fas fa-cog"></i> {{ __('Settings') }}</a>
   </div>
+  <p style="margin-top:16px;color:var(--gray-700)">
+    {{ __('Coaches') }}: <strong>{{ $stats['coaches'] }}</strong> ·
+    {{ __('Trainees') }}: <strong>{{ $stats['trainees'] }}</strong> ·
+    {{ __('Unread messages') }}: <strong>{{ $stats['unread_messages'] }}</strong>
+  </p>
 </div>
 @endsection

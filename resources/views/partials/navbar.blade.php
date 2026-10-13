@@ -9,18 +9,21 @@
                 <li class="{{ request()->routeIs('home') ? 'active' : '' }}">
                     <a href="{{ route('home') }}">{{ __('Home') }}</a>
                 </li>
-                <li><a href="#trainers">{{ __('Trainers') }}</a></li>
-                <li><a href="#programs">{{ __('Programs') }}</a></li>
-                <li><a href="#nutrition">{{ __('Nutrition') }}</a></li>
-                <li><a href="#pricing">{{ __('Packages') }}</a></li>
-                <li><a href="#contact">{{ __('Contact Us') }}</a></li>
+                <li><a href="{{ route('coaches.index') }}">{{ __('Coaches') }}</a></li>
+                <li><a href="{{ route('home') }}#how">{{ __('How it works') }}</a></li>
+                <li><a href="{{ route('home') }}#for-coaches">{{ __('For coaches') }}</a></li>
+                <li><a href="{{ route('home') }}#contact">{{ __('Contact Us') }}</a></li>
             </ul>
             
             <div class="auth-buttons">
                 @include('partials.lang-switch', ['class' => 'btn btn-outline'])
                 <button type="button" class="btn" data-install-app hidden><i class="fas fa-download"></i> {{ __('Install App') }}</button>
-                <button class="btn login-btn">{{ __('Login') }}</button>
-                <button class="btn btn-primary signup-btn">{{ __('Sign Up') }}</button>
+                @auth
+                    <a href="{{ route(\App\Http\Middleware\Role::homeRoute(auth()->user()->role)) }}" class="btn btn-primary">{{ __('My dashboard') }}</a>
+                @else
+                    <button class="btn login-btn">{{ __('Login') }}</button>
+                    <button class="btn btn-primary signup-btn">{{ __('Sign Up') }}</button>
+                @endauth
             </div>
             
             <button class="mobile-menu-btn">

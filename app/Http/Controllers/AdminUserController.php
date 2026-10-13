@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
@@ -96,47 +95,4 @@ class AdminUserController extends Controller
 
     return back()->with('status', __('User status updated: :status', ['status' => $user->is_active ? __('Activated') : __('Suspended')]));
 }
-
-public function payments($id)
-{
-    $user = User::findOrFail($id);
-
-    
-    if ($user->role !== 'trainee') {
-        return redirect()
-            ->route('admin.users.index')
-            ->with('status', __('Payments can only be managed for trainees.'));
-    }
-
-    $payments = Payment::where('user_id', $user->id)
-        ->orderByDesc('paid_at')
-        ->orderByDesc('id')
-        ->get();
-
-    return view('admin.users.payments', compact('user', 'payments'));
-}
-
-public function storePayment(Request $request, $id)
-{
-    $user = User::findOrFail($id);
-
-    $data = $request->validate([
-        'amount'        => ['required','numeric','min:0'],
-        'method'        => ['nullable','string','max:50'],
-        'paid_at'       => ['required','date'],
-        'period_start'  => ['required','date'],
-        'period_end'    => ['required','date','after_or_equal:period_start'],
-        'reference'     => ['nullable','string','max:100'],
-        'notes'         => ['nullable','string'],
-    ]);
-
-    $data['user_id'] = $user->id;
-
-    Payment::create($data);
-
-    return redirect()
-        ->route('admin.users.payments', $user->id)
-        ->with('status', __('Payment recorded successfully.'));
-}
-
 }

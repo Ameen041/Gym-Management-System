@@ -602,3 +602,8 @@ html, body, .page, .day-card, .rows-day, .nutrition-row, .workout-row,
 .add-mini-btn{
   white-space: nowrap;
 }
+/* Exercise picked from the library (has a video for the client) */
+.workout-row input.from-library{
+  border-color: rgba(22,163,74,.55) !important;
+  background: rgba(22,163,74,.06) !important;
+}

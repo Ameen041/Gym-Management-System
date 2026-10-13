@@ -5,11 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Exercise;
+use App\Models\Review;
 use App\Models\User;
-use App\Models\WorkoutPlan;
-use App\Models\NutritionPlan;
-use App\Models\Payment;
-use App\Models\PlanTemplate;
 use Illuminate\Support\Facades\Http;
 
 class AuthController extends Controller
@@ -19,33 +17,17 @@ class AuthController extends Controller
     
     public function showLoginForm()
     {
-        $trainersCount = User::where('role', 'trainer')->count();
-        $traineesCount = User::where('role', 'trainee')->count();
-    
-        // Real trainers for the home page (newest first)
-        $featuredTrainers = User::where('role', 'trainer')
-            ->where('is_active', true)
-            ->latest()
-            ->take(3)
-            ->get();
+        $listed = CoachDirectoryController::listedCoaches();
 
-        $latestWorkout = PlanTemplate::where('type', 'workout')
-            ->where('is_active', 1)
-            ->latest()
-            ->first(); 
-    
-        $latestNutrition = PlanTemplate::where('type', 'nutrition')
-            ->where('is_active', 1)
-            ->latest()
-            ->first();
-    
-        return view('home', compact(
-            'trainersCount',
-            'traineesCount',
-            'latestWorkout',
-            'latestNutrition',
-            'featuredTrainers'
-        ));
+        return view('home', [
+            'coachesCount'     => $listed->count(),
+            'traineesCount'    => User::where('role', 'trainee')->count(),
+            'exercisesCount'   => Exercise::active()->count(),
+            // featured first, then best rated
+            'featuredTrainers' => $listed->sortByDesc(fn ($c) => [(int) $c->coachProfile->is_featured, $c->coachProfile->rating_avg])->take(3)->values(),
+            'latestReviews'    => Review::with(['trainee:id,name', 'coach:id,name'])
+                ->whereNotNull('comment')->where('rating', '>=', 4)->latest()->take(3)->get(),
+        ]);
     }
 
     public function login(Request $request)
@@ -120,41 +102,5 @@ public function logout(Request $request)
         Auth::login($user);
 
         return redirect()->route($isTrainee ? 'trainee.dashboard' : 'trainer.dashboard');
-    }
-
-    /* ==================== DASHBOARD METHODS ==================== */
-    
-    public function traineeDashboard()
-    {
-        $user = Auth::user();
-    
-        if (!$user || $user->role !== 'trainee') {
-            return redirect()
-                ->route('login.form')
-                ->with('unauthorized', 'Unauthorized access.');
-        }
-    
-        $workoutPlan   = WorkoutPlan::where('user_id', $user->id)->first();
-        $nutritionPlan = NutritionPlan::where('user_id', $user->id)->first();
-    
-        $payments = Payment::where('user_id', $user->id)
-            ->orderByDesc('paid_at')
-            ->orderByDesc('id')
-            ->get();
-    
-        $activePayment = Payment::where('user_id', $user->id)
-            ->whereDate('period_start', '<=', now())
-            ->whereDate('period_end', '>=', now())
-            ->orderByDesc('period_end')
-            ->first();
-    
-        return view('trainee-dashboard', [
-            'user'           => $user,
-            'workoutPlan'    => $workoutPlan,
-            'nutritionPlan'  => $nutritionPlan,
-            'payments'       => $payments,
-            'activePayment'  => $activePayment,
-            'hasSubscription'=> (bool) $activePayment, 
-        ]);
     }
 }

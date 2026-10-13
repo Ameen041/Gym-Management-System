@@ -23,49 +23,31 @@
       </div>
 
       <nav class="sidebar-nav">
-        <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard')?'active':'' }}">
-          <i class="fas fa-chart-line"></i>
-          <span>{{ __('Dashboard') }}</span>
-        </a>
-        
-        <a href="{{ route('admin.users.index') }}" class="{{ request()->routeIs('admin.users.*')?'active':'' }}">
-          <i class="fas fa-users"></i>
-          <span>{{ __('Users') }}</span>
-        </a>
-        
-        <a href="{{ route('admin.requests.index') }}" class="{{ request()->routeIs('admin.requests.*')?'active':'' }}">
-          <i class="fas fa-envelope"></i>
-          <span>{{ __('Requests') }}</span>
-        </a>
-        
-        <a href="{{ route('admin.templates.index') }}" class="{{ request()->routeIs('admin.templates.*')?'active':'' }}">
-          <i class="fas fa-file-alt"></i>
-          <span>{{ __('Templates') }}</span>
-        </a>
-        
-        <a href="{{ route('admin.exercises.index') }}" class="{{ request()->routeIs('admin.exercises.*')?'active':'' }}">
-          <i class="fas fa-dumbbell"></i>
-          <span>{{ __('Exercises') }}</span>
-        </a>
-        
-        @php($unreadMessages = \App\Models\ContactMessage::where('is_read', false)->count())
-        <a href="{{ route('admin.messages.index') }}" class="{{ request()->routeIs('admin.messages.*')?'active':'' }}">
-          <i class="fas fa-inbox"></i>
-          <span>{{ __('Messages') }}</span>
-          @if($unreadMessages)
-            <span class="badge badge-danger" style="margin-inline-start:auto;">{{ $unreadMessages }}</span>
-          @endif
-        </a>
-        
-        <a href="{{ route('admin.payments.dashboard') }}" class="{{ request()->routeIs('admin.payments.*')?'active':'' }}">
-          <i class="fas fa-credit-card"></i>
-          <span>{{ __('Payments') }}</span>
-        </a>
-        
-        <a href="{{ route('admin.subscriptions.expired') }}" class="{{ request()->routeIs('admin.subscriptions.*')?'active':'' }}">
-          <i class="fas fa-clock"></i>
-          <span>{{ __('Expired') }}</span>
-        </a>
+        @php
+          $paymentsToReview = \App\Models\Subscription::where('status', 'payment_review')->count();
+          $coachesPending   = \App\Models\CoachProfile::where('status', 'pending')->count();
+          $unreadMessages   = \App\Models\ContactMessage::where('is_read', false)->count();
+          $adminLinks = [
+              ['admin.dashboard',           'admin.dashboard',       'fa-chart-line',        __('Dashboard'),     0],
+              ['admin.subscriptions.index', 'admin.subscriptions.*', 'fa-receipt',           __('Payments'),      $paymentsToReview],
+              ['admin.coaches.index',       'admin.coaches.*',       'fa-user-tie',          __('Coaches'),       $coachesPending],
+              ['admin.payouts.index',       'admin.payouts.*',       'fa-hand-holding-usd',  __('Coach payouts'), 0],
+              ['admin.users.index',         'admin.users.*',         'fa-users',             __('Users'),         0],
+              ['admin.exercises.index',     'admin.exercises.*',     'fa-dumbbell',          __('Exercises'),     0],
+              ['admin.templates.index',     'admin.templates.*',     'fa-file-alt',          __('Templates'),     0],
+              ['admin.messages.index',      'admin.messages.*',      'fa-inbox',             __('Messages'),      $unreadMessages],
+              ['admin.settings.edit',       'admin.settings.*',      'fa-cog',               __('Settings'),      0],
+          ];
+        @endphp
+        @foreach($adminLinks as [$route, $pattern, $icon, $label, $badge])
+          <a href="{{ route($route) }}" class="{{ request()->routeIs($pattern) ? 'active' : '' }}">
+            <i class="fas {{ $icon }}"></i>
+            <span>{{ $label }}</span>
+            @if($badge)
+              <span class="badge badge-danger" style="margin-inline-start:auto;">{{ $badge }}</span>
+            @endif
+          </a>
+        @endforeach
       </nav>
 
       <div class="sidebar-footer">

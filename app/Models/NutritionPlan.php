@@ -11,6 +11,7 @@ class NutritionPlan extends Model
         'trainer_id',
         'title',
         'plan_details',
+        'subscription_id',
         'created_at',
         'updated_at',
         
@@ -19,5 +20,15 @@ class NutritionPlan extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function trainer()
+    {
+        return $this->belongsTo(User::class, 'trainer_id');
+    }
+
+    public function subscription()
+    {
+        return $this->belongsTo(Subscription::class);
     }
 }
