@@ -9,17 +9,11 @@ class ExerciseController extends Controller
 {
     public function index(Request $request)
     {
-        $muscle = $request->query('muscle');
+        // The whole library is sent once; search and filters run in the browser
+        $muscle = isset(Exercise::MUSCLE_GROUPS[$request->query('muscle')]) ? $request->query('muscle') : '';
         $search = trim((string) $request->query('q'));
 
         $exercises = Exercise::active()
-            ->when($muscle && isset(Exercise::MUSCLE_GROUPS[$muscle]), fn ($q) => $q->where('muscle_group', $muscle))
-            ->when($search !== '', fn ($q) => $q->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('name_ar', 'like', "%{$search}%")
-                  ->orWhere('equipment', 'like', "%{$search}%")
-                  ->orWhere('equipment_ar', 'like', "%{$search}%");
-            }))
             ->orderBy('name')
             ->get()
             ->sortBy(fn ($e) => $e->display_name)

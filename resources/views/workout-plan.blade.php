@@ -1,84 +1,67 @@
-<!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}" dir="{{ app()->isLocale('ar') ? 'rtl' : 'ltr' }}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ __('Workout Plan | Ameen Gym') }}</title>
-    @include('partials.head')
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset('css/workout-plan.css') }}">
-</head>
-<body>
-@php
-    $details = json_decode($plan->plan_details, true);
-    // Library exercises used in this plan, to link each row to its video
-    $libraryIds = collect($details ?: [])->flatten(1)->pluck('exercise_id')->filter()->unique();
-    $library = \App\Models\Exercise::whereIn('id', $libraryIds)->get()->keyBy('id');
-@endphp
-<div class="dashboard-container">
-    <div class="plan-card">
-        @include('plans._header', ['icon' => 'fa-dumbbell', 'heading' => __('Workout Plan')])
+@extends('layouts.panel')
+@section('title', __('Workout plan'))
 
-            @if(is_array($details))
-                <div class="table-container">
-                    <table class="workout-table">
-                        <thead>
-                            <tr>
-                                <th><i class="fas fa-calendar-day"></i> {{ __('Day') }}</th>
-                                <th><i class="fas fa-dumbbell"></i> {{ __('Muscle') }}</th>
-                                <th><i class="fas fa-running"></i> {{ __('Exercise') }}</th>
-                                <th><i class="fas fa-layer-group"></i> {{ __('Sets') }}</th>
-                                <th><i class="fas fa-redo"></i> {{ __('Reps') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($details as $day => $exercises)
-                            <tr class="day-row">
-                                <td colspan="5">
-                                    <i class="fas fa-calendar-day"></i>
-                                    <b>{{ __($day) }}</b>
-                                    <span class="day-count">({{ __(':count exercises', ['count' => count($exercises)]) }})</span>
-                                </td>
-                            </tr>
-                            @foreach($exercises as $exercise)
-                                @php($libraryExercise = $library[$exercise['exercise_id'] ?? 0] ?? null)
-                                <tr>
-                                    <td class="day-empty"></td>
-                                    <td>{{ \App\Models\Exercise::translateMuscleName($exercise['muscle'] ?? '') }}</td>
-                                    <td>
-                                        @if($libraryExercise)
-                                            <a href="{{ route('exercises.show', $libraryExercise) }}" class="exercise-link">
-                                                <i class="fas fa-play-circle"></i> {{ $libraryExercise->display_name }}
-                                            </a>
-                                        @else
-                                            {{ $exercise['exercise'] ?? '' }}
-                                        @endif
-                                    </td>
-                                    <td>{{ $exercise['sets'] ?? '' }}</td>
-                                    <td>{{ $exercise['reps'] ?? '' }}</td>
-                                </tr>
-                            @endforeach
-                        @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                @if($library->isNotEmpty())
-                    <p class="muted" style="margin-top:10px"><i class="fas fa-play-circle"></i> {{ __('Tap an exercise to watch how to do it.') }}</p>
-                @endif
+@section('content')
+@php
+  use App\Models\Exercise;
+  $details = json_decode($plan->plan_details, true);
+  $details = is_array($details) ? $details : [];
+  // Library exercises used in this plan, to link each one to its video page
+  $libraryIds = collect($details)->flatten(1)->pluck('exercise_id')->filter()->unique();
+  $library = Exercise::whereIn('id', $libraryIds)->get()->keyBy('id');
+  $weekDays = \App\Http\Controllers\Coach\PlanController::WEEK_DAYS;
+  $today = now()->format('l');
+  $active = isset($details[$today]) ? $today : (array_key_first($details) ?? $today);
+@endphp
+
+@include('plans._header', ['plan' => $plan])
+
+@if($details)
+  <div class="daytabs" data-tabs role="tablist">
+    @foreach($weekDays as $day)
+      <button type="button" class="daytab {{ $day === $active ? 'on' : '' }} {{ isset($details[$day]) ? 'has' : '' }} {{ $day === $today ? 'is-today' : '' }}" data-tab="{{ $day }}" role="tab">
+        {{ __(substr($day, 0, 3)) }}<b>{{ isset($details[$day]) ? count($details[$day]) : '–' }}</b>
+      </button>
+    @endforeach
+  </div>
+
+  @foreach($weekDays as $day)
+    @php($exercises = $details[$day] ?? [])
+    <section class="plan-day" data-panel="{{ $day }}" @if($day !== $active) hidden @endif>
+      <h2 class="plan-day-title">
+        {{ __($day) }} @if($day === $today)<span class="badge">{{ __('Today') }}</span>@endif
+        @if($exercises)
+          <small>{{ collect($exercises)->map(fn ($e) => Exercise::translateMuscleName($e['muscle'] ?? ''))->filter()->unique()->implode('، ') }}</small>
+        @endif
+      </h2>
+      @forelse($exercises as $exercise)
+        @php($ex = $library[$exercise['exercise_id'] ?? 0] ?? null)
+        <article class="ex-card">
+          <span class="ex-num">{{ $loop->iteration }}</span>
+          <span class="pick-icon">@if($ex?->thumbnail)<img src="{{ $ex->thumbnail }}" alt="" loading="lazy">@else<i class="fas fa-dumbbell"></i>@endif</span>
+          <div class="ex-info">
+            @if($ex)
+              <a href="{{ route('exercises.show', $ex) }}" class="ex-name">{{ $ex->display_name }}</a>
             @else
-                <div class="no-data">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <p>{{ __('No valid workout plan data available.') }}</p>
-                </div>
+              <span class="ex-name">{{ $exercise['exercise'] ?? '' }}</span>
             @endif
-        </div>
-    </div>
-</div>
-<style>
-    .exercise-link{color:var(--primary);font-weight:700;text-decoration:none}
-    .exercise-link:hover{text-decoration:underline}
-    .muted{color:rgba(0,0,0,.55)}
-</style>
-<script src="{{ asset('js/workout-plan.js') }}"></script>
-</body>
-</html>
+            <span class="muted small">{{ Exercise::translateMuscleName($exercise['muscle'] ?? '') }}</span>
+          </div>
+          <div class="ex-sr">
+            <span><b>{{ $exercise['sets'] ?? '' }}</b><small>{{ __('Sets') }}</small></span>
+            <span class="wb-x">×</span>
+            <span><b>{{ $exercise['reps'] ?? '' }}</b><small>{{ __('Reps') }}</small></span>
+          </div>
+          @if($ex)
+            <a href="{{ route('exercises.show', $ex) }}" class="icon-btn ex-play" title="{{ __('How to perform') }}" aria-label="{{ __('How to perform') }}"><i class="fas fa-play"></i></a>
+          @endif
+        </article>
+      @empty
+        <div class="builder-rest"><i class="fas fa-bed"></i> {{ __('Rest day') }}</div>
+      @endforelse
+    </section>
+  @endforeach
+@else
+  <div class="panel empty"><i class="fas fa-triangle-exclamation"></i><p>{{ __('No valid workout plan data available.') }}</p></div>
+@endif
+@endsection

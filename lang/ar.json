@@ -1013,5 +1013,12 @@
     "Hi :name": "أهلاً :name",
     "Ready by :date": "جاهزة قبل :date",
     "WhatsApp": "واتساب",
-    "Talk to your coach": "تواصل مع مدربك"
+    "Talk to your coach": "تواصل مع مدربك",
+    "Updated :date": "آخر تحديث :date",
+    "Today": "اليوم",
+    "No meals for this day": "لا توجد وجبات لهذا اليوم",
+    "No video yet": "لا يوجد فيديو بعد",
+    "Arabic videos": "فيديوهات بالعربي",
+    "YouTube": "يوتيوب",
+    "Tips": "نصائح"
 }

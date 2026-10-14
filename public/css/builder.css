@@ -75,11 +75,6 @@
 .pick .in-day{font-size:.7rem;font-weight:700;color:var(--accent-text)}
 
 /* ---------- Nutrition: day total, meals, foods ---------- */
-.nb-daytotal{
-  display:grid;grid-template-columns:auto minmax(0,1fr);gap:22px;align-items:center;
-  padding:16px 18px;border-radius:var(--radius-lg);background:var(--surface);border:1px solid var(--line);
-}
-.nb-daytotal .kcal-big{font-size:2.1rem}
 .nb-meals{display:grid;gap:12px}
 .nb-meal{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:12px 14px;animation:row-in .25s var(--ease)}
 .nb-meal-head{display:flex;align-items:center;gap:10px}
@@ -117,7 +112,6 @@
 .pick-kcal small{font-size:.6rem;color:var(--muted);font-weight:700}
 
 @media (max-width:760px){
-  .nb-daytotal{grid-template-columns:1fr;gap:12px}
   .nb-item{grid-template-columns:minmax(0,1fr) 32px;row-gap:8px}
   .nb-food{grid-column:1 / 2}
   .nb-item > .wb-act{grid-column:2 / 3;grid-row:1}
