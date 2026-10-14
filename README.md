@@ -215,6 +215,7 @@ The seeders create these accounts **only when `APP_ENV` is not `production`**:
 | Coach | trainer@demo.com | Trainer@12345 |
 | Coach | coach.lina@demo.com / coach.omar@demo.com | Trainer@12345 |
 | Trainee | trainee@demo.com | Trainee@12345 |
+| Trainee with 5 weeks of check-ins | rami@demo.com | Trainee@12345 |
 
 On a real server set `ADMIN_EMAIL` and `ADMIN_PASSWORD` (10+ characters) before the first deploy:
 in production there is no default admin password, so no admin is created without them.
@@ -242,6 +243,11 @@ Backups: `php artisan app:backup` writes a gzipped backup of all data to `storag
 (the last 14 are kept; one is made every night). `php artisan app:restore <file>` replaces all data
 with a backup after saving the current data first. The format is the same for SQLite, MySQL and
 PostgreSQL, so a backup can also move data between them.
+
+Weekly check-ins: a trainee sends one a week (weight, waist, workouts, diet, energy, sleep, notes,
+private photos); the coach sees a weight chart and replies. `php artisan app:check-in-reminders`
+runs every morning from the scheduler: it reminds trainees on the due day and tells the coach after
+3 late days.
 
 Password resets: if email is not set up, Admin → Users → **Reset link** makes a one-time link
 (valid 60 minutes) to send to the user on WhatsApp.
