@@ -1,7 +1,6 @@
 @include('partials.pwa')
+<link rel="stylesheet" href="{{ asset('vendor/fonts/fonts.css') }}">
 @if(app()->isLocale('ar'))
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ asset('css/rtl.css') }}">
 @endif
 @php

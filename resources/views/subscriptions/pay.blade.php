@@ -6,7 +6,7 @@
 
 <div class="page-title">
   <h1>{{ __('Pay with Sham Cash') }}</h1>
-  <p>{{ __('Step 2 of 2: transfer the amount, then upload the receipt.') }}</p>
+  <p>{{ __('Step 2 of 2') }}</p>
 </div>
 
 @if($subscription->status === 'rejected')

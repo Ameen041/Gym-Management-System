@@ -41,15 +41,12 @@ class PlanController extends Controller
             ]);
         }
 
-        return view('coach.plan-builder', [
+        return view('coach.workout-builder', [
             'subscription' => $subscription,
-            'type'         => $type,
             'plan'         => $plan,
             'details'      => $plan ? (json_decode($plan->plan_details, true) ?: []) : [],
-            'templates'    => PlanTemplate::where('type', $type)->where('is_active', true)->orderBy('title')->get(),
-            'library'      => $type === 'workout'
-                ? Exercise::active()->get()->sortBy(fn ($e) => $e->display_name)->values()
-                : collect(),
+            'templates'    => PlanTemplate::where('type', 'workout')->where('is_active', true)->orderBy('title')->get(),
+            'library'      => Exercise::active()->get()->sortBy(fn ($e) => $e->display_name)->values(),
             'weekDays'     => self::WEEK_DAYS,
         ]);
     }

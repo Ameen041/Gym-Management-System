@@ -1,86 +1,81 @@
-<!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}" dir="{{ app()->isLocale('ar') ? 'rtl' : 'ltr' }}">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ __('Exercise Library | Ameen Gym') }}</title>
-  @include('partials.head')
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="{{ asset('css/exercises.css') }}">
-</head>
-<body>
-<div class="page">
+@extends('layouts.panel')
+@section('title', __('Exercises'))
 
-  @include('exercises._topbar', [
-      'heading'    => __('Exercise Library'),
-      'subheading' => __('Weight training exercises with video explanations'),
-  ])
-
-  <form class="filters" method="GET" action="{{ route('exercises.index') }}">
-    @if($muscle)
-      <input type="hidden" name="muscle" value="{{ $muscle }}">
-    @endif
-    <label class="search">
-      <i class="fas fa-search"></i>
-      <input type="search" name="q" value="{{ $search }}" placeholder="{{ __('Search exercises or equipment...') }}">
-    </label>
-
-    <nav class="chips">
-      <a href="{{ route('exercises.index', array_filter(['q' => $search])) }}" class="chip {{ !$muscle ? 'active' : '' }}">
-        {{ __('All') }} <small>{{ $counts->sum() }}</small>
-      </a>
-      @foreach(\App\Models\Exercise::MUSCLE_GROUPS as $key => $group)
+@section('content')
+@php use App\Models\Exercise; @endphp
+<div class="lib" data-library data-muscle="{{ $muscle }}">
+  <div class="lib-tools">
+    <div class="search-box">
+      <i class="fas fa-magnifying-glass"></i>
+      <input type="search" value="{{ $search }}" data-lib-search placeholder="{{ __('Search: bench, squat, pull-up…') }}" aria-label="{{ __('Search') }}">
+    </div>
+    <div class="chips" data-lib-muscles>
+      <button type="button" class="chip {{ $muscle ? '' : 'on' }}" data-m="">{{ __('All') }} <span class="count">{{ $counts->sum() }}</span></button>
+      @foreach(Exercise::MUSCLE_GROUPS as $key => $group)
         @if(($counts[$key] ?? 0) > 0)
-          <a href="{{ route('exercises.index', array_filter(['muscle' => $key, 'q' => $search])) }}"
-             class="chip {{ $muscle === $key ? 'active' : '' }}">
-            {{ \App\Models\Exercise::muscleLabel($key) }} <small>{{ $counts[$key] }}</small>
-          </a>
+          <button type="button" class="chip {{ $muscle === $key ? 'on' : '' }}" data-m="{{ $key }}">{{ Exercise::muscleLabel($key) }} <span class="count">{{ $counts[$key] }}</span></button>
         @endif
       @endforeach
-    </nav>
-  </form>
-
-  @if($exercises->isEmpty())
-    <div class="empty">
-      <i class="fas fa-dumbbell"></i>
-      <h3>{{ __('No exercises found') }}</h3>
-      <p>{{ __('Try a different search or muscle group.') }}</p>
     </div>
-  @else
-    <p class="result-count">{{ __(':count exercises', ['count' => $exercises->count()]) }}</p>
-    <div class="grid">
-      @foreach($exercises as $exercise)
-        <a href="{{ route('exercises.show', $exercise) }}" class="ex-card">
-          <div class="ex-thumb">
-            @if($exercise->thumbnail)
-              <img src="{{ $exercise->thumbnail }}" alt="{{ $exercise->display_name }}" loading="lazy">
-            @else
-              <i class="fas fa-dumbbell"></i>
-            @endif
-            @if($exercise->has_video)
-              <span class="play"><i class="fas fa-play"></i></span>
-            @else
-              <span class="no-video"><i class="fas fa-video-slash"></i> {{ __('Video coming soon') }}</span>
-            @endif
-          </div>
-          <div class="ex-body">
-            <h3>{{ $exercise->display_name }}</h3>
-            @if($exercise->display_description)
-              <p>{{ $exercise->display_description }}</p>
-            @endif
-            <div class="tags">
-              <span class="tag">{{ $exercise->muscle_label }}</span>
-              @if($exercise->display_equipment)
-                <span class="tag">{{ $exercise->display_equipment }}</span>
-              @endif
-              <span class="tag level-{{ $exercise->difficulty }}">{{ $exercise->difficulty_label }}</span>
-            </div>
-          </div>
-        </a>
+    <div class="chips chips-sub" data-lib-eq>
+      @foreach(Exercise::EQUIPMENT_TYPES as $key => $label)
+        <button type="button" class="chip" data-e="{{ $key }}">{{ __($label) }}</button>
       @endforeach
     </div>
-  @endif
+  </div>
 
+  <p class="muted small lib-count" data-lib-count></p>
+
+  <div class="lib-grid">
+    @foreach($exercises as $exercise)
+      <a href="{{ route('exercises.show', $exercise) }}" class="lib-card" data-item data-m="{{ $exercise->muscle_group }}" data-e="{{ $exercise->equipment_type }}"
+         data-text="{{ $exercise->name }} {{ $exercise->name_ar }} {{ $exercise->equipment }} {{ $exercise->equipment_ar }}">
+        <span class="lib-thumb">
+          @if($exercise->thumbnail)<img src="{{ $exercise->thumbnail }}" alt="" loading="lazy">@else<i class="fas fa-dumbbell"></i>@endif
+          @if($exercise->has_video)<span class="lib-play"><i class="fas fa-play"></i></span>@endif
+        </span>
+        <span class="lib-body">
+          <strong>{{ $exercise->display_name }}</strong>
+          <span class="muted small">{{ $exercise->muscle_label }} · {{ $exercise->display_equipment ?: __('Bodyweight') }}</span>
+        </span>
+      </a>
+    @endforeach
+  </div>
+  <div class="panel empty" data-lib-empty hidden><i class="fas fa-dumbbell"></i><h3>{{ __('No exercises found') }}</h3></div>
 </div>
-</body>
-</html>
+@endsection
+
+@push('scripts')
+<script>
+  (function () {
+    var root = document.querySelector("[data-library]");
+    var norm = function (s) {
+      return String(s || "").toLowerCase().replace(/[ً-ْـ]/g, "").replace(/[أإآٱ]/g, "ا")
+        .replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/[-_.,()/]/g, " ").replace(/\s+/g, " ").trim();
+    };
+    var items = Array.prototype.slice.call(root.querySelectorAll("[data-item]"));
+    items.forEach(function (i) { i._key = norm(i.getAttribute("data-text") + " " + i.textContent); });
+    var input = root.querySelector("[data-lib-search]");
+    var state = { m: root.getAttribute("data-muscle") || "", e: "" };
+    var label = @json(__(':count exercises'));
+
+    function apply() {
+      var tokens = norm(input.value).split(" ").filter(Boolean), shown = 0;
+      items.forEach(function (i) {
+        var ok = (!state.m || i.getAttribute("data-m") === state.m) && (!state.e || i.getAttribute("data-e") === state.e)
+          && tokens.every(function (t) { return i._key.indexOf(t) !== -1; });
+        i.hidden = !ok; if (ok) shown++;
+      });
+      root.querySelector("[data-lib-count]").textContent = label.replace(":count", shown);
+      root.querySelector("[data-lib-empty]").hidden = shown > 0;
+    }
+    root.addEventListener("click", function (e) {
+      var m = e.target.closest("[data-lib-muscles] [data-m]"), q = e.target.closest("[data-lib-eq] [data-e]");
+      if (m) { state.m = m.getAttribute("data-m"); root.querySelectorAll("[data-lib-muscles] .chip").forEach(function (c) { c.classList.toggle("on", c === m); }); apply(); }
+      if (q) { state.e = state.e === q.getAttribute("data-e") ? "" : q.getAttribute("data-e"); root.querySelectorAll("[data-lib-eq] .chip").forEach(function (c) { c.classList.toggle("on", c.getAttribute("data-e") === state.e); }); apply(); }
+    });
+    input.addEventListener("input", apply);
+    apply();
+  })();
+</script>
+@endpush

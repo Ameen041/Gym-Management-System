@@ -5,69 +5,67 @@
 @php use App\Support\Money; @endphp
 
 <div class="page-title">
-  <h1>{{ __('Welcome back, :name', ['name' => $user->name]) }} 👋</h1>
-  <p>{{ __('Your coaching subscriptions and plans in one place.') }}</p>
+  <div>
+    <span class="eyebrow">{{ now()->translatedFormat('l j F') }}</span>
+    <h1>{{ __('Hi :name', ['name' => \Illuminate\Support\Str::before($user->name, ' ')]) }}</h1>
+  </div>
 </div>
 
 {{-- Running subscriptions --}}
 @forelse($running as $sub)
   <section class="panel">
-    <div class="panel-head">
-      <div class="profile-head" style="gap:12px">
-        <img src="{{ $sub->coach->photo_url }}" alt="" class="avatar-sm">
-        <div>
-          <h2 style="font-size:1.1rem">{{ $sub->coach->name }}</h2>
-          <div class="muted small">{{ $sub->package_title }}</div>
-        </div>
+    <div class="sub-head">
+      <img src="{{ $sub->coach->photo_url }}" alt="" class="avatar-sm">
+      <div class="grow">
+        <h2>{{ $sub->coach->name }}</h2>
+        <span class="muted small">{{ $sub->package_title }}</span>
       </div>
-      <span class="badge badge-ok"><i class="fas fa-check-circle"></i> {{ __('Active until :date', ['date' => $sub->ends_at->translatedFormat('j M Y')]) }}</span>
+      <span class="badge badge-ok">{{ __('Until :date', ['date' => $sub->ends_at->translatedFormat('j M')]) }}</span>
     </div>
 
-    <div class="grid-2">
-      <div class="stack">
-        @if($sub->includes_workout)
-          @if($sub->workoutPlan)
-            <a href="{{ route('trainee.schedule', ['subscription' => $sub->id]) }}" class="btn btn-primary btn-block"><i class="fas fa-dumbbell"></i> {{ __('View Workout Plan') }}</a>
-          @else
-            <div class="alert alert-warning" style="margin:0"><i class="fas fa-hourglass-half"></i><div>{{ __('Your coach is preparing your workout plan (expected by :date).', ['date' => $sub->plan_due_at->translatedFormat('j M')]) }}</div></div>
-          @endif
-        @endif
-        @if($sub->includes_nutrition)
-          @if($sub->nutritionPlan)
-            <a href="{{ route('trainee.diet', ['subscription' => $sub->id]) }}" class="btn btn-primary btn-block"><i class="fas fa-apple-alt"></i> {{ __('View Nutrition Plan') }}</a>
-          @else
-            <div class="alert alert-warning" style="margin:0"><i class="fas fa-hourglass-half"></i><div>{{ __('Your coach is preparing your nutrition plan (expected by :date).', ['date' => $sub->plan_due_at->translatedFormat('j M')]) }}</div></div>
-          @endif
-        @endif
-        @if($sub->coach->whatsapp_url)
-          <a href="{{ $sub->coach->whatsapp_url }}" target="_blank" rel="noopener" class="btn btn-whatsapp btn-block"><i class="fab fa-whatsapp"></i> {{ __('Chat with your coach on WhatsApp') }}</a>
-        @endif
-      </div>
-
-      <div>
-        @if($sub->review)
-          <div class="muted small">{{ __('Your review') }}</div>
-          @include('partials.stars', ['rating' => $sub->review->rating, 'count' => null])
-          @if($sub->review->comment)<p class="small" style="margin-top:4px">{{ $sub->review->comment }}</p>@endif
+    <div class="tiles">
+      @if($sub->includes_workout)
+        @if($sub->workoutPlan)
+          <a href="{{ route('trainee.schedule', ['subscription' => $sub->id]) }}" class="tile tile-primary">
+            <i class="fas fa-dumbbell"></i><b>{{ __('Workout plan') }}</b><small>{{ __('Open') }}</small>
+          </a>
         @else
-          <form method="POST" action="{{ route('subscriptions.review', $sub) }}">
-            @csrf
-            <div class="form-group">
-              <label>{{ __('Rate your coach') }}</label>
-              <select name="rating" required>
-                @for($r = 5; $r >= 1; $r--)
-                  <option value="{{ $r }}">{{ str_repeat('★', $r) }} ({{ $r }})</option>
-                @endfor
-              </select>
-            </div>
-            <div class="form-group">
-              <textarea name="comment" rows="2" placeholder="{{ __('Write a short review (optional)') }}"></textarea>
-            </div>
-            <button class="btn btn-sm"><i class="fas fa-star"></i> {{ __('Send review') }}</button>
-          </form>
+          <div class="tile tile-wait"><i class="fas fa-hourglass-half"></i><b>{{ __('Workout plan') }}</b><small>{{ __('Ready by :date', ['date' => $sub->plan_due_at->translatedFormat('j M')]) }}</small></div>
         @endif
-      </div>
+      @endif
+      @if($sub->includes_nutrition)
+        @if($sub->nutritionPlan)
+          <a href="{{ route('trainee.diet', ['subscription' => $sub->id]) }}" class="tile tile-primary">
+            <i class="fas fa-utensils"></i><b>{{ __('Nutrition plan') }}</b><small>{{ __('Open') }}</small>
+          </a>
+        @else
+          <div class="tile tile-wait"><i class="fas fa-hourglass-half"></i><b>{{ __('Nutrition plan') }}</b><small>{{ __('Ready by :date', ['date' => $sub->plan_due_at->translatedFormat('j M')]) }}</small></div>
+        @endif
+      @endif
+      @if($sub->coach->whatsapp_url)
+        <a href="{{ $sub->coach->whatsapp_url }}" target="_blank" rel="noopener" class="tile tile-wa">
+          <i class="fab fa-whatsapp"></i><b>{{ __('WhatsApp') }}</b><small>{{ __('Talk to your coach') }}</small>
+        </a>
+      @endif
     </div>
+
+    @if($sub->review)
+      <div class="sub-review muted small">{{ __('Your review') }} @include('partials.stars', ['rating' => $sub->review->rating, 'count' => null])</div>
+    @else
+      <details class="sub-rate">
+        <summary><i class="fas fa-star"></i> {{ __('Rate your coach') }}</summary>
+        <form method="POST" action="{{ route('subscriptions.review', $sub) }}" class="form-row" style="margin-top:10px;align-items:end">
+          @csrf
+          <select name="rating" required aria-label="{{ __('Rating') }}">
+            @for($r = 5; $r >= 1; $r--)
+              <option value="{{ $r }}">{{ str_repeat('★', $r) }}</option>
+            @endfor
+          </select>
+          <input type="text" name="comment" maxlength="1000" placeholder="{{ __('Write a short review (optional)') }}" aria-label="{{ __('Review') }}">
+          <button class="btn btn-primary">{{ __('Send review') }}</button>
+        </form>
+      </details>
+    @endif
   </section>
 @empty
   @if($pending->isEmpty())
@@ -105,10 +103,11 @@
   </section>
 @endforeach
 
-<div class="grid-2" style="margin-top:16px;align-items:start">
+<div class="grid-2" style="margin-top:14px;align-items:start">
   {{-- Profile --}}
-  <section class="panel">
-    <div class="panel-head"><h2><i class="fas fa-user"></i> {{ __('Your Profile') }}</h2></div>
+  <details class="panel fold" @if($errors->any()) open @endif>
+    <summary class="panel-head" style="margin:0"><h2><i class="fas fa-user"></i> {{ __('Your Profile') }}</h2><i class="fas fa-chevron-down fold-icon"></i></summary>
+    <div style="margin-top:14px">
     <form method="POST" action="{{ route('trainee.profile.update') }}" enctype="multipart/form-data">
       @csrf
       <div class="profile-head" style="margin-bottom:14px">
@@ -144,7 +143,8 @@
       </div>
       <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> {{ __('Save') }}</button>
     </form>
-  </section>
+    </div>
+  </details>
 
   {{-- History --}}
   <section class="panel">

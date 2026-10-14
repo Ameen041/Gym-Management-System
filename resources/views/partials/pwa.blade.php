@@ -1,6 +1,6 @@
 {{-- Installable app (PWA) meta tags --}}
 <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
-<meta name="theme-color" content="#4361ee">
+<meta name="theme-color" content="#090b0e">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">

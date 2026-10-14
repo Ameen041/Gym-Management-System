@@ -1,258 +1,334 @@
 /* =========================================================
-   Nutrition plan builder: meals made of foods from the library.
-   Calories / protein / carbs / fat are calculated per food,
-   per meal, per day and for the week (the server recalculates
-   library foods again when the plan is saved).
+   Nutrition plan builder (coach)
+   - one tab per day; a day has meals, a meal has foods
+   - "Add food" opens a picker (search Arabic / English + categories)
+   - calories / protein / carbs / fat per food, meal, day and week
+     (the server recalculates library foods again when saving)
+   - form fields: meals[key][day|number|note|items][key][food_id|name|qty|unit|calories|protein|carbs|fat]
    ========================================================= */
 (function () {
   "use strict";
 
-  const NB = window.NB || { foods: [], i18n: {} };
+  const NB = window.NB;
+  const form = document.getElementById("nutrition-form");
+  if (!form || !NB) return;
   const t = NB.i18n;
   const MACROS = ["calories", "protein", "carbs", "fat"];
-  const form = document.getElementById("nutrition-form");
-  if (!form) return;
 
-  // ---- food lookup (by id, and by any of its names) ----
-  const byId = new Map();
-  const byName = new Map();
-  const norm = (s) => String(s || "").trim().toLowerCase().replace(/\s+/g, " ");
-  NB.foods.forEach((f) => {
-    byId.set(String(f.id), f);
-    [f.n, f.en, f.ar].forEach((name) => { if (name && !byName.has(norm(name))) byName.set(norm(name), f); });
-  });
+  // ---------- helpers ----------
+  const norm = (s) => String(s || "").toLowerCase()
+    .replace(/[ً-ْـ]/g, "")
+    .replace(/[أإآٱ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/ؤ/g, "و").replace(/ئ/g, "ي")
+    .replace(/[-_.,()/%]/g, " ").replace(/\s+/g, " ").trim();
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const num = (v) => { const n = parseFloat(v); return isFinite(n) ? n : 0; };
+  const fmt = (v, digits) => String(Math.round(v * Math.pow(10, digits)) / Math.pow(10, digits));
+  const el = (html) => { const box = document.createElement("div"); box.innerHTML = html.trim(); return box.firstElementChild; };
+
+  NB.foods.forEach((f) => (f.key = norm([f.n, f.en, f.ar].join(" "))));
+  const byId = new Map(NB.foods.map((f) => [String(f.id), f]));
 
   let counter = Date.now() % 1000000;
-  const uid = (prefix) => prefix + (counter++);
-  const num = (v) => { const n = parseFloat(v); return isFinite(n) ? n : 0; };
-  const fmt = (v, digits) => {
-    const n = Math.round(v * Math.pow(10, digits)) / Math.pow(10, digits);
-    return String(n);
-  };
-  const totalText = (label, s) =>
-    `<b>${label}:</b> ${fmt(s.calories, 0)} ${t.kcal} · ${t.protein} ${fmt(s.protein, 1)} ${t.g} · ${t.carbs} ${fmt(s.carbs, 1)} ${t.g} · ${t.fat} ${fmt(s.fat, 1)} ${t.g}`;
+  const uid = (p) => p + counter++;
+  const days = Array.from(form.querySelectorAll(".nb-day"));
+  const dayEl = (d) => form.querySelector(`.nb-day[data-day="${d}"]`);
+  let activeDay = form.dataset.firstDay || days[0].dataset.day;
 
-  // ---- one food line ----
-  function syncItem(item, picked) {
-    const nameEl = item.querySelector("[data-food-name]");
+  // ---------- one food line ----------
+  function syncItem(item) {
     const idEl = item.querySelector("[data-food-id]");
     const qtyEl = item.querySelector("[data-qty]");
     const unitEl = item.querySelector("[data-unit]");
     const servingOpt = unitEl.querySelector("[data-serving-option]");
     const macroEls = {};
-    item.querySelectorAll("[data-macro]").forEach((el) => (macroEls[el.dataset.macro] = el));
-
-    let food = null;
-    if (picked) {
-      food = byName.get(norm(nameEl.value)) || null;
-    } else {
-      food = byId.get(String(idEl.value)) || null;
-      if (food) nameEl.value = food.n;            // current name of the library food
-    }
-    const wasLibrary = item.classList.contains("is-library");
-    idEl.value = food ? food.id : "";
+    item.querySelectorAll("[data-macro]").forEach((m) => (macroEls[m.dataset.macro] = m));
+    const food = byId.get(String(idEl.value)) || null;
+    if (!food) idEl.value = "";
     item.classList.toggle("is-library", !!food);
 
-    // unit: grams, or the food's serving ("1 large egg = 50 g")
     if (food && food.sg) {
-      servingOpt.hidden = false;
-      servingOpt.disabled = false;
+      servingOpt.hidden = false; servingOpt.disabled = false;
       servingOpt.textContent = `${food.sn || t.serving} (${fmt(food.sg, 1)} ${t.g})`;
     } else {
-      servingOpt.hidden = true;
-      servingOpt.disabled = true;
+      servingOpt.hidden = true; servingOpt.disabled = true;
       unitEl.value = "g";
     }
 
-    // just picked: suggest an amount
-    if (food && picked && !wasLibrary) {
-      if (food.sg) { unitEl.value = "serving"; qtyEl.value = qtyEl.value || 1; }
-      else { unitEl.value = "g"; qtyEl.value = qtyEl.value || 100; }
-    }
-
-    Object.values(macroEls).forEach((el) => (el.readOnly = !!food));
     if (food) {
+      item.querySelector("[data-food-name]").value = food.n;
+      item.querySelector("[data-food-label]").textContent = food.n;
+      item.querySelector("[data-food-meta]").textContent = `${fmt(food.cal, 0)} ${t.kcal} ${t.per100}`;
       const grams = num(qtyEl.value) * (unitEl.value === "serving" && food.sg ? food.sg : 1);
-      const factor = grams / 100;
-      macroEls.calories.value = fmt(food.cal * factor, 0);
-      macroEls.protein.value = fmt(food.p * factor, 1);
-      macroEls.carbs.value = fmt(food.c * factor, 1);
-      macroEls.fat.value = fmt(food.f * factor, 1);
-      item.title = `${food.n}: ${fmt(food.cal, 0)} ${t.kcal} / 100 ${t.g}`;
-    } else {
-      item.removeAttribute("title");
-      if (wasLibrary && picked) MACROS.forEach((m) => (macroEls[m].value = "")); // typed a new, unknown food
+      const k = grams / 100;
+      macroEls.calories.value = fmt(food.cal * k, 0);
+      macroEls.protein.value = fmt(food.p * k, 1);
+      macroEls.carbs.value = fmt(food.c * k, 1);
+      macroEls.fat.value = fmt(food.f * k, 1);
+      item.querySelector("[data-item-sum]").innerHTML =
+        `<b>${macroEls.calories.value}</b> ${esc(t.kcal)} <span>${esc(t.p)} ${macroEls.protein.value} · ${esc(t.c)} ${macroEls.carbs.value} · ${esc(t.f)} ${macroEls.fat.value}</span>`;
     }
   }
 
-  // ---- totals ----
-  function sumOf(elements) {
+  // ---------- totals ----------
+  function sumItems(items) {
     const s = { calories: 0, protein: 0, carbs: 0, fat: 0 };
-    elements.forEach((item) => {
+    items.forEach((item) => {
       if (!item.querySelector("[data-food-name]").value.trim()) return;
-      item.querySelectorAll("[data-macro]").forEach((el) => (s[el.dataset.macro] += num(el.value)));
+      item.querySelectorAll("[data-macro]").forEach((m) => (s[m.dataset.macro] += num(m.value)));
     });
     return s;
   }
 
-  function recalc() {
+  function refresh() {
     const week = [];
-    form.querySelectorAll(".nb-day").forEach((dayEl) => {
-      const meals = dayEl.querySelectorAll(".nb-meal");
-      dayEl.classList.toggle("is-empty", meals.length === 0);
+    days.forEach((dayBox) => {
+      const meals = dayBox.querySelectorAll(".nb-meal");
+      dayBox.classList.toggle("has-rows", meals.length > 0);
       meals.forEach((meal, i) => {
-        const s = sumOf(meal.querySelectorAll("[data-item]"));
-        meal.querySelector("[data-meal-total]").innerHTML = totalText(t.mealTotal, s);
-        const numberEl = meal.querySelector("[data-meal-number]");
-        numberEl.placeholder = i + 1;
+        const s = sumItems(meal.querySelectorAll("[data-item]"));
+        meal.querySelector("[data-meal-kcal]").textContent = `${fmt(s.calories, 0)} ${t.kcal}`;
+        meal.querySelector("[data-meal-total]").textContent = `${t.p} ${fmt(s.protein, 1)} · ${t.c} ${fmt(s.carbs, 1)} · ${t.f} ${fmt(s.fat, 1)}`;
+        meal.querySelector("[data-meal-number]").placeholder = i + 1;
       });
-      const day = sumOf(dayEl.querySelectorAll("[data-item]"));
-      dayEl.querySelector("[data-day-total]").innerHTML = meals.length ? totalText(t.dayTotal, day) : "";
-      const row = form.querySelector(`[data-summary-day="${dayEl.dataset.day}"]`);
-      if (row) MACROS.forEach((m) => (row.querySelector(`[data-v="${m}"]`).textContent = fmt(day[m], m === "calories" ? 0 : 1)));
+      const day = sumItems(dayBox.querySelectorAll("[data-item]"));
       if (meals.length) week.push(day);
+
+      const total = dayBox.querySelector("[data-day-total]");
+      total.hidden = meals.length === 0;
+      MACROS.forEach((m) => (total.querySelector(`[data-v="${m}"]`).textContent = fmt(day[m], m === "calories" ? 0 : 1)));
+      const kcalFrom = { protein: day.protein * 4, carbs: day.carbs * 4, fat: day.fat * 9 };
+      const all = kcalFrom.protein + kcalFrom.carbs + kcalFrom.fat;
+      Object.entries(kcalFrom).forEach(([m, v]) => (total.querySelector(`[data-bar="${m}"]`).style.width = (all ? Math.round((v / all) * 100) : 0) + "%"));
+
+      const tab = form.querySelector(`[data-tab="${dayBox.dataset.day}"]`);
+      tab.querySelector("[data-tab-count]").textContent = meals.length ? fmt(day.calories, 0) : "–";
+      tab.classList.toggle("has", meals.length > 0);
+      const row = form.querySelector(`[data-summary-day="${dayBox.dataset.day}"]`);
+      if (row) MACROS.forEach((m) => (row.querySelector(`[data-v="${m}"]`).textContent = fmt(day[m], m === "calories" ? 0 : 1)));
     });
+
     const avgRow = form.querySelector("[data-summary-avg]");
-    if (avgRow) {
-      MACROS.forEach((m) => {
-        const avg = week.length ? week.reduce((a, d) => a + d[m], 0) / week.length : 0;
-        avgRow.querySelector(`[data-v="${m}"]`).textContent = fmt(avg, m === "calories" ? 0 : 1);
-      });
-    }
+    MACROS.forEach((m) => {
+      const avg = week.length ? week.reduce((a, d) => a + d[m], 0) / week.length : 0;
+      avgRow.querySelector(`[data-v="${m}"]`).textContent = fmt(avg, m === "calories" ? 0 : 1);
+    });
+
+    const current = dayEl(activeDay);
+    const mealsNow = current.querySelectorAll(".nb-meal").length;
+    const dayNow = sumItems(current.querySelectorAll("[data-item]"));
+    form.querySelector("[data-dock-day]").textContent = `${current.dataset.dayLabel}: ${mealsNow ? fmt(dayNow.calories, 0) + " " + t.kcal : t.noMeals}`;
+    form.querySelector("[data-dock-sub]").textContent = mealsNow
+      ? `${t.meals.replace(":count", mealsNow)} · ${t.p} ${fmt(dayNow.protein, 0)} · ${t.c} ${fmt(dayNow.carbs, 0)} · ${t.f} ${fmt(dayNow.fat, 0)}`
+      : "";
+    if (picker.classList.contains("open")) renderResults();
   }
 
-  // ---- adding / removing ----
+  // ---------- add / remove ----------
   function fromTemplate(id, replacements) {
     let html = document.getElementById(id).innerHTML;
     Object.entries(replacements).forEach(([k, v]) => (html = html.split(k).join(v)));
-    const box = document.createElement("div");
-    box.innerHTML = html.trim();
-    return box.firstElementChild;
+    return el(html);
   }
 
-  function addItem(meal) {
-    const item = fromTemplate("nb-item-template", { __M__: meal.dataset.meal, __I__: uid("i") });
-    meal.querySelector("[data-items]").appendChild(item);
-    syncItem(item, false);
-    return item;
-  }
-
-  function addMeal(dayEl) {
-    const meal = fromTemplate("nb-meal-template", { __M__: uid("m"), __DAY__: dayEl.dataset.day });
-    dayEl.querySelector("[data-meals]").appendChild(meal);
-    meal.querySelectorAll("[data-item]").forEach((item) => syncItem(item, false));
+  function addMeal(dayBox) {
+    const meal = fromTemplate("nb-meal-template", { __M__: uid("m"), __DAY__: dayBox.dataset.day });
+    dayBox.querySelector("[data-meals]").appendChild(meal);
     return meal;
   }
 
-  function clearItem(item) {
-    item.querySelectorAll("input").forEach((el) => (el.value = ""));
-    item.querySelector("[data-unit]").value = "g";
-    syncItem(item, true);
+  function addItem(meal, values) {
+    const item = fromTemplate("nb-item-template", { __M__: meal.dataset.meal, __I__: uid("i") });
+    Object.entries(values || {}).forEach(([k, v]) => {
+      const input = item.querySelector(`[name$="[${k}]"]`);
+      if (input) input.value = v;
+    });
+    meal.querySelector("[data-items]").appendChild(item);
+    syncItem(item);
+    return item;
   }
 
   /** Copy a meal into another day: new keys for every field name. */
-  function cloneMealInto(meal, dayEl) {
+  function cloneMealInto(meal, dayBox) {
     const key = uid("m");
     const copy = meal.cloneNode(true);
     copy.dataset.meal = key;
-    copy.querySelector("[data-day-input]").value = dayEl.dataset.day;
-    copy.querySelectorAll("[name]").forEach((el) => {
-      el.name = el.name.replace(/^meals\[[^\]]+\]/, `meals[${key}]`);
-    });
+    copy.querySelector("[data-day-input]").value = dayBox.dataset.day;
+    copy.querySelectorAll("[name]").forEach((input) => (input.name = input.name.replace(/^meals\[[^\]]+\]/, `meals[${key}]`)));
     copy.querySelectorAll("[data-item]").forEach((item) => {
       const itemKey = uid("i");
-      item.querySelectorAll("[name]").forEach((el) => {
-        el.name = el.name.replace(/\[items\]\[[^\]]+\]/, `[items][${itemKey}]`);
-      });
+      item.querySelectorAll("[name]").forEach((input) => (input.name = input.name.replace(/\[items\]\[[^\]]+\]/, `[items][${itemKey}]`)));
     });
-    // cloneNode keeps typed input values but not the chosen <select> option
-    const sourceSelects = meal.querySelectorAll("select");
-    copy.querySelectorAll("select").forEach((select, i) => (select.value = sourceSelects[i].value));
-    dayEl.querySelector("[data-meals]").appendChild(copy);
-    copy.querySelectorAll("[data-item]").forEach((item) => syncItem(item, false));
+    // cloneNode keeps typed values but not the chosen <select> option
+    const fromSelects = meal.querySelectorAll("select");
+    copy.querySelectorAll("select").forEach((s, i) => (s.value = fromSelects[i].value));
+    dayBox.querySelector("[data-meals]").appendChild(copy);
+    copy.querySelectorAll("[data-item]").forEach(syncItem);
   }
 
-  function hasContent(scope) {
-    return Array.from(scope.querySelectorAll("[data-food-name], .nb-note")).some((el) => el.value.trim() !== "");
-  }
+  const hasContent = (scope) => Array.from(scope.querySelectorAll("[data-food-name], .nb-note")).some((i) => i.value.trim() !== "");
 
-  // ---- template loader: "day|meal_number|description|calories|protein|carbs|fat" ----
-  function loadTemplate(select) {
-    const option = select.options[select.selectedIndex];
-    const body = option ? option.getAttribute("data-body") : "";
-    if (!body) return;
-    if (hasContent(form.querySelector(".nb-days")) && !confirm(t.replaceAll)) { select.value = ""; return; }
-
-    form.querySelectorAll("[data-meals]").forEach((box) => (box.innerHTML = ""));
-    body.split("\n").map((l) => l.trim()).filter(Boolean).forEach((line) => {
-      const [day, mealNo, desc, calories, protein, carbs, fat] = line.split("|").map((p) => p.trim());
-      const dayEl = form.querySelector(`.nb-day[data-day="${day}"]`);
-      if (!dayEl || !desc) return;
-      const meal = addMeal(dayEl);
-      meal.querySelector("[data-meal-number]").value = mealNo || "";
-      const item = meal.querySelector("[data-item]");
-      item.querySelector("[data-food-name]").value = desc;
-      syncItem(item, true);
-      const values = { calories, protein, carbs, fat };
-      MACROS.forEach((m) => (item.querySelector(`[data-macro="${m}"]`).value = values[m] || ""));
+  // ---------- tabs ----------
+  function showDay(day) {
+    activeDay = day;
+    days.forEach((d) => (d.hidden = d.dataset.day !== day));
+    form.querySelectorAll("[data-tab]").forEach((b) => {
+      const on = b.dataset.tab === day;
+      b.classList.toggle("on", on);
+      b.setAttribute("aria-selected", on ? "true" : "false");
     });
-    recalc();
+    refresh();
   }
 
-  // ---- events ----
+  // ---------- picker ----------
+  const picker = document.getElementById("picker");
+  const backdrop = picker.nextElementSibling;
+  const results = picker.querySelector("[data-results]");
+  const searchInput = picker.querySelector("[data-search]");
+  let targetMeal = null, fCat = "", fQuery = "";
+
+  function openPicker(meal) {
+    targetMeal = meal;
+    const index = Array.from(meal.parentElement.children).indexOf(meal) + 1;
+    picker.querySelector("[data-picker-target]").textContent = `${t.meal} ${meal.querySelector("[data-meal-number]").value || index}`;
+    picker.classList.add("open"); backdrop.classList.add("show"); picker.setAttribute("aria-hidden", "false");
+    renderResults();
+    if (window.matchMedia("(min-width: 641px)").matches) searchInput.focus();
+  }
+
+  function closePicker() {
+    picker.classList.remove("open"); backdrop.classList.remove("show"); picker.setAttribute("aria-hidden", "true");
+    if (targetMeal && !hasContent(targetMeal)) targetMeal.remove(); // a new meal left empty
+    targetMeal = null;
+    refresh();
+  }
+
+  function renderResults() {
+    if (!targetMeal) return;
+    const inMeal = new Set(Array.from(targetMeal.querySelectorAll("[data-food-id]")).map((i) => i.value).filter(Boolean));
+    const tokens = norm(fQuery).split(" ").filter(Boolean);
+    const list = NB.foods.filter((f) => (!fCat || f.cat === fCat) && tokens.every((tk) => f.key.includes(tk)));
+    let html = list.map((f) => {
+      const added = inMeal.has(String(f.id));
+      const serving = f.sg ? ` · ${esc(f.sn)} = ${fmt(f.sg, 1)} ${esc(t.g)}` : "";
+      return `<button type="button" class="pick ${added ? "added" : ""}" data-id="${f.id}">
+        <span class="pick-icon pick-kcal"><b>${fmt(f.cal, 0)}</b><small>${esc(t.kcal)}</small></span>
+        <span><span class="pick-name">${esc(f.n)}</span>
+          <span class="pick-meta">${esc(t.per100)}: ${esc(t.p)} ${fmt(f.p, 1)} · ${esc(t.c)} ${fmt(f.c, 1)} · ${esc(t.f)} ${fmt(f.f, 1)}${serving}${added ? ` · <span class="in-day">${esc(t.inMeal)}</span>` : ""}</span></span>
+        <span class="pick-add"><i class="fas ${added ? "fa-check" : "fa-plus"}"></i></span>
+      </button>`;
+    }).join("");
+    if (!list.length) html = `<p class="pick-empty">${esc(t.noResults)}</p>`;
+    if (fQuery.trim()) {
+      html += `<button type="button" class="pick pick-custom" data-custom>
+        <span class="pick-icon"><i class="fas fa-pen"></i></span>
+        <span><span class="pick-name">${esc(t.addCustom.replace(":name", fQuery.trim()))}</span></span>
+        <span class="pick-add"><i class="fas fa-plus"></i></span></button>`;
+    }
+    results.innerHTML = html;
+    const s = sumItems(targetMeal.querySelectorAll("[data-item]"));
+    picker.querySelector("[data-picker-count]").textContent = `${t.meal}: ${fmt(s.calories, 0)} ${t.kcal}`;
+  }
+
+  picker.addEventListener("click", (e) => {
+    const cat = e.target.closest("[data-cat]");
+    const pick = e.target.closest(".pick[data-id]");
+    const custom = e.target.closest("[data-custom]");
+    if (cat) {
+      fCat = cat.dataset.cat;
+      picker.querySelectorAll("[data-cat]").forEach((c) => c.classList.toggle("on", c.dataset.cat === fCat));
+      renderResults();
+    } else if (pick && targetMeal) {
+      const food = byId.get(pick.dataset.id);
+      addItem(targetMeal, { food_id: food.id, name: food.n, qty: food.sg ? 1 : 100, unit: food.sg ? "serving" : "g" });
+      refresh();
+    } else if (custom && targetMeal) {
+      const item = addItem(targetMeal, { name: fQuery.trim() });
+      fQuery = ""; searchInput.value = "";
+      closePicker();
+      item.querySelector('[data-macro="calories"]').focus();
+    }
+  });
+  searchInput.addEventListener("input", () => { fQuery = searchInput.value; renderResults(); });
+  document.querySelectorAll("[data-close-picker]").forEach((b) => b.addEventListener("click", closePicker));
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && picker.classList.contains("open")) closePicker(); });
+
+  // ---------- form events ----------
   form.addEventListener("input", (e) => {
     const item = e.target.closest("[data-item]");
-    if (item && (e.target.matches("[data-food-name]") || e.target.matches("[data-qty]"))) syncItem(item, e.target.matches("[data-food-name]"));
-    recalc();
+    if (item && e.target.matches("[data-qty]")) syncItem(item);
+    refresh();
   });
 
   form.addEventListener("change", (e) => {
     const item = e.target.closest("[data-item]");
     if (item && e.target.matches("[data-unit]")) {
-      // switching unit keeps the same quantity of food when possible
+      // switching unit keeps the same amount of food
       const food = byId.get(String(item.querySelector("[data-food-id]").value));
       const qtyEl = item.querySelector("[data-qty]");
       if (food && food.sg && num(qtyEl.value) > 0) {
         qtyEl.value = e.target.value === "serving" ? fmt(num(qtyEl.value) / food.sg, 1) : fmt(num(qtyEl.value) * food.sg, 0);
       }
-      syncItem(item, false);
-      recalc();
+      syncItem(item);
+      refresh();
     }
-    if (e.target.matches("[data-template]")) loadTemplate(e.target);
+
+    if (e.target.matches("[data-copy]")) {
+      const target = e.target.value;
+      e.target.value = "";
+      if (!target) return;
+      const source = dayEl(activeDay);
+      const label = target === "*" ? t.allDays : dayEl(target).dataset.dayLabel;
+      if (!confirm(t.copyConfirm.replace(":target", label).replace(":day", source.dataset.dayLabel))) return;
+      const meals = Array.from(source.querySelectorAll(".nb-meal"));
+      days.filter((d) => d !== source && (target === "*" || d.dataset.day === target)).forEach((d) => {
+        d.querySelector("[data-meals]").innerHTML = "";
+        meals.forEach((m) => cloneMealInto(m, d));
+      });
+      refresh();
+    }
+
+    if (e.target.matches("[data-template]")) {
+      const option = e.target.options[e.target.selectedIndex];
+      const body = option ? option.getAttribute("data-body") : "";
+      e.target.value = "";
+      if (!body) return;
+      if (hasContent(form) && !confirm(t.templateConfirm)) return;
+      days.forEach((d) => (d.querySelector("[data-meals]").innerHTML = ""));
+      // template format: day|meal_number|description|calories|protein|carbs|fat
+      body.split("\n").map((l) => l.trim()).filter(Boolean).forEach((line) => {
+        const [day, mealNo, desc, calories, protein, carbs, fat] = line.split("|").map((p) => p.trim());
+        if (!dayEl(day) || !desc) return;
+        const meal = addMeal(dayEl(day));
+        meal.querySelector("[data-meal-number]").value = mealNo || "";
+        addItem(meal, { name: desc, calories, protein, carbs, fat });
+      });
+      const first = days.find((d) => d.querySelector(".nb-meal"));
+      showDay(first ? first.dataset.day : activeDay);
+    }
   });
 
   form.addEventListener("click", (e) => {
+    const tab = e.target.closest("[data-tab]");
+    if (tab) return showDay(tab.dataset.tab);
     const btn = e.target.closest("button");
     if (!btn) return;
-    const dayEl = btn.closest(".nb-day");
     const meal = btn.closest(".nb-meal");
 
     if (btn.matches("[data-add-meal]")) {
-      const newMeal = addMeal(dayEl);
-      newMeal.querySelector("[data-food-name]").focus();
-    } else if (btn.matches("[data-add-item]")) {
-      addItem(meal).querySelector("[data-food-name]").focus();
+      openPicker(addMeal(dayEl(activeDay)));
+    } else if (btn.matches("[data-add-food]")) {
+      openPicker(meal);
     } else if (btn.matches("[data-remove-item]")) {
-      const item = btn.closest("[data-item]");
-      if (meal.querySelectorAll("[data-item]").length > 1) item.remove();
-      else clearItem(item);
+      btn.closest("[data-item]").remove();
     } else if (btn.matches("[data-remove-meal]")) {
       if (!hasContent(meal) || confirm(t.removeMeal)) meal.remove();
-    } else if (btn.matches("[data-copy-day]")) {
-      if (!confirm(t.copyDay.replace(":day", dayEl.dataset.dayLabel))) return;
-      const meals = Array.from(dayEl.querySelectorAll(".nb-meal"));
-      form.querySelectorAll(".nb-day").forEach((other) => {
-        if (other === dayEl) return;
-        other.querySelector("[data-meals]").innerHTML = "";
-        meals.forEach((m) => cloneMealInto(m, other));
-      });
     } else {
       return;
     }
-    recalc();
+    refresh();
   });
 
-  // ---- start ----
-  form.querySelectorAll("[data-item]").forEach((item) => syncItem(item, false));
-  recalc();
+  // ---------- start ----------
+  form.querySelectorAll("[data-item]").forEach(syncItem);
+  showDay(activeDay);
 })();

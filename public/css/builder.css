@@ -1,0 +1,124 @@
+/* Plan builders (workout + nutrition): day tabs, rows, pickers. Built on app.css tokens. */
+.builder{display:grid;gap:14px}
+.builder-top{
+  display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:12px 14px;
+}
+.builder-who{display:flex;gap:12px;align-items:center;flex:1;min-width:min(100%,260px)}
+.builder-who .grow{display:flex;flex-direction:column;gap:2px}
+.content input.builder-title{
+  min-height:0;height:auto;padding:2px 0;border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;
+  font-family:var(--font-display);font-weight:800;font-size:1.15rem;box-shadow:none;
+}
+.content input.builder-title:focus{box-shadow:none;border-bottom-color:var(--accent)}
+.content .builder-template,.content .builder-copy{width:auto;min-height:38px;padding:6px 12px;font-size:.86rem;border-radius:11px}
+
+.builder-day{display:grid;gap:10px}
+.builder-day-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:2px}
+.builder-day-head h2{font-size:1.3rem;font-weight:900}
+.builder-rest{
+  display:flex;align-items:center;justify-content:center;gap:8px;padding:22px;border-radius:var(--radius);
+  border:1px dashed var(--line-strong);color:var(--muted);font-weight:600;
+}
+.builder-day.has-rows .builder-rest{display:none}
+.builder-add{
+  display:flex;align-items:center;justify-content:center;gap:9px;height:54px;border-radius:var(--radius);
+  border:1.5px dashed var(--accent);background:var(--accent-soft);color:var(--accent-text);font-weight:800;font-size:.95rem;
+}
+.builder-add:hover{border-style:solid}
+
+/* ---------- Workout rows ---------- */
+.wb-list{display:grid;gap:8px}
+.wb-row{
+  display:grid;grid-template-columns:24px 46px minmax(0,1fr) auto auto;gap:12px;align-items:center;
+  padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  animation:row-in .25s var(--ease);
+}
+@keyframes row-in{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}
+.wb-order{
+  width:24px;height:24px;border-radius:8px;display:grid;place-items:center;background:var(--surface-3);
+  color:var(--muted);font-size:.74rem;font-weight:800;font-variant-numeric:tabular-nums;
+}
+.wb-info{display:flex;flex-direction:column;gap:2px;min-width:0}
+.wb-name{font-weight:700;font-size:.95rem;line-height:1.35}
+.wb-meta{font-size:.76rem;color:var(--muted)}
+.wb-meta i{color:var(--accent-text)}
+.wb-row.is-custom .wb-info{display:grid;grid-template-columns:minmax(0,1fr) 130px;gap:6px}
+.content .wb-row input,.content .wb-row select{min-height:38px;padding:7px 10px;font-size:.88rem;border-radius:10px}
+.wb-sr{display:flex;align-items:flex-end;gap:6px}
+.wb-sr label{display:flex;flex-direction:column;gap:2px;font-size:.66rem;font-weight:700;color:var(--muted);text-align:center}
+.content .wb-sr input{width:64px;text-align:center;font-weight:800;font-variant-numeric:tabular-nums;padding:7px 4px}
+.wb-x{padding-bottom:9px;color:var(--faint);font-weight:800}
+.wb-actions{display:flex;gap:4px}
+.wb-act{
+  width:32px;height:32px;border-radius:9px;display:grid;place-items:center;border:1px solid var(--line);
+  background:transparent;color:var(--muted);font-size:.8rem;
+}
+.wb-act:hover{color:var(--text);border-color:var(--line-strong)}
+.wb-act.danger:hover{color:var(--danger);border-color:var(--danger)}
+.wb-row:first-child [data-move="-1"],.wb-row:last-child [data-move="1"]{visibility:hidden}
+
+@media (max-width:760px){
+  .wb-row{grid-template-columns:24px 42px minmax(0,1fr) auto;row-gap:10px}
+  .wb-row .pick-icon{width:42px;height:42px}
+  .wb-info{grid-column:3 / 4}
+  .wb-actions{grid-column:4 / 5;grid-row:1}
+  .wb-sr{grid-column:1 / -1;justify-content:flex-start;padding-inline-start:36px}
+  .wb-row.is-custom .wb-info{grid-template-columns:1fr}
+}
+@media (max-width:420px){
+  .wb-act[data-move]{display:none}
+}
+
+/* ---------- Picker list extras ---------- */
+.pick-custom{border-style:dashed;border-color:var(--accent)}
+.pick .in-day{font-size:.7rem;font-weight:700;color:var(--accent-text)}
+
+/* ---------- Nutrition: day total, meals, foods ---------- */
+.nb-meals{display:grid;gap:12px}
+.nb-meal{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:12px 14px;animation:row-in .25s var(--ease)}
+.nb-meal-head{display:flex;align-items:center;gap:10px}
+.nb-meal-no{display:flex;align-items:center;gap:6px;font-family:var(--font-display);font-weight:800;font-size:.95rem;white-space:nowrap}
+.content .nb-meal-no input{width:54px;min-height:36px;padding:6px;text-align:center;font-weight:800}
+.content input.nb-note{flex:1;min-width:0;min-height:36px;padding:6px 10px;border-color:transparent;background:var(--surface-2);font-size:.88rem}
+.nb-meal-kcal{font-family:var(--font-display);font-weight:900;color:var(--accent-text);white-space:nowrap;font-variant-numeric:tabular-nums}
+.nb-items{display:grid;gap:6px;margin-top:10px}
+.nb-item{
+  display:grid;grid-template-columns:minmax(0,1fr) auto auto 32px;gap:10px;align-items:center;
+  padding:8px 10px;border-radius:12px;background:var(--surface-2);
+}
+.nb-food{display:flex;flex-direction:column;min-width:0}
+.nb-food-name{font-weight:700;font-size:.92rem;line-height:1.35}
+.nb-food-meta{font-size:.72rem;color:var(--muted)}
+.nb-amount{display:flex;gap:6px}
+.content .nb-amount input{width:76px;min-height:36px;padding:6px 8px;text-align:center;font-weight:800}
+.content .nb-amount select{width:auto;max-width:190px;min-height:36px;padding:6px 8px;font-size:.84rem}
+.nb-macro-inputs{display:flex;gap:6px}
+.nb-macro-inputs label{display:flex;flex-direction:column;gap:1px;font-size:.64rem;font-weight:700;color:var(--muted);text-align:center}
+.content .nb-macro-inputs input{width:62px;min-height:34px;padding:5px 4px;text-align:center;font-size:.84rem}
+.content input.nb-name-input{min-height:36px;padding:6px 10px;font-size:.9rem}
+.nb-item-sum{font-size:.8rem;color:var(--muted);text-align:end;white-space:nowrap;font-variant-numeric:tabular-nums}
+.nb-item-sum b{font-family:var(--font-display);font-size:1rem;color:var(--text)}
+.nb-item-sum span{display:block;font-size:.72rem}
+/* library food: name + calculated values; own food: inputs */
+.nb-item.is-library .nb-name-input,.nb-item.is-library .nb-macro-inputs{display:none}
+.nb-item:not(.is-library) .nb-food-name,.nb-item:not(.is-library) .nb-food-meta,.nb-item:not(.is-library) .nb-item-sum{display:none}
+.nb-meal-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}
+.nb-meal-macros{font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.nb-week summary{cursor:pointer;font-family:var(--font-display);font-weight:800;display:flex;gap:9px;align-items:center}
+.nb-week summary i{color:var(--accent-text)}
+.pick-kcal{flex-direction:column;gap:0;line-height:1.05;background:var(--surface-2);color:var(--text)}
+.pick-kcal b{font-family:var(--font-display);font-size:.95rem;font-weight:900}
+.pick-kcal small{font-size:.6rem;color:var(--muted);font-weight:700}
+
+@media (max-width:760px){
+  .nb-item{grid-template-columns:minmax(0,1fr) 32px;row-gap:8px}
+  .nb-food{grid-column:1 / 2}
+  .nb-item > .wb-act{grid-column:2 / 3;grid-row:1}
+  .nb-amount{grid-column:1 / -1}
+  .nb-item-sum{grid-column:1 / -1;text-align:start;white-space:normal}
+  .nb-item-sum span{display:inline;margin-inline-start:8px}
+  .nb-macro-inputs{grid-column:1 / -1}
+  .content .nb-macro-inputs input{width:100%}
+  .nb-macro-inputs label{flex:1}
+}

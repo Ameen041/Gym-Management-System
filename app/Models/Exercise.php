@@ -20,6 +20,17 @@ class Exercise extends Model
         'cardio'    => ['label' => 'Cardio',    'label_ar' => 'الكارديو'],
     ];
 
+    /** Equipment families used by the filters (derived from the free-text equipment). */
+    public const EQUIPMENT_TYPES = [
+        'barbell'    => 'Barbell',
+        'dumbbell'   => 'Dumbbells',
+        'cable'      => 'Cable',
+        'machine'    => 'Machine',
+        'bodyweight' => 'Bodyweight',
+        'kettlebell' => 'Kettlebell',
+        'other'      => 'Other',
+    ];
+
     public const DIFFICULTIES = [
         'beginner'     => 'Beginner',
         'intermediate' => 'Intermediate',
@@ -105,6 +116,23 @@ class Exercise extends Model
     public function getDisplayDescriptionAttribute(): ?string
     {
         return $this->localized('description');
+    }
+
+    public function getEquipmentTypeAttribute(): string
+    {
+        $equipment = strtolower((string) $this->equipment);
+
+        return match (true) {
+            str_contains($equipment, 'smith') || str_contains($equipment, 'machine') || str_contains($equipment, 'treadmill')
+                || str_contains($equipment, 'bike') || str_contains($equipment, 'elliptical') => str_contains($equipment, 'cable') ? 'cable' : 'machine',
+            str_contains($equipment, 'cable')      => 'cable',
+            str_contains($equipment, 'kettlebell') => 'kettlebell',
+            str_contains($equipment, 'dumbbell')   => 'dumbbell',
+            str_contains($equipment, 'barbell') || str_contains($equipment, 'ez bar') => 'barbell',
+            $equipment === '' || str_contains($equipment, 'bodyweight') || str_contains($equipment, 'pull-up')
+                || str_contains($equipment, 'dip') || $equipment === 'bench' || str_contains($equipment, 'flat bench') => 'bodyweight',
+            default => 'other',
+        };
     }
 
     public function getMuscleLabelAttribute(): string

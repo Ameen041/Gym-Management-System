@@ -1,90 +1,94 @@
 @extends('layouts.panel')
-@section('title', ($plan ? __('Update plan') : __('Create plan')) . ': ' . __('Nutrition plan'))
+@section('title', __('Nutrition plan') . ' · ' . $subscription->trainee->name)
 
 @push('styles')
-  <link rel="stylesheet" href="{{ asset('css/nutrition-builder.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/builder.css') }}">
 @endpush
 
 @section('content')
 @php
+  use App\Models\Food;
   use App\Support\NutritionMath;
   // After a validation error, show what the coach typed instead of losing it
   if (is_array(old('meals'))) {
       $days = NutritionMath::builderDaysFromInput(old('meals'), $weekDays);
   }
   $foodData = $foods->map(fn ($f) => [
-      'id' => $f->id, 'n' => $f->display_name, 'en' => $f->name, 'ar' => $f->name_ar,
+      'id' => $f->id, 'n' => $f->display_name, 'en' => $f->name, 'ar' => $f->name_ar, 'cat' => $f->category,
       'cal' => $f->calories, 'p' => $f->protein, 'c' => $f->carbs, 'f' => $f->fat,
       'sg' => $f->serving_grams, 'sn' => $f->display_serving,
   ])->values();
+  $categoryCounts = $foods->countBy('category');
   $mealIndex = 0;
+  $firstDay = collect($weekDays)->first(fn ($d) => !empty($days[$d])) ?? $weekDays[0];
 @endphp
 
-<div class="page-title nb-title">
-  <div>
-    <h1><i class="fas fa-apple-alt"></i> {{ $plan ? __('Update plan') : __('Create plan') }}: {{ __('Nutrition plan') }}</h1>
-    <p>{{ __('For :name', ['name' => $subscription->trainee->name]) }} · {{ $subscription->package_title }}</p>
-  </div>
-  <a href="{{ route('coach.clients.show', $subscription) }}" class="btn btn-light"><i class="fas fa-arrow-left"></i> {{ __('Back to client') }}</a>
-</div>
-
-<form method="POST" action="{{ route('coach.plans.save', [$subscription, 'nutrition']) }}" id="nutrition-form">
+<form method="POST" action="{{ route('coach.plans.save', [$subscription, 'nutrition']) }}" id="nutrition-form" class="builder" data-first-day="{{ $firstDay }}">
   @csrf
 
-  <section class="panel">
-    <div class="form-row">
-      <div class="form-group">
-        <label>{{ __('Plan Title') }}</label>
-        <input type="text" name="title" required maxlength="255" value="{{ old('title', $plan->title ?? '') }}" placeholder="{{ __('e.g. Cutting Plan - Week 1') }}">
-      </div>
-      @if($templates->count())
-        <div class="form-group">
-          <label>{{ __('Load Nutrition Template') }}</label>
-          <select data-template>
-            <option value="">{{ __('-- Select Template --') }}</option>
-            @foreach($templates as $tpl)
-              <option value="{{ $tpl->id }}" data-body="{{ trim($tpl->plan_details) }}">{{ $tpl->title }}</option>
-            @endforeach
-          </select>
-        </div>
-      @endif
-    </div>
-    <div class="alert" style="margin:0">
-      <i class="fas fa-calculator"></i>
-      <div>
-        {{ __('Type a food and pick it from the list, then enter the amount: calories, protein, carbs and fat are calculated for the meal and the whole day.') }}
-        <span class="muted">{{ __('For a food that is not in the list, type its name and enter its values yourself.') }}</span>
+  <div class="builder-top">
+    <div class="builder-who">
+      <img src="{{ $subscription->trainee->photo_url }}" alt="" class="avatar-sm">
+      <div class="grow">
+        <input type="text" name="title" required maxlength="255" class="builder-title" value="{{ old('title', $plan->title ?? '') }}"
+               placeholder="{{ __('Plan name, e.g. Cutting - Week 1') }}" aria-label="{{ __('Plan Title') }}">
+        <span class="muted small">{{ $subscription->trainee->name }} · {{ $subscription->package_title }}</span>
       </div>
     </div>
-  </section>
+    @if($templates->count())
+      <select class="builder-template" data-template aria-label="{{ __('Load Nutrition Template') }}">
+        <option value="">{{ __('Template') }}</option>
+        @foreach($templates as $tpl)
+          <option value="{{ $tpl->id }}" data-body="{{ trim($tpl->plan_details) }}">{{ $tpl->title }}</option>
+        @endforeach
+      </select>
+    @endif
+  </div>
 
-  <div class="nb-days">
+  <div class="daytabs" role="tablist">
     @foreach($weekDays as $day)
-      <section class="panel nb-day" data-day="{{ $day }}" data-day-label="{{ __($day) }}">
-        <div class="nb-day-head">
-          <h2><i class="fas fa-calendar-day"></i> {{ __($day) }}</h2>
-          <div class="nb-day-actions">
-            <button type="button" class="btn btn-sm btn-primary" data-add-meal><i class="fas fa-plus"></i> {{ __('Add meal') }}</button>
-            <button type="button" class="btn btn-sm btn-light" data-copy-day><i class="fas fa-copy"></i> {{ __('Copy to all days') }}</button>
-          </div>
-        </div>
-        <div class="nb-meals" data-meals>
-          @foreach($days[$day] ?? [] as $meal)
-            @include('coach._nb-meal', ['mk' => 'm' . $mealIndex++, 'day' => $day, 'meal' => $meal])
-          @endforeach
-        </div>
-        <p class="nb-rest muted small"><i class="fas fa-bed"></i> {{ __('No meals for this day yet (rest day / free day).') }}</p>
-        <div class="nb-total nb-day-total" data-day-total></div>
-      </section>
+      <button type="button" class="daytab" role="tab" data-tab="{{ $day }}">{{ __(substr($day, 0, 3)) }}<b data-tab-count>–</b></button>
     @endforeach
   </div>
 
-  <section class="panel nb-summary">
-    <div class="panel-head"><h2><i class="fas fa-chart-pie"></i> {{ __('Week summary') }}</h2></div>
-    <div class="table-wrap">
+  @foreach($weekDays as $day)
+    <section class="builder-day nb-day" data-day="{{ $day }}" data-day-label="{{ __($day) }}" role="tabpanel" hidden>
+      <div class="builder-day-head">
+        <h2>{{ __($day) }}</h2>
+        <select class="builder-copy" data-copy aria-label="{{ __('Copy this day') }}">
+          <option value="">{{ __('Copy to…') }}</option>
+          <option value="*">{{ __('All days') }}</option>
+          @foreach($weekDays as $other)
+            @if($other !== $day)<option value="{{ $other }}">{{ __($other) }}</option>@endif
+          @endforeach
+        </select>
+      </div>
+
+      <div class="nb-daytotal" data-day-total>
+        <div class="kcal-big"><span data-v="calories">0</span> <small>{{ __('kcal') }}</small></div>
+        <div class="macros">
+          @foreach(['protein' => __('Protein'), 'carbs' => __('Carbs'), 'fat' => __('Fat')] as $macro => $label)
+            <div class="macro {{ $macro }}"><span>{{ $label }}</span><span class="track"><span class="fill" data-bar="{{ $macro }}" style="width:0"></span></span><span class="v"><span data-v="{{ $macro }}">0</span> {{ __('g') }}</span></div>
+          @endforeach
+        </div>
+      </div>
+
+      <div class="nb-meals" data-meals>
+        @foreach($days[$day] ?? [] as $meal)
+          @include('coach._nb-meal', ['mk' => 'm' . $mealIndex++, 'day' => $day, 'meal' => $meal])
+        @endforeach
+      </div>
+      <div class="builder-rest"><i class="fas fa-mug-hot"></i> {{ __('No meals yet') }}</div>
+      <button type="button" class="builder-add" data-add-meal><i class="fas fa-plus"></i> {{ __('Add meal') }}</button>
+    </section>
+  @endforeach
+
+  <details class="panel nb-week">
+    <summary><i class="fas fa-chart-simple"></i> {{ __('Week summary') }}</summary>
+    <div class="table-wrap" style="margin-top:12px">
       <table class="table">
-        <thead><tr><th>{{ __('Day') }}</th><th>{{ __('Calories') }}</th><th>{{ __('Protein (g)') }}</th><th>{{ __('Carbs (g)') }}</th><th>{{ __('Fat (g)') }}</th></tr></thead>
-        <tbody data-summary>
+        <thead><tr><th>{{ __('Day') }}</th><th>{{ __('kcal') }}</th><th>{{ __('Protein') }}</th><th>{{ __('Carbs') }}</th><th>{{ __('Fat') }}</th></tr></thead>
+        <tbody>
           @foreach($weekDays as $day)
             <tr data-summary-day="{{ $day }}"><td>{{ __($day) }}</td><td data-v="calories">0</td><td data-v="protein">0</td><td data-v="carbs">0</td><td data-v="fat">0</td></tr>
           @endforeach
@@ -92,18 +96,41 @@
         <tfoot><tr data-summary-avg><th>{{ __('Daily average') }}</th><th data-v="calories">0</th><th data-v="protein">0</th><th data-v="carbs">0</th><th data-v="fat">0</th></tr></tfoot>
       </table>
     </div>
-  </section>
+  </details>
 
-  <div class="form-actions" style="margin-top:16px">
-    <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> {{ $plan ? __('Save and send the update') : __('Send the plan to my client') }}</button>
+  <div class="dock">
+    <div class="dock-info"><b data-dock-day></b><span data-dock-sub></span></div>
+    <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-paper-plane"></i> {{ $plan ? __('Save') : __('Send') }}</button>
   </div>
 </form>
 
-<datalist id="food-library">
-  @foreach($foods as $food)
-    <option value="{{ $food->display_name }}" label="{{ round($food->calories) }} {{ __('kcal') }} / 100 {{ __('g') }}"></option>
-  @endforeach
-</datalist>
+{{-- Food picker --}}
+<aside class="sheet" id="picker" aria-hidden="true" aria-label="{{ __('Add food') }}">
+  <div class="sheet-head">
+    <h3>{{ __('Add food') }} · <span data-picker-target></span></h3>
+    <button type="button" class="icon-btn" data-close-picker aria-label="{{ __('Close') }}"><i class="fas fa-xmark"></i></button>
+  </div>
+  <div class="sheet-tools">
+    <div class="search-box">
+      <i class="fas fa-magnifying-glass"></i>
+      <input type="search" data-search placeholder="{{ __('Search: egg, rice, chicken…') }}" autocomplete="off" aria-label="{{ __('Search') }}">
+    </div>
+    <div class="chips" data-cats>
+      <button type="button" class="chip on" data-cat="">{{ __('All') }}</button>
+      @foreach(Food::CATEGORIES as $key => $label)
+        @if($categoryCounts[$key] ?? 0)
+          <button type="button" class="chip" data-cat="{{ $key }}">{{ __($label) }}</button>
+        @endif
+      @endforeach
+    </div>
+  </div>
+  <div class="sheet-body" data-results></div>
+  <div class="sheet-foot">
+    <span class="grow muted small" data-picker-count></span>
+    <button type="button" class="btn btn-primary" data-close-picker>{{ __('Done') }}</button>
+  </div>
+</aside>
+<div class="sheet-backdrop" data-close-picker></div>
 
 <template id="nb-meal-template">@include('coach._nb-meal', ['mk' => '__M__', 'day' => '__DAY__', 'meal' => []])</template>
 <template id="nb-item-template">@include('coach._nb-item', ['mk' => '__M__', 'ik' => '__I__', 'item' => []])</template>
@@ -114,17 +141,20 @@
   window.NB = {
     foods: @json($foodData),
     i18n: {
-      kcal: @js(__('kcal')),
-      protein: @js(__('Protein')),
-      carbs: @js(__('Carbs')),
-      fat: @js(__('Fat')),
-      g: @js(__('g')),
-      serving: @js(__('serving')),
-      mealTotal: @js(__('Meal total')),
-      dayTotal: @js(__('Day total')),
+      kcal: @js(__('kcal')), g: @js(__('g')), serving: @js(__('serving')),
+      p: @js(__('P')), c: @js(__('C')), f: @js(__('F')),
+      per100: @js(__('per 100 g')),
+      noMeals: @js(__('No meals yet')),
+      meals: @js(__(':count meals')),
+      meal: @js(__('Meal')),
+      inMeal: @js(__('In this meal')),
+      noResults: @js(__('No food found.')),
+      addCustom: @js(__('Add ":name" with your own values')),
       removeMeal: @js(__('Remove this meal and its foods?')),
-      copyDay: @js(__('Replace the meals of all other days with the meals of :day?')),
-      replaceAll: @js(__('Loading the template replaces the meals you added. Continue?')),
+      copyConfirm: @js(__('Replace the meals of :target with the meals of :day?')),
+      allDays: @js(__('all days')),
+      templateConfirm: @js(__('Loading the template replaces the meals you added. Continue?')),
+      avg: @js(__('Daily average')),
     },
   };
 </script>

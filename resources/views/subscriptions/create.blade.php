@@ -10,7 +10,7 @@
 
 <div class="page-title">
   <h1>{{ __('Subscribe with :name', ['name' => $coach->name]) }}</h1>
-  <p>{{ __('Step 1 of 2: tell your coach about yourself.') }}</p>
+  <p>{{ __('Step 1 of 2') }}</p>
 </div>
 
 <div class="grid-2" style="align-items:start">
