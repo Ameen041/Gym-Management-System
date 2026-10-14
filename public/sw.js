@@ -1,5 +1,5 @@
 /* Ameen Gym service worker: makes the site installable and keeps static assets fast/offline. */
-const VERSION = 'v2';
+const VERSION = 'v3';
 const STATIC_CACHE = `ameen-gym-static-${VERSION}`;
 const OFFLINE_URL = '/offline.html';
 
@@ -16,7 +16,10 @@ const PRECACHE = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(STATIC_CACHE).then((cache) => cache.addAll(PRECACHE)).then(() => self.skipWaiting())
+    caches.open(STATIC_CACHE)
+      // one missing file must not stop the new version from installing
+      .then((cache) => Promise.all(PRECACHE.map((url) => cache.add(url).catch(() => null))))
+      .then(() => self.skipWaiting())
   );
 });
 
