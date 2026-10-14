@@ -2,7 +2,7 @@
 @section('title', __('Nutrition plan') . ' · ' . $subscription->trainee->name)
 
 @push('styles')
-  <link rel="stylesheet" href="{{ asset('css/builder.css') }}">
+  <link rel="stylesheet" href="{{ \App\Support\Asset::url('css/builder.css') }}">
 @endpush
 
 @section('content')
@@ -158,5 +158,5 @@
     },
   };
 </script>
-<script src="{{ asset('js/nutrition-builder.js') }}"></script>
+<script src="{{ \App\Support\Asset::url('js/nutrition-builder.js') }}"></script>
 @endpush

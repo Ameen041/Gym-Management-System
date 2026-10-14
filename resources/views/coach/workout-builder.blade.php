@@ -2,7 +2,7 @@
 @section('title', __('Workout plan') . ' · ' . $subscription->trainee->name)
 
 @push('styles')
-  <link rel="stylesheet" href="{{ asset('css/builder.css') }}">
+  <link rel="stylesheet" href="{{ \App\Support\Asset::url('css/builder.css') }}">
 @endpush
 
 @section('content')
@@ -149,5 +149,5 @@
     },
   };
 </script>
-<script src="{{ asset('js/workout-builder.js') }}"></script>
+<script src="{{ \App\Support\Asset::url('js/workout-builder.js') }}"></script>
 @endpush

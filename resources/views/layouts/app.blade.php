@@ -7,8 +7,8 @@
   @include('partials.theme-init')
   @include('partials.head')
   <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
-  <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-  <link rel="stylesheet" href="{{ asset('css/site.css') }}">
+  <link rel="stylesheet" href="{{ \App\Support\Asset::url('css/app.css') }}">
+  <link rel="stylesheet" href="{{ \App\Support\Asset::url('css/site.css') }}">
   @yield('custom_css')
 </head>
 <body class="site">
@@ -21,8 +21,8 @@
 @include('partials.auth-modal')
 @include('partials.footer')
 
-<script src="{{ asset('js/app.js') }}" defer></script>
-<script src="{{ asset('js/site.js') }}" defer></script>
+<script src="{{ \App\Support\Asset::url('js/app.js') }}" defer></script>
+<script src="{{ \App\Support\Asset::url('js/site.js') }}" defer></script>
 @yield('custom_js')
 </body>
 </html>

@@ -81,6 +81,7 @@ for %%D in (storage\app\public storage\framework\cache\data storage\framework\se
 if not exist "database\database.sqlite" type nul > "database\database.sqlite"
 
 "%PHP%" %PHPX% artisan config:clear >nul 2>nul
+"%PHP%" %PHPX% artisan view:clear >nul 2>nul
 rem Make uploaded photos (storage\app\public) reachable at /storage
 if exist "public\storage\.gitignore" (
   del "public\storage\.gitignore"
