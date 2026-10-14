@@ -76,8 +76,8 @@
       <div style="margin-top:12px">
         <div class="muted small" style="margin-bottom:6px">{{ __('Body photos') }}</div>
         <div class="thumbs">
-          @foreach($subscription->body_photos as $path)
-            <a href="{{ asset('storage/' . $path) }}" target="_blank" rel="noopener"><img src="{{ asset('storage/' . $path) }}" alt=""></a>
+          @foreach($subscription->photoUrls() as $url)
+            <a href="{{ $url }}" target="_blank" rel="noopener"><img src="{{ $url }}" alt=""></a>
           @endforeach
         </div>
       </div>

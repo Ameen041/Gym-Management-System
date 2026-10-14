@@ -18,6 +18,10 @@ class Subscription extends Model
     // How many days the coach has to deliver the plan after activation
     public const PLAN_DUE_DAYS = 3;
 
+    // Body photos and payment receipts are private: kept outside public/ and
+    // only shown through SubscriptionFileController to the people involved.
+    public const FILES_DISK = 'local';
+
     protected $fillable = [
         'trainee_id', 'coach_id', 'package_id', 'package_title', 'includes_workout', 'includes_nutrition',
         'duration_days', 'price', 'commission_rate', 'commission_amount', 'coach_amount', 'status',
@@ -67,6 +71,26 @@ class Subscription extends Model
     public function review()
     {
         return $this->hasOne(Review::class);
+    }
+
+    /** Link to the payment receipt (admin and the trainee only). */
+    public function proofUrl(): ?string
+    {
+        return $this->payment_proof ? route('subscriptions.file', [$this, 'proof']) : null;
+    }
+
+    /** Links to the trainee's body photos (trainee, their coach and the admin). */
+    public function photoUrls(): array
+    {
+        return collect($this->body_photos ?? [])->keys()
+            ->map(fn ($i) => route('subscriptions.file', [$this, 'photo', $i]))->all();
+    }
+
+    public function fileVisibleTo(User $user, string $kind): bool
+    {
+        return $user->role === 'admin'
+            || (int) $user->id === (int) $this->trainee_id
+            || ($kind === 'photo' && (int) $user->id === (int) $this->coach_id);
     }
 
     /** Paid and confirmed by the admin (counts for earnings). */

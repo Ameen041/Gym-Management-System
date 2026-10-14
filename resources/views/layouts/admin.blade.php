@@ -27,6 +27,7 @@
       ['admin.templates.index',     'admin.templates.*',     'fa-file-lines',        __('Templates'),     0],
       ['admin.messages.index',      'admin.messages.*',      'fa-inbox',             __('Messages'),      $unreadMessages],
       ['admin.settings.edit',       'admin.settings.*',      'fa-gear',              __('Settings'),      0],
+      ['admin.system.index',        'admin.system.*',        'fa-shield-halved',     __('System'),        0],
   ];
 @endphp
 <div class="app">

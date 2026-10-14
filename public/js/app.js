@@ -33,3 +33,27 @@
     if (e.target.closest("[data-print]")) window.print();
   });
 })();
+
+/* Copy buttons: [data-copy] copies the value of the input with id = its data-copy value. */
+(function () {
+  "use strict";
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-copy]");
+    if (!btn) return;
+    var field = document.getElementById(btn.getAttribute("data-copy"));
+    if (!field) return;
+    var done = function () {
+      var label = btn.querySelector("span");
+      if (!label) return;
+      var old = label.textContent;
+      label.textContent = btn.getAttribute("data-copied") || old;
+      setTimeout(function () { label.textContent = old; }, 1600);
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(field.value).then(done, function () { field.select(); });
+    } else {
+      field.select();
+      try { if (document.execCommand("copy")) done(); } catch (err) {}
+    }
+  });
+})();

@@ -8,6 +8,18 @@
   <p>{{ __('Manage all system users') }}</p>
 </div>
 
+@if($link = session('reset_link'))
+  <div class="card reset-link">
+    <h3><i class="fas fa-key"></i> {{ __('Password reset link for :name', ['name' => $link['name']]) }}</h3>
+    <p class="muted small">{{ __('Works once, for :minutes minutes. Send it only to this user.', ['minutes' => $link['minutes']]) }}</p>
+    <div class="copy-row">
+      <input type="text" id="reset-link-url" value="{{ $link['url'] }}" readonly dir="ltr" onfocus="this.select()">
+      <button type="button" class="btn btn-secondary" data-copy="reset-link-url" data-copied="{{ __('Copied') }}"><i class="fas fa-copy"></i> <span>{{ __('Copy') }}</span></button>
+      <a href="{{ $link['whatsapp'] }}" class="btn btn-success" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> {{ __('Send on WhatsApp') }}</a>
+    </div>
+  </div>
+@endif
+
 <form method="GET" action="{{ route('admin.users.index') }}" class="filter-bar">
     <input
         type="text"
@@ -124,6 +136,16 @@
                       <i class="fas fa-id-card"></i>
                       {{ __('Coach profile') }}
                     </a>
+                  @endif
+
+                  @if($user->role !== 'admin')
+                    <form action="{{ route('admin.users.resetLink', $user->id) }}" method="POST" style="display:inline;">
+                      @csrf
+                      <button type="submit" class="btn btn-sm btn-secondary" title="{{ __('Password reset link') }}">
+                        <i class="fas fa-key"></i>
+                        {{ __('Reset link') }}
+                      </button>
+                    </form>
                   @endif
 
                   {{-- Activate / Suspend --}}

@@ -12,12 +12,14 @@ use App\Http\Controllers\AdminSubscriptionController;
 use App\Http\Controllers\AdminPayoutController;
 use App\Http\Controllers\AdminSettingController;
 use App\Http\Controllers\AdminMessageController;
+use App\Http\Controllers\AdminSystemController;
 use App\Http\Controllers\ExerciseController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\CoachDirectoryController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\SubscriptionFileController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Coach\DashboardController as CoachDashboardController;
 use App\Http\Controllers\Coach\ProfileController as CoachProfileController;
@@ -95,6 +97,10 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.readAll');
     Route::get('/notifications/{id}', [NotificationController::class, 'open'])->name('notifications.open');
 
+    // Private subscription files (payment receipt, body photos)
+    Route::get('/subscriptions/{subscription}/files/{kind}/{index?}', [SubscriptionFileController::class, 'show'])
+        ->whereIn('kind', ['proof', 'photo'])->whereNumber('index')->name('subscriptions.file');
+
     Route::get('/exercises', [ExerciseController::class, 'index'])->name('exercises.index');
     Route::get('/exercises/{exercise}', [ExerciseController::class, 'show'])->whereNumber('exercise')->name('exercises.show');
 });
@@ -112,6 +118,7 @@ Route::middleware(['auth','active','role:admin'])
         Route::match(['post', 'put'], '/users/{id}', [AdminUserController::class, 'update'])->name('users.update');
         Route::delete('/users/{id}',    [AdminUserController::class, 'destroy'])->name('users.destroy');
         Route::post('/users/{id}/toggle', [AdminUserController::class, 'toggleActive'])->name('users.toggle');
+        Route::post('/users/{id}/reset-link', [AdminUserController::class, 'resetLink'])->name('users.resetLink');
 
         // Coaches: review profiles before they are listed
         Route::get('/coaches',                  [AdminCoachController::class, 'index'])->name('coaches.index');
@@ -155,6 +162,12 @@ Route::middleware(['auth','active','role:admin'])
         Route::get('/foods/{food}/edit',  [AdminFoodController::class, 'edit'])->name('foods.edit');
         Route::put('/foods/{food}',       [AdminFoodController::class, 'update'])->name('foods.update');
         Route::delete('/foods/{food}',    [AdminFoodController::class, 'destroy'])->name('foods.destroy');
+
+        // Launch checklist and backups
+        Route::get('/system', [AdminSystemController::class, 'index'])->name('system.index');
+        Route::post('/system/backups', [AdminSystemController::class, 'backup'])->name('system.backup');
+        Route::get('/system/backups/{name}', [AdminSystemController::class, 'download'])->name('system.download');
+        Route::delete('/system/backups/{name}', [AdminSystemController::class, 'destroy'])->name('system.destroy');
 
         Route::get('/messages', [AdminMessageController::class, 'index'])->name('messages.index');
         Route::post('/messages/{message}/read', [AdminMessageController::class, 'markRead'])->name('messages.read');

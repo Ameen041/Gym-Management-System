@@ -77,3 +77,20 @@ a.stat-card:hover{border-color:var(--accent);transform:translateY(-2px)}
 .empty-state > i{font-size:2rem;color:var(--accent-text);margin-bottom:10px;display:block}
 .empty-state h3{color:var(--text);margin-bottom:4px}
 .form-group > small{display:block;margin-top:5px;font-size:.8rem;color:var(--muted)}
+
+/* ---------- Password reset link (users page) ---------- */
+.reset-link{border-color:var(--accent)}
+.reset-link h3{display:flex;gap:8px;align-items:center;margin-bottom:4px}
+.reset-link h3 i{color:var(--accent-text)}
+.copy-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.content .copy-row input{flex:1 1 260px;width:auto;min-width:0;font-size:.85rem}
+
+/* ---------- System page ---------- */
+.sys-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.sys-head h3{display:flex;gap:8px;align-items:center}
+.sys-head h3 i{color:var(--accent-text)}
+.sys-check > i{font-size:1.15rem;align-self:flex-start;margin-top:2px}
+.sys-check .is-ok{color:var(--success)}
+.sys-check .is-bad{color:var(--danger)}
+.sys-restore{margin-top:12px}
+.sys-restore pre{margin-top:8px;padding:10px 12px;border-radius:10px;background:var(--surface-2);font-size:.85rem;overflow-x:auto}
