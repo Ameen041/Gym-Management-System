@@ -62,7 +62,7 @@
           <button type="submit" class="side-link"><i class="fas fa-arrow-right-from-bracket"></i>{{ __('Logout') }}</button>
         </form>
       @else
-        <a href="{{ route('login.form') }}" class="btn btn-primary btn-block"><i class="fas fa-right-to-bracket"></i> {{ __('Login') }}</a>
+        <a href="{{ route('home') }}#login" class="btn btn-primary btn-block"><i class="fas fa-right-to-bracket"></i> {{ __('Login') }}</a>
       @endauth
     </div>
   </aside>
@@ -79,7 +79,7 @@
           <i class="fas fa-moon theme-light-icon"></i><i class="fas fa-sun theme-dark-icon"></i>
         </button>
         @guest
-          <a href="{{ route('login.form') }}" class="btn btn-primary btn-sm">{{ __('Login') }}</a>
+          <a href="{{ route('home') }}#login" class="btn btn-primary btn-sm">{{ __('Login') }}</a>
         @endguest
       </div>
     </header>
@@ -117,7 +117,7 @@
     @auth
       <a href="{{ route('notifications.index') }}" class="tab {{ request()->routeIs('notifications.*') ? 'active' : '' }}"><i class="fas fa-bell"></i>{{ __('Alerts') }}</a>
     @else
-      <a href="{{ route('login.form') }}" class="tab"><i class="fas fa-right-to-bracket"></i>{{ __('Login') }}</a>
+      <a href="{{ route('home') }}#login" class="tab"><i class="fas fa-right-to-bracket"></i>{{ __('Login') }}</a>
     @endauth
   </nav>
 </div>

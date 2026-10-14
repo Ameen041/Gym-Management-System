@@ -498,3 +498,4 @@ html[dir="ltr"] .back-link i{transform:scaleX(-1)}
 .tip-list li{display:flex;gap:10px;align-items:flex-start}
 .tip-list i{color:var(--accent-text);margin-top:5px}
 html[dir="ltr"] .ex-side .fa-chevron-left{transform:scaleX(-1)}
+@media (max-width:640px){ .coach-photo{aspect-ratio:16/10} }

@@ -1,29 +1,28 @@
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}" dir="{{ app()->isLocale('ar') ? 'rtl' : 'ltr' }}">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
-<link rel="stylesheet" href="{{ asset('css/layout.css') }}">
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
 <head>
-@include('partials.head')
-<title> @yield('title')
-
-</title>
-
-@yield('custom_css')
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>@yield('title')</title>
+  @include('partials.theme-init')
+  @include('partials.head')
+  <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/site.css') }}">
+  @yield('custom_css')
 </head>
-<body>
+<body class="site">
 @include('partials.navbar')
 
 <main>
-    @yield('content')
+  @yield('content')
 </main>
 
 @include('partials.auth-modal')
-
 @include('partials.footer')
 
+<script src="{{ asset('js/app.js') }}" defer></script>
+<script src="{{ asset('js/site.js') }}" defer></script>
 @yield('custom_js')
-
 </body>
-</html>    
+</html>

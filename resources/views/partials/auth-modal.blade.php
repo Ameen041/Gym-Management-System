@@ -3,29 +3,30 @@
   $openAuthTab = $errors->register->any() ? 'signup'
       : (($errors->any() || session('error') || session('status')) ? 'login' : null);
 @endphp
-<div class="auth-modal">
+<div class="auth-modal" role="dialog" aria-modal="true" aria-label="{{ __('Login') }}">
     <div class="auth-container">
-        <button class="close-modal">
-            <i class="fas fa-times"></i>
+        <button type="button" class="icon-btn close-modal" aria-label="{{ __('Close') }}">
+            <i class="fas fa-xmark"></i>
         </button>
+        <div class="auth-brand"><span class="brand-mark"><i class="fas fa-dumbbell"></i></span></div>
 
         <div class="auth-tabs">
-            <button class="auth-tab active" data-tab="login">{{ __('Login') }}</button>
-            <button class="auth-tab" data-tab="signup">{{ __('Sign Up') }}</button>
+            <button type="button" class="auth-tab active" data-tab="login">{{ __('Login') }}</button>
+            <button type="button" class="auth-tab" data-tab="signup">{{ __('Sign Up') }}</button>
         </div>
 
         <!-- Login Form -->
         <form class="auth-form active" id="login" method="POST" action="{{ route('login') }}">
             @csrf
             @if(session('error') || $errors->any())
-                <div class="auth-alert">
-                    <i class="fas fa-exclamation-circle"></i>
-                    {{ session('error') ?: $errors->first() }}
+                <div class="alert alert-error">
+                    <i class="fas fa-circle-exclamation"></i>
+                    <div>{{ session('error') ?: $errors->first() }}</div>
                 </div>
             @endif
             @if(session('status'))
-                <div class="auth-alert auth-alert-ok">
-                    <i class="fas fa-check-circle"></i> {{ session('status') }}
+                <div class="alert alert-success">
+                    <i class="fas fa-circle-check"></i> <div>{{ session('status') }}</div>
                 </div>
             @endif
 
@@ -45,8 +46,8 @@
         <form class="auth-form" id="signup" method="POST" action="{{ route('register') }}">
             @csrf
             @if($errors->register->any())
-                <div class="auth-alert">
-                    <i class="fas fa-exclamation-circle"></i>
+                <div class="alert alert-error">
+                    <i class="fas fa-circle-exclamation"></i>
                     <ul>
                         @foreach($errors->register->all() as $error)
                             <li>{{ $error }}</li>
@@ -56,11 +57,11 @@
             @endif
 
             <div class="form-group">
-                <label>{{ __('Role') }}</label>
+                <label for="signupRole">{{ __('I am a') }}</label>
                 <select name="role" id="signupRole" required>
                     <option value="">{{ __('Select Role') }}</option>
                     <option value="trainee" @selected(old('role') === 'trainee')>{{ __('Trainee') }}</option>
-                    <option value="trainer" @selected(old('role') === 'trainer')>{{ __('Trainer') }}</option>
+                    <option value="trainer" @selected(old('role') === 'trainer')>{{ __('Coach') }}</option>
                 </select>
             </div>
 
@@ -112,12 +113,6 @@
         </form>
     </div>
 </div>
-
-<style>
-  .auth-alert{background:rgba(231,29,54,.12);border:1px solid rgba(231,29,54,.4);color:#ffb3bd;padding:12px 14px;border-radius:8px;margin-bottom:18px;font-size:.92rem;line-height:1.6}
-  .auth-alert ul{margin:6px 0 0;padding-inline-start:18px}
-  .auth-alert-ok{background:rgba(46,196,182,.12);border-color:rgba(46,196,182,.4);color:#9ff0e6}
-</style>
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
