@@ -57,22 +57,6 @@ html[dir="rtl"] .alert-info    { border-left: 0; border-right: 4px solid var(--p
 html[dir="rtl"] .pill-ok       { border-left: 0; border-right: 4px solid var(--success); }
 html[dir="rtl"] .pill-warn     { border-left: 0; border-right: 4px solid var(--warning); }
 
-/* ---------- Trainer dashboard (its CSS forces LTR with !important) ---------- */
-html[dir="rtl"],
-html[dir="rtl"] body,
-html[dir="rtl"] .page,
-html[dir="rtl"] .day-card,
-html[dir="rtl"] .rows-day,
-html[dir="rtl"] .nutrition-row,
-html[dir="rtl"] .workout-row,
-html[dir="rtl"] .day-title,
-html[dir="rtl"] .day-head,
-html[dir="rtl"] .add-mini-btn,
-html[dir="rtl"] .day-title h4,
-html[dir="rtl"] .day-card label {
-  direction: rtl !important;
-  text-align: start;
-}
 html[dir="rtl"] .notification-badge { right: auto; left: -8px; }
 
 /* ---------- Workout / nutrition plan tables ---------- */
