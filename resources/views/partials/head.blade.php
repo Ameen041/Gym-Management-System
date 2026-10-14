@@ -1,7 +1,7 @@
 @include('partials.pwa')
 <link rel="stylesheet" href="{{ asset('vendor/fonts/fonts.css') }}">
 @if(app()->isLocale('ar'))
-  <link rel="stylesheet" href="{{ asset('css/rtl.css') }}">
+  <link rel="stylesheet" href="{{ \App\Support\Asset::url('css/rtl.css') }}">
 @endif
 @php
   $jsI18n = [

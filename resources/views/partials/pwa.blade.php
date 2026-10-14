@@ -7,5 +7,5 @@
 <meta name="apple-mobile-web-app-title" content="Ameen Gym">
 <link rel="apple-touch-icon" href="{{ asset('icons/apple-touch-icon.png') }}">
 <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('icons/icon-192.png') }}">
-<script src="{{ asset('js/app-install.js') }}" defer></script>
+<script src="{{ \App\Support\Asset::url('js/app-install.js') }}" defer></script>
 <style>[data-install-app][hidden]{display:none !important}</style>

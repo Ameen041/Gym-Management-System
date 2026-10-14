@@ -7,8 +7,8 @@
   @include('partials.theme-init')
   @include('partials.head')
   <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
-  <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-  <link rel="stylesheet" href="{{ asset('css/notifications.css') }}">
+  <link rel="stylesheet" href="{{ \App\Support\Asset::url('css/app.css') }}">
+  <link rel="stylesheet" href="{{ \App\Support\Asset::url('css/notifications.css') }}">
   @stack('styles')
 </head>
 <body>
@@ -122,7 +122,7 @@
   </nav>
 </div>
 
-<script src="{{ asset('js/app.js') }}" defer></script>
+<script src="{{ \App\Support\Asset::url('js/app.js') }}" defer></script>
 @stack('scripts')
 </body>
 </html>
