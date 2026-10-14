@@ -148,6 +148,10 @@ exercises, starts the server and opens the browser at `http://127.0.0.1:8000`.
 - Keep the window open while using the system; close it to stop the server.
 - Requires PHP 8 (Laragon's PHP works) and, only for the first run without a `vendor` folder, Composer.
 
+To get a newer version later, double-click **`update.bat`**: it pulls the latest `master` from GitHub
+(using git from your PATH, Laragon or GitHub Desktop) and then starts the system. Your local database
+and `.env` files are kept.
+
 ---
 
 ## ⚙ Installation Guide
