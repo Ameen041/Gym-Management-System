@@ -6,7 +6,7 @@
 
 <div class="page-title">
   <h1>{{ __('My Profile') }}</h1>
-  <p>{{ __('This is what trainees see on the coaches page. A complete profile gets more clients.') }}</p>
+  <p>{{ __('What trainees see on the coaches page.') }}</p>
 </div>
 
 <form class="panel" method="POST" action="{{ route('coach.profile.update') }}" enctype="multipart/form-data">

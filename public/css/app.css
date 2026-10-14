@@ -497,5 +497,13 @@ html[dir="ltr"] .back-link i{transform:scaleX(-1)}
 .tip-list{list-style:none;display:grid;gap:10px}
 .tip-list li{display:flex;gap:10px;align-items:flex-start}
 .tip-list i{color:var(--accent-text);margin-top:5px}
-html[dir="ltr"] .ex-side .fa-chevron-left{transform:scaleX(-1)}
+html[dir="ltr"] .flip-ltr{transform:scaleX(-1)}
 @media (max-width:640px){ .coach-photo{aspect-ratio:16/10} }
+
+/* ---------- Coach directory filters ---------- */
+.coach-filter{display:grid;gap:10px}
+.more-filters{padding:12px 14px}
+.more-filters > summary{display:flex;align-items:center;justify-content:space-between;font-weight:700;color:var(--muted)}
+.more-filters > summary span{display:inline-flex;gap:8px;align-items:center}
+/* the page heading already says what the top bar says */
+.main:has(.page-title h1) .topbar-title{visibility:hidden}

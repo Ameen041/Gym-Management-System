@@ -101,6 +101,14 @@ Sham Cash, then record it in Admin → Coach payouts (the coach gets a notificat
 
 ---
 
+### 🎨 Design
+- One design system for every page (`public/css/app.css`): green brand colour, day and night themes
+  (follows the phone setting, with a switch in the header), Cairo + IBM Plex Sans Arabic fonts
+- Phone-first: bottom tab bar in the app, sidebar on desktop, bottom sheets for pickers
+- Fonts and icons are served from `public/vendor` (no Google / CDN needed, works offline in the app)
+- Coaches pick exercises and foods from searchable lists (Arabic spelling variants are understood)
+  filtered by muscle / equipment or food category, one day per tab, with "copy to other days"
+
 ### 📱 Installable App (PWA)
 - The system can be installed on Android, iPhone and desktop like a normal app ("Install App" button)
 - Web app manifest, app icons and a service worker (`public/sw.js`) with an offline page

@@ -6,7 +6,6 @@
   padding-left:max(18px, env(safe-area-inset-left, 0px));padding-right:max(18px, env(safe-area-inset-right, 0px));
 }
 .flip-ltr{display:inline-block}
-html[dir="ltr"] .flip-ltr{transform:scaleX(-1)}
 
 /* form controls on public pages (same look as the app) */
 .site input[type=text],.site input[type=email],.site input[type=tel],.site input[type=number],.site input[type=password],.site select,.site textarea{

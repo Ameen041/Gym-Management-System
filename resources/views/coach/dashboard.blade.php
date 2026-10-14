@@ -5,8 +5,10 @@
 @php use App\Support\Money; @endphp
 
 <div class="page-title">
-  <h1>{{ __('Welcome back, :name', ['name' => $coach->name]) }} 👋</h1>
-  <p>{{ __('Your clients, plans and earnings.') }}</p>
+  <div>
+    <span class="eyebrow">{{ now()->translatedFormat('l j F') }}</span>
+    <h1>{{ __('Hi :name', ['name' => \Illuminate\Support\Str::before($coach->name, ' ')]) }}</h1>
+  </div>
 </div>
 
 {{-- Profile status --}}

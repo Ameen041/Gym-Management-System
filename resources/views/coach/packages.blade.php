@@ -9,7 +9,7 @@
 
 <div class="page-title">
   <h1>{{ __('My Packages') }}</h1>
-  <p>{{ __('Set your own prices. The platform keeps :rate% of each subscription.', ['rate' => rtrim(rtrim(number_format($commission, 2), '0'), '.')]) }}</p>
+  <p>{{ __('Platform commission: :rate%', ['rate' => rtrim(rtrim(number_format($commission, 2), '0'), '.')]) }}</p>
 </div>
 
 <div class="grid-2" style="align-items:start">

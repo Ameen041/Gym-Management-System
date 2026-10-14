@@ -66,7 +66,7 @@
             <a href="{{ route('exercises.show', $item) }}" class="pick">
               <span class="pick-icon">@if($item->thumbnail)<img src="{{ $item->thumbnail }}" alt="" loading="lazy">@else<i class="fas fa-dumbbell"></i>@endif</span>
               <span><span class="pick-name">{{ $item->display_name }}</span><span class="pick-meta">{{ $item->display_equipment ?: __('Bodyweight') }}</span></span>
-              <i class="fas fa-chevron-left muted"></i>
+              <i class="fas fa-chevron-left muted flip-ltr"></i>
             </a>
           @endforeach
         </div>

@@ -1,10 +1,9 @@
 /* ==================================================================
-   Arabic / right-to-left overrides.
-   Loaded only when the app language is Arabic (partials/head.blade.php).
-   Every rule is scoped to html[dir="rtl"] so it wins over page styles.
+   Arabic / right-to-left extras. Loaded only when the app language is
+   Arabic (partials/head.blade.php). The layouts use logical properties
+   (inline-start / inline-end), so only a few things need flipping here.
    ================================================================== */
 
-/* ---------- Typography ---------- */
 html[dir="rtl"] body,
 html[dir="rtl"] button,
 html[dir="rtl"] input,
@@ -13,59 +12,16 @@ html[dir="rtl"] textarea {
   font-family: var(--font-body, 'IBM Plex Sans Arabic', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif);
 }
 
-/* Arrows point the other way in RTL */
+/* "Back" / "next" arrows written for left-to-right point the other way */
 html[dir="rtl"] .fa-arrow-left,
-html[dir="rtl"] .fa-arrow-right,
-html[dir="rtl"] .fa-chevron-left,
-html[dir="rtl"] .fa-chevron-right,
-html[dir="rtl"] .fa-sign-out-alt {
+html[dir="rtl"] .fa-arrow-right {
   transform: scaleX(-1);
 }
 
-/* Values that must stay left-to-right (emails, links, numbers in inputs) */
+/* Values that must stay left-to-right (emails, links, phone numbers) */
 html[dir="rtl"] input[type="email"],
 html[dir="rtl"] input[type="url"],
 html[dir="rtl"] input[type="tel"] {
   direction: ltr;
   text-align: right;
 }
-
-/* ---------- Admin panel ---------- */
-html[dir="rtl"] .sidebar { right: 0; left: auto; }
-html[dir="rtl"] .main-content { margin-left: 0; margin-right: 250px; }
-html[dir="rtl"] .sidebar-nav a {
-  border-left: 0;
-  border-right: 3px solid transparent;
-}
-html[dir="rtl"] .sidebar-nav a:hover,
-html[dir="rtl"] .sidebar-nav a.active { border-right-color: var(--primary); }
-html[dir="rtl"] .stat-card::before { left: auto; right: 0; }
-html[dir="rtl"] .table th,
-html[dir="rtl"] .table td { text-align: right; }
-
-@media (max-width: 1024px) {
-  html[dir="rtl"] .sidebar { transform: translateX(100%); }
-  html[dir="rtl"] .sidebar.active { transform: translateX(0); }
-  html[dir="rtl"] .main-content { margin-right: 0; }
-}
-
-/* ---------- Alerts / pills with a colored side border ---------- */
-html[dir="rtl"] .alert-success { border-left: 0; border-right: 4px solid var(--success); }
-html[dir="rtl"] .alert-error   { border-left: 0; border-right: 4px solid var(--danger); }
-html[dir="rtl"] .alert-danger  { border-left: 0; border-right: 4px solid var(--danger); }
-html[dir="rtl"] .alert-info    { border-left: 0; border-right: 4px solid var(--primary); }
-html[dir="rtl"] .pill-ok       { border-left: 0; border-right: 4px solid var(--success); }
-html[dir="rtl"] .pill-warn     { border-left: 0; border-right: 4px solid var(--warning); }
-
-html[dir="rtl"] .notification-badge { right: auto; left: -8px; }
-
-/* ---------- Workout / nutrition plan tables ---------- */
-html[dir="rtl"] .workout-table th,
-html[dir="rtl"] .workout-table td { text-align: right; }
-html[dir="rtl"] .workout-table th i,
-html[dir="rtl"] .day-row i { margin-right: 0; margin-left: 8px; }
-html[dir="rtl"] .day-count { margin-left: 0; margin-right: 8px; }
-
-/* ---------- Public site ---------- */
-html[dir="rtl"] .footer-links a:hover { padding-right: 0; padding-left: 5px; }
-html[dir="rtl"] .forgot-password { text-align: right; }
