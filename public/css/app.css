@@ -188,7 +188,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .btn-primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .btn-primary:hover{background:var(--accent-strong);border-color:var(--accent-strong)}
 .btn-light,.btn-ghost{background:transparent}
-.btn-success{background:var(--success);border-color:var(--success);color:#fff}
+.btn-success{background:var(--success);border-color:var(--success);color:var(--on-accent)}
 .btn-danger{background:var(--danger-bg);border-color:transparent;color:var(--danger)}
 .btn-whatsapp{background:var(--whatsapp);border-color:var(--whatsapp);color:#05301a}
 .btn-sm{height:34px;padding:0 12px;font-size:.82rem;border-radius:10px}
