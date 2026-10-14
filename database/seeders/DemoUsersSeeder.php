@@ -10,21 +10,33 @@ class DemoUsersSeeder extends Seeder
 {
     public function run(): void
     {
+        $production = app()->environment('production');
+
         // Admin account. Created once and never overwritten, so a changed
         // password survives the seeder that runs on every deploy.
-        // On a real server set ADMIN_EMAIL / ADMIN_PASSWORD in .env.
-        User::firstOrCreate(
-            ['email' => env('ADMIN_EMAIL', 'admin@demo.com')],
-            [
-                'name' => 'Admin',
-                'password' => Hash::make(env('ADMIN_PASSWORD', 'Admin@12345')),
-                'role' => 'admin',
-                'is_active' => 1,
-            ]
-        );
+        // On a real server ADMIN_EMAIL / ADMIN_PASSWORD must be set in .env:
+        // there is no default password there, so nobody can guess it.
+        $email = env('ADMIN_EMAIL') ?: ($production ? null : 'admin@demo.com');
+        $password = env('ADMIN_PASSWORD') ?: ($production ? null : 'Admin@12345');
+
+        if (!$email || !$password || ($production && strlen($password) < 10)) {
+            if (!User::where('role', 'admin')->exists()) {
+                $this->command?->warn('No admin account created: set ADMIN_EMAIL and ADMIN_PASSWORD (10+ characters) in .env, then run the seeder again.');
+            }
+        } else {
+            User::firstOrCreate(
+                ['email' => $email],
+                [
+                    'name' => 'Admin',
+                    'password' => Hash::make($password),
+                    'role' => 'admin',
+                    'is_active' => 1,
+                ]
+            );
+        }
 
         // Demo trainer / trainee accounts only for local testing
-        if (app()->environment('production')) {
+        if ($production) {
             return;
         }
 

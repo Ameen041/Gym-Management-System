@@ -216,9 +216,35 @@ The seeders create these accounts **only when `APP_ENV` is not `production`**:
 | Coach | coach.lina@demo.com / coach.omar@demo.com | Trainer@12345 |
 | Trainee | trainee@demo.com | Trainee@12345 |
 
-On a real server set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `.env` before the first deploy.
+On a real server set `ADMIN_EMAIL` and `ADMIN_PASSWORD` (10+ characters) before the first deploy:
+in production there is no default admin password, so no admin is created without them.
 The admin account is created once and never overwritten, so a changed password is kept.
-If the server already has `admin@demo.com`, change its password from Admin → Users.
+
+---
+
+## 🚀 Going Live (checklist)
+
+1. **Settings:** copy `.env.production.example` into the host's environment settings and fill it in
+   (`APP_KEY`, `APP_URL` with https, database, `ADMIN_EMAIL` / `ADMIN_PASSWORD`, mail).
+2. **Persistent storage:** uploaded files (coach photos, payment receipts, body photos) and backups
+   live in `storage/app`. On the server this folder must be on a persistent disk
+   (Render: add a Disk mounted at `/var/www/html/storage/app`; a VPS keeps it by default),
+   otherwise every redeploy deletes them.
+3. **Start:** `start.sh` (used by the Dockerfile) runs migrations and seeders, links `public/storage`
+   and starts the scheduler for the nightly database backup.
+4. **Check:** log in as admin and open **System**. Every line should be green.
+   Download a backup every week and keep it off the server.
+
+Private files: payment receipts and body photos are stored outside `public/` and only shown,
+through the app, to the trainee, their coach (photos only) and the admin.
+
+Backups: `php artisan app:backup` writes a gzipped backup of all data to `storage/app/backups`
+(the last 14 are kept; one is made every night). `php artisan app:restore <file>` replaces all data
+with a backup after saving the current data first. The format is the same for SQLite, MySQL and
+PostgreSQL, so a backup can also move data between them.
+
+Password resets: if email is not set up, Admin → Users → **Reset link** makes a one-time link
+(valid 60 minutes) to send to the user on WhatsApp.
 
 ---
 

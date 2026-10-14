@@ -88,7 +88,7 @@ class SubscriptionController extends Controller
 
         $photos = [];
         foreach ($request->file('body_photos', []) as $file) {
-            $photos[] = $file->store('body_photos', 'public');
+            $photos[] = $file->store('body_photos', Subscription::FILES_DISK);
         }
 
         $subscription = Subscription::create([
@@ -139,7 +139,7 @@ class SubscriptionController extends Controller
 
         $subscription->update([
             'payment_reference'    => $data['payment_reference'] ?? null,
-            'payment_proof'        => $request->file('payment_proof')->store('payments', 'public'),
+            'payment_proof'        => $request->file('payment_proof')->store('payments', Subscription::FILES_DISK),
             'status'               => 'payment_review',
             'payment_submitted_at' => now(),
             'admin_note'           => null,

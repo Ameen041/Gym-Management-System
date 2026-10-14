@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 
 class AdminUserController extends Controller
 {
@@ -77,6 +78,26 @@ class AdminUserController extends Controller
         return redirect()->route('admin.users.index')->with('status',__('User deleted.'));
     }
 
+
+    /** Password reset link the admin can send on WhatsApp when the email doesn't arrive. */
+    public function resetLink($id)
+    {
+        $user = User::findOrFail($id);
+        abort_if($user->role === 'admin', 403);
+
+        $minutes = config('auth.passwords.users.expire', 60);
+        $url = route('password.reset', ['token' => Password::broker()->createToken($user), 'email' => $user->email]);
+        $message = __('Hi :name, open this link to set a new password for Ameen Gym (valid for :minutes minutes): :url', [
+            'name' => $user->name, 'minutes' => $minutes, 'url' => $url,
+        ]);
+
+        return back()->with('reset_link', [
+            'name'     => $user->name,
+            'url'      => $url,
+            'minutes'  => $minutes,
+            'whatsapp' => ($user->whatsapp_url ?? 'https://wa.me/') . '?text=' . rawurlencode($message),
+        ]);
+    }
 
     public function toggleActive($id)
 {

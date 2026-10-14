@@ -4,6 +4,7 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\Cache;
 
 class Kernel extends ConsoleKernel
 {
@@ -15,7 +16,11 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        // Lets the admin System page see that the scheduler is running
+        $schedule->call(fn () => Cache::forever('scheduler:heartbeat', now()->timestamp))->everyMinute();
+
+        // Daily database backup at 03:30 Damascus time (00:30 UTC)
+        $schedule->command('app:backup')->dailyAt('00:30')->withoutOverlapping();
     }
 
     /**

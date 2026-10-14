@@ -3,7 +3,8 @@ set -e
 
 echo "🚀 Starting Ameen Gym (Laravel)..."
 
-mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache
+# storage/app holds uploads and backups: on the server it must be a persistent disk
+mkdir -p /var/www/html/storage/app/public /var/www/html/storage/logs /var/www/html/bootstrap/cache
 mkdir -p /var/www/html/storage/framework/{cache,sessions,views}
 
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache || true
@@ -19,8 +20,14 @@ php artisan storage:link || true
 # run migrations
 php artisan migrate --force
 
-# Run seeders
+# Run seeders (exercises, foods, and the admin from ADMIN_EMAIL / ADMIN_PASSWORD)
 php artisan db:seed --force
+
+# files created above as root must stay writable by the web server
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache || true
+
+# scheduled tasks (daily database backup) run in the background as the web server user
+runuser -u www-data -- php artisan schedule:work > /dev/null 2>&1 &
 
 echo "✅ Laravel Ready. Starting Apache..."
 exec apache2-foreground

@@ -9,6 +9,8 @@ use App\Models\Exercise;
 use App\Models\Review;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -36,9 +38,21 @@ class AuthController extends Controller
             'email'    => ['required', 'email'],
             'password' => ['required', 'string'],
         ]);
-    
+
+        // Slow down password guessing: 5 tries per account and 30 per network per minute
+        $accountKey = 'login:' . Str::lower($request->email) . '|' . $request->ip();
+        $networkKey = 'login-ip:' . $request->ip();
+        foreach ([[$accountKey, 5], [$networkKey, 30]] as [$key, $max]) {
+            if (RateLimiter::tooManyAttempts($key, $max)) {
+                return back()->withInput($request->only('email'))->withErrors(['email' => __(
+                    'Too many login attempts. Please try again in :seconds seconds.',
+                    ['seconds' => RateLimiter::availableIn($key)]
+                )]);
+            }
+        }
+
         if (Auth::attempt($credentials)) {
-    
+            RateLimiter::clear($accountKey);
             $request->session()->regenerate();
             $user = Auth::user();
     
@@ -58,6 +72,9 @@ class AuthController extends Controller
             };
         }
     
+        RateLimiter::hit($accountKey, 60);
+        RateLimiter::hit($networkKey, 60);
+
         return back()
             ->withInput($request->only('email'))
             ->withErrors(['email' => __('Invalid credentials. Please try again.')]);
@@ -75,6 +92,13 @@ public function logout(Request $request)
     
     public function register(Request $request)
     {
+        // Stop scripted sign-ups: 20 new accounts per network per hour
+        $signupKey = 'register:' . $request->ip();
+        if (RateLimiter::tooManyAttempts($signupKey, 20)) {
+            return back()->withInput($request->except('password', 'password_confirmation'))
+                ->withErrors(['email' => __('Too many new accounts from this network. Please try again later.')], 'register');
+        }
+
         // Separate error bag so the sign-up tab re-opens with its errors
         $request->validateWithBag('register', [
             'name' => 'required|string|max:255',
@@ -99,6 +123,7 @@ public function logout(Request $request)
             'weight' => $isTrainee ? $request->weight : null,
         ]);
 
+        RateLimiter::hit($signupKey, 3600);
         Auth::login($user);
 
         return redirect()->route($isTrainee ? 'trainee.dashboard' : 'trainer.dashboard');
