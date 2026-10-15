@@ -24,9 +24,20 @@ class TraineeController extends Controller
         $running = $subscriptions->filter->isRunning()->values();
         $this->remindRenewals($running, $subscriptions);
 
+        $checkIns = $running->mapWithKeys(function (Subscription $sub) {
+            $schedule = $sub->checkInSchedule();
+
+            return [$sub->id => [
+                'opens' => $schedule['opens'],
+                'open'  => !today()->lt($schedule['opens']),
+                'due'   => !today()->lt($schedule['due']),
+            ]];
+        });
+
         return view('trainee-dashboard', [
             'user'      => $user,
             'running'   => $running,
+            'checkIns'  => $checkIns,
             'pending'   => $subscriptions->whereIn('status', ['awaiting_payment', 'payment_review', 'rejected'])->values(),
             'history'   => $subscriptions->filter(fn ($s) => $s->display_status === 'expired')->values(),
         ]);

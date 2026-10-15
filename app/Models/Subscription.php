@@ -73,6 +73,41 @@ class Subscription extends Model
         return $this->hasOne(Review::class);
     }
 
+    public function checkIns()
+    {
+        return $this->hasMany(CheckIn::class);
+    }
+
+    /**
+     * When the next weekly check-in opens and is due: a week after the last
+     * check-in with this coach (renewals included), or after the start.
+     *
+     * @param  CheckIn|null|false  $last  the last check-in if already loaded (null = none), false = look it up
+     * @return array{opens: \Carbon\Carbon, due: \Carbon\Carbon, last: ?CheckIn}
+     */
+    public function checkInSchedule(CheckIn|null|false $last = false): array
+    {
+        if ($last === false) {
+            $last = CheckIn::where('trainee_id', $this->trainee_id)->where('coach_id', $this->coach_id)
+                ->latest()->latest('id')->first();
+        }
+        $due = ($last?->created_at ?? $this->starts_at ?? now())->copy()->startOfDay()->addDays(CheckIn::EVERY_DAYS);
+
+        return ['last' => $last, 'opens' => $due->copy()->subDays(CheckIn::OPENS_EARLY_DAYS), 'due' => $due];
+    }
+
+    /** Weight and date at the start, from the answers of the first subscription with this coach. */
+    public function startingPoint(): ?array
+    {
+        $first = self::where('trainee_id', $this->trainee_id)->where('coach_id', $this->coach_id)
+            ->confirmed()->oldest('starts_at')->first() ?? $this;
+        $weight = $first->intake['weight'] ?? null;
+
+        return is_numeric($weight) && $first->starts_at
+            ? ['date' => $first->starts_at, 'weight' => (float) $weight]
+            : null;
+    }
+
     /** Link to the payment receipt (admin and the trainee only). */
     public function proofUrl(): ?string
     {

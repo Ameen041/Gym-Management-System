@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             ExercisesSeeder::class,
             FoodsSeeder::class,
             MarketplaceDemoSeeder::class,
+            CheckInDemoSeeder::class,
         ]);
     }
 

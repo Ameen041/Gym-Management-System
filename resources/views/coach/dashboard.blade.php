@@ -49,6 +49,7 @@
 <div class="stats">
   <div class="stat"><div class="label">{{ __('Active clients') }}</div><div class="value">{{ $clients->count() }}</div></div>
   <div class="stat"><div class="label">{{ __('Waiting for a plan') }}</div><div class="value" style="color:{{ $waitingPlans ? 'var(--danger)' : 'inherit' }}">{{ $waitingPlans }}</div></div>
+  <div class="stat"><div class="label">{{ __('Check-ins to answer') }}</div><div class="value" style="color:{{ $toAnswer ? 'var(--warning)' : 'inherit' }}">{{ $toAnswer }}</div></div>
   <div class="stat"><div class="label">{{ __('Ready to be paid') }}</div><div class="value">{{ Money::format($earnings['available']) }}</div></div>
   <div class="stat"><div class="label">{{ __('Rating') }}</div><div class="value" style="font-size:1rem;margin-top:8px">@include('partials.stars', ['rating' => $profile->rating_avg, 'count' => $profile->rating_count])</div></div>
 </div>
@@ -70,8 +71,13 @@
           @else
             <span class="badge badge-ok"><i class="fas fa-check"></i> {{ __('Plan sent') }}</span>
           @endif
+          @if($checkIns[$sub->id]['unanswered'])
+            <span class="badge badge-warn"><i class="fas fa-clipboard-check"></i> {{ __('New check-in') }}</span>
+          @elseif($checkIns[$sub->id]['late_days'] >= 2)
+            <span class="badge badge-muted"><i class="fas fa-clock"></i> {{ trans_choice('{1} Check-in late by 1 day|[2,*] Check-in late by :count days', $checkIns[$sub->id]['late_days']) }}</span>
+          @endif
         </div>
-        <a href="{{ route('coach.clients.show', $sub) }}" class="btn btn-sm btn-primary">{{ __('Open') }}</a>
+        <a href="{{ route('coach.clients.show', $sub) }}{{ $checkIns[$sub->id]['unanswered'] ? '#progress' : '' }}" class="btn btn-sm btn-primary">{{ __('Open') }}</a>
       </div>
     @empty
       <div class="empty">

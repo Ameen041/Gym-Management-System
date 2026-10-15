@@ -87,4 +87,35 @@
     @endif
   </section>
 </div>
+
+<section class="panel" id="progress" style="margin-top:14px">
+  <div class="panel-head">
+    <h2><i class="fas fa-chart-line"></i> {{ __('Progress') }}</h2>
+    @if($subscription->isRunning())
+      @if($lateDays === null)
+        <span class="muted small"><i class="fas fa-calendar-check"></i> {{ __('Next check-in: :date', ['date' => $schedule['due']->translatedFormat('l j M')]) }}</span>
+      @else
+        <div class="row-actions">
+          <span class="badge badge-warn"><i class="fas fa-clock"></i>
+            {{ $lateDays === 0 ? __('Check-in due today') : trans_choice('{1} Check-in late by 1 day|[2,*] Check-in late by :count days', $lateDays) }}
+          </span>
+          @if($remindUrl)
+            <a href="{{ $remindUrl }}" target="_blank" rel="noopener" class="btn btn-sm btn-whatsapp"><i class="fab fa-whatsapp"></i> {{ __('Remind on WhatsApp') }}</a>
+          @endif
+        </div>
+      @endif
+    @endif
+  </div>
+
+  @include('check-ins._progress', ['points' => $points, 'goal' => $intake['goal'] ?? null])
+
+  @if($checkIns->isNotEmpty())
+    <h3 class="sub-title">{{ __('Check-ins') }}</h3>
+    @foreach($checkIns as $i => $checkIn)
+      @include('check-ins._item', ['checkIn' => $checkIn, 'previous' => $checkIns[$i + 1] ?? null, 'coachView' => true])
+    @endforeach
+  @else
+    <p class="muted small">{{ __('Your client sends a check-in once a week: weight, how the week went and photos. You reply here.') }}</p>
+  @endif
+</section>
 @endsection

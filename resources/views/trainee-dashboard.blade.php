@@ -42,6 +42,15 @@
           <div class="tile tile-wait"><i class="fas fa-hourglass-half"></i><b>{{ __('Nutrition plan') }}</b><small>{{ __('Ready by :date', ['date' => $sub->plan_due_at->translatedFormat('j M')]) }}</small></div>
         @endif
       @endif
+      @php($ci = $checkIns[$sub->id])
+      <a href="{{ route('check-ins.show', $sub) }}" class="tile {{ $ci['due'] ? 'tile-due' : ($ci['open'] ? 'tile-open' : '') }}">
+        <i class="fas fa-clipboard-check"></i><b>{{ __('Weekly check-in') }}</b>
+        <small>
+          @if($ci['due']){{ __('Due now') }}
+          @elseif($ci['open']){{ __('Send now') }}
+          @else{{ __('Next: :date', ['date' => $ci['opens']->translatedFormat('j M')]) }}@endif
+        </small>
+      </a>
       @if($sub->coach->whatsapp_url)
         <a href="{{ $sub->coach->whatsapp_url }}" target="_blank" rel="noopener" class="tile tile-wa">
           <i class="fab fa-whatsapp"></i><b>{{ __('WhatsApp') }}</b><small>{{ __('Talk to your coach') }}</small>

@@ -20,6 +20,7 @@ use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\CoachDirectoryController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\SubscriptionFileController;
+use App\Http\Controllers\CheckInController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Coach\DashboardController as CoachDashboardController;
 use App\Http\Controllers\Coach\ProfileController as CoachProfileController;
@@ -72,6 +73,8 @@ Route::middleware(['auth', 'active', 'role:trainer'])->group(function () {
             ->whereIn('type', ['workout', 'nutrition'])->name('plans.edit');
         Route::post('/clients/{subscription}/plan/{type}', [CoachPlanController::class, 'save'])
             ->whereIn('type', ['workout', 'nutrition'])->name('plans.save');
+
+        Route::post('/check-ins/{checkIn}/reply', [CheckInController::class, 'reply'])->name('check-ins.reply');
     });
 });
 
@@ -89,6 +92,10 @@ Route::middleware(['auth', 'active', 'role:trainee'])->group(function () {
     Route::post('/subscriptions/{subscription}/pay', [SubscriptionController::class, 'submitPayment'])->name('subscriptions.pay.submit');
     Route::post('/subscriptions/{subscription}/cancel', [SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
     Route::post('/subscriptions/{subscription}/review', [SubscriptionController::class, 'review'])->name('subscriptions.review');
+
+    // Weekly check-in
+    Route::get('/subscriptions/{subscription}/check-in', [CheckInController::class, 'show'])->name('check-ins.show');
+    Route::post('/subscriptions/{subscription}/check-in', [CheckInController::class, 'store'])->name('check-ins.store');
 });
 
 // Exercise library (weight training exercises with video explanations)
@@ -100,6 +107,8 @@ Route::middleware(['auth', 'active'])->group(function () {
     // Private subscription files (payment receipt, body photos)
     Route::get('/subscriptions/{subscription}/files/{kind}/{index?}', [SubscriptionFileController::class, 'show'])
         ->whereIn('kind', ['proof', 'photo'])->whereNumber('index')->name('subscriptions.file');
+    Route::get('/check-ins/{checkIn}/photos/{index}', [CheckInController::class, 'photo'])
+        ->whereNumber('index')->name('check-ins.photo');
 
     Route::get('/exercises', [ExerciseController::class, 'index'])->name('exercises.index');
     Route::get('/exercises/{exercise}', [ExerciseController::class, 'show'])->whereNumber('exercise')->name('exercises.show');
