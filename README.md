@@ -1,5 +1,7 @@
 # Ameen Gym – Gym Management System (Laravel)
 
+[![Tests](https://github.com/Ameen041/Gym-Management-System/actions/workflows/tests.yml/badge.svg)](https://github.com/Ameen041/Gym-Management-System/actions/workflows/tests.yml)
+
 ## 🏋️ Project Overview
 
 Ameen Gym is an online coaching marketplace for Syria, built with Laravel.
@@ -202,6 +204,17 @@ php artisan serve
 Open in browser:
 
 http://127.0.0.1:8000  
+
+---
+
+## ✅ Automated Tests
+
+Every pull request runs `.github/workflows/tests.yml` on GitHub: it installs the packages, compiles
+every page template, checks the JavaScript and runs the feature tests in `tests/` (on an in-memory
+SQLite database). A red cross on the pull request means something broke; open "Details" to see what.
+The tests also check that every text has its Arabic translation in `lang/ar.json`.
+
+Run them on your own computer with `vendor/bin/phpunit` (after `composer install`).
 
 ---
 
