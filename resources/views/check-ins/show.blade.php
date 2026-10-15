@@ -35,7 +35,7 @@
 
         @if($subscription->includes_workout)
           <fieldset class="form-group">
-            <legend class="label">{{ __('Workouts done this week') }}</legend>
+            <legend class="label">{{ __('How many days did you train this week?') }}</legend>
             <div class="scale">
               @for($n = 0; $n <= 7; $n++)
                 <label><input type="radio" name="workouts_done" value="{{ $n }}" @checked(old('workouts_done') === (string) $n)><span>{{ $n }}</span></label>
@@ -102,7 +102,7 @@
   <section class="panel">
     <div class="panel-head"><h2><i class="fas fa-list"></i> {{ __('Your check-ins') }}</h2></div>
     @foreach($checkIns as $i => $checkIn)
-      @include('check-ins._item', ['checkIn' => $checkIn, 'previous' => $checkIns[$i + 1] ?? null, 'coachView' => false])
+      @include('check-ins._item', ['checkIn' => $checkIn, 'previous' => $checkIns[$i + 1] ?? null, 'coachView' => false, 'target' => $subscription->intake['days_per_week'] ?? null])
     @endforeach
   </section>
 @endif

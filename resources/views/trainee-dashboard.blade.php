@@ -23,6 +23,26 @@
       <span class="badge badge-ok">{{ __('Until :date', ['date' => $sub->ends_at->translatedFormat('j M')]) }}</span>
     </div>
 
+    @php($x = $extra[$sub->id])
+    @if($x['renewal']?->status === 'active')
+      <div class="renew-strip is-done">
+        <i class="fas fa-circle-check"></i>
+        <span class="grow">{{ __('Renewed: continues until :date', ['date' => $x['renewal']->ends_at->translatedFormat('j M Y')]) }}</span>
+      </div>
+    @elseif(!$x['renewal'] && $x['daysLeft'] <= 7)
+      <div class="renew-strip">
+        <i class="fas fa-hourglass-half"></i>
+        <span class="grow">
+          <strong>{{ $x['daysLeft'] === 0 ? __('Ends today') : trans_choice('{1} Ends tomorrow|[2,*] Ends in :count days', $x['daysLeft']) }}</strong>
+          <span class="muted small">{{ __('Renew to keep your plan and check-ins going without a break.') }}</span>
+        </span>
+        <form method="POST" action="{{ route('subscriptions.renew', $sub) }}">
+          @csrf
+          <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-rotate-right"></i> {{ __('Renew') }}</button>
+        </form>
+      </div>
+    @endif
+
     <div class="tiles">
       @if($sub->includes_workout)
         @if($sub->workoutPlan)
@@ -30,7 +50,13 @@
             <i class="fas fa-dumbbell"></i><b>{{ __('Workout plan') }}</b><small>{{ __('Open') }}</small>
           </a>
         @else
-          <div class="tile tile-wait"><i class="fas fa-hourglass-half"></i><b>{{ __('Workout plan') }}</b><small>{{ __('Ready by :date', ['date' => $sub->plan_due_at->translatedFormat('j M')]) }}</small></div>
+          @if($x['lastWorkout'])
+            <a href="{{ route('trainee.schedule', ['subscription' => $x['lastWorkout']->subscription_id]) }}" class="tile">
+              <i class="fas fa-dumbbell"></i><b>{{ __('Workout plan') }}</b><small>{{ __('Last plan · new one by :date', ['date' => $sub->plan_due_at->translatedFormat('j M')]) }}</small>
+            </a>
+          @else
+            <div class="tile tile-wait"><i class="fas fa-hourglass-half"></i><b>{{ __('Workout plan') }}</b><small>{{ __('Ready by :date', ['date' => $sub->plan_due_at->translatedFormat('j M')]) }}</small></div>
+          @endif
         @endif
       @endif
       @if($sub->includes_nutrition)
@@ -39,7 +65,13 @@
             <i class="fas fa-utensils"></i><b>{{ __('Nutrition plan') }}</b><small>{{ __('Open') }}</small>
           </a>
         @else
-          <div class="tile tile-wait"><i class="fas fa-hourglass-half"></i><b>{{ __('Nutrition plan') }}</b><small>{{ __('Ready by :date', ['date' => $sub->plan_due_at->translatedFormat('j M')]) }}</small></div>
+          @if($x['lastNutrition'])
+            <a href="{{ route('trainee.diet', ['subscription' => $x['lastNutrition']->subscription_id]) }}" class="tile">
+              <i class="fas fa-utensils"></i><b>{{ __('Nutrition plan') }}</b><small>{{ __('Last plan · new one by :date', ['date' => $sub->plan_due_at->translatedFormat('j M')]) }}</small>
+            </a>
+          @else
+            <div class="tile tile-wait"><i class="fas fa-hourglass-half"></i><b>{{ __('Nutrition plan') }}</b><small>{{ __('Ready by :date', ['date' => $sub->plan_due_at->translatedFormat('j M')]) }}</small></div>
+          @endif
         @endif
       @endif
       @php($ci = $checkIns[$sub->id])
@@ -162,7 +194,7 @@
       <div class="list-row">
         <div class="grow">
           <strong>{{ $sub->coach->name }}</strong> · <span class="muted small">{{ $sub->package_title }}</span>
-          <div class="muted small">{{ $sub->starts_at?->translatedFormat('j M Y') }} → {{ $sub->ends_at?->translatedFormat('j M Y') }}</div>
+          <div class="muted small">{{ $sub->starts_at?->translatedFormat('j M Y') }} {{ app()->isLocale('ar') ? '←' : '→' }} {{ $sub->ends_at?->translatedFormat('j M Y') }}</div>
         </div>
         @if($sub->workoutPlan)
           <a href="{{ route('trainee.schedule', ['subscription' => $sub->id]) }}" class="btn btn-sm">{{ __('Workout Plan') }}</a>
@@ -170,9 +202,12 @@
         @if($sub->nutritionPlan)
           <a href="{{ route('trainee.diet', ['subscription' => $sub->id]) }}" class="btn btn-sm">{{ __('Nutrition Plan') }}</a>
         @endif
-        @if($sub->package_id)
-          <a href="{{ route('coaches.show', $sub->coach_id) }}" class="btn btn-sm btn-primary"><i class="fas fa-redo"></i> {{ __('Renew') }}</a>
-        @endif
+        @unless($currentCoaches->contains($sub->coach_id))
+          <form method="POST" action="{{ route('subscriptions.renew', $sub) }}">
+            @csrf
+            <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-rotate-right"></i> {{ __('Renew') }}</button>
+          </form>
+        @endunless
       </div>
     @empty
       <p class="muted">{{ __('No previous subscriptions.') }}</p>

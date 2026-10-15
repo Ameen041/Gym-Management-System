@@ -26,9 +26,19 @@ class ClientController extends Controller
         $schedule = $subscription->checkInSchedule($checkIns->last());
         $trainee = $subscription->trainee;
 
+        $last = $subscription->previousWithCoach()?->load(['workoutPlan', 'nutritionPlan']);
+        $renewal = $subscription->renewal();
+
         return view('coach.client', [
             'subscription' => $subscription,
             'previous'     => $previous,
+            'lastPlans'    => ['workout' => $last?->workoutPlan, 'nutrition' => $last?->nutritionPlan],
+            'renewal'      => $renewal,
+            'renewUrl'     => $trainee->whatsapp_url && !$renewal && $subscription->isRunning() && $subscription->daysLeft() <= 7
+                ? $trainee->whatsapp_url . '?text=' . rawurlencode(__(
+                    'Hi :name, your subscription ends on :date. Renew to keep going: :url',
+                    ['name' => $trainee->name, 'date' => $subscription->ends_at->translatedFormat('j M'), 'url' => route('trainee.dashboard')]
+                )) : null,
             'checkIns'     => $checkIns->reverse()->values(),
             'points'       => CheckInController::chartPoints($subscription, $checkIns),
             'schedule'     => $schedule,

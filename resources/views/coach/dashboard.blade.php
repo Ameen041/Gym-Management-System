@@ -71,6 +71,11 @@
           @else
             <span class="badge badge-ok"><i class="fas fa-check"></i> {{ __('Plan sent') }}</span>
           @endif
+          @if($renewals[$sub->id]['renewed'])
+            <span class="badge badge-ok"><i class="fas fa-rotate-right"></i> {{ __('Renewed') }}</span>
+          @elseif($renewals[$sub->id]['daysLeft'] <= 7)
+            <span class="badge badge-warn"><i class="fas fa-hourglass-end"></i> {{ $renewals[$sub->id]['daysLeft'] === 0 ? __('Ends today') : trans_choice('{1} Ends tomorrow|[2,*] Ends in :count days', $renewals[$sub->id]['daysLeft']) }}</span>
+          @endif
           @if($checkIns[$sub->id]['unanswered'])
             <span class="badge badge-warn"><i class="fas fa-clipboard-check"></i> {{ __('New check-in') }}</span>
           @elseif($checkIns[$sub->id]['late_days'] >= 2)

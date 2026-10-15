@@ -244,10 +244,17 @@ Backups: `php artisan app:backup` writes a gzipped backup of all data to `storag
 with a backup after saving the current data first. The format is the same for SQLite, MySQL and
 PostgreSQL, so a backup can also move data between them.
 
-Weekly check-ins: a trainee sends one a week (weight, waist, workouts, diet, energy, sleep, notes,
+Weekly check-ins: a trainee sends one a week (weight, waist, training days, diet, energy, sleep, notes,
 private photos); the coach sees a weight chart and replies. `php artisan app:check-in-reminders`
 runs every morning from the scheduler: it reminds trainees on the due day and tells the coach after
 3 late days.
+
+Renewals: a trainee renews in one tap (same coach and package, answers carried over) and pays as
+before; once confirmed, the new period starts when the current one ends. Until the coach sends the
+new plan the trainee keeps the last one, and the coach can send it again as it is or start from it.
+`php artisan app:subscription-reminders` runs every morning: renewal reminders (trainee and coach),
+unfinished payments, plans due tomorrow or late (coach, and the admin when late) and receipts waiting
+for review for more than a day. Each reminder is sent once.
 
 Password resets: if email is not set up, Admin → Users → **Reset link** makes a one-time link
 (valid 60 minutes) to send to the user on WhatsApp.

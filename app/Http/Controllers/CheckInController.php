@@ -42,7 +42,7 @@ class CheckInController extends Controller
         $data = $request->validate([
             'weight'         => ['required', 'numeric', 'min:20', 'max:300'],
             'waist'          => ['nullable', 'numeric', 'min:30', 'max:250'],
-            'workouts_done'  => ['nullable', 'integer', 'min:0', 'max:7'],
+            'workouts_done'  => ['nullable', 'integer', 'min:0', 'max:7'],   // days trained this week
             'diet_adherence' => ['nullable', 'integer', 'min:1', 'max:5'],
             'energy'         => ['nullable', 'integer', 'min:1', 'max:5'],
             'sleep'          => ['nullable', 'integer', 'min:1', 'max:5'],

@@ -15,10 +15,19 @@
         <img src="{{ $trainee->photo_url }}" alt="" class="avatar-lg" style="width:80px;height:80px">
         <div class="stack" style="flex:1">
           <h1 style="font-size:1.3rem">{{ $trainee->name }}</h1>
-          <div class="muted small">{{ $subscription->package_title }} · {{ $subscription->starts_at->translatedFormat('j M') }} → {{ $subscription->ends_at->translatedFormat('j M Y') }}</div>
-          <div>
-            @if($subscription->isRunning())
+          <div class="muted small">{{ $subscription->package_title }} · {{ $subscription->starts_at->translatedFormat('j M') }} {{ app()->isLocale('ar') ? '←' : '→' }} {{ $subscription->ends_at->translatedFormat('j M Y') }}</div>
+          <div class="row-actions">
+            @if($subscription->isUpcoming())
+              <span class="badge badge-muted">{{ __('Starts :date', ['date' => $subscription->starts_at->translatedFormat('j M')]) }}</span>
+            @elseif($subscription->isRunning())
               <span class="badge badge-ok">{{ __('Active') }}</span>
+              @if($renewal?->status === 'active')
+                <span class="badge badge-ok"><i class="fas fa-rotate-right"></i> {{ __('Renewed until :date', ['date' => $renewal->ends_at->translatedFormat('j M')]) }}</span>
+              @elseif($renewal)
+                <span class="badge badge-muted"><i class="fas fa-rotate-right"></i> {{ __('Renewing: waiting for payment') }}</span>
+              @elseif($subscription->daysLeft() <= 7)
+                <span class="badge badge-warn">{{ $subscription->daysLeft() === 0 ? __('Ends today') : trans_choice('{1} Ends tomorrow|[2,*] Ends in :count days', $subscription->daysLeft()) }}</span>
+              @endif
             @else
               <span class="badge badge-muted">{{ __('Ended') }}</span>
             @endif
@@ -28,6 +37,11 @@
       @if($trainee->whatsapp_url)
         <a href="{{ $trainee->whatsapp_url }}" target="_blank" rel="noopener" class="btn btn-whatsapp btn-block" style="margin-top:14px">
           <i class="fab fa-whatsapp"></i> {{ __('Message on WhatsApp') }} <span dir="ltr">({{ $trainee->phone }})</span>
+        </a>
+      @endif
+      @if($renewUrl)
+        <a href="{{ $renewUrl }}" target="_blank" rel="noopener" class="btn btn-block" style="margin-top:8px">
+          <i class="fas fa-rotate-right"></i> {{ __('Invite to renew on WhatsApp') }}
         </a>
       @endif
     </section>
@@ -49,9 +63,17 @@
               @endif
             </div>
           </div>
-          <a href="{{ route('coach.plans.edit', [$subscription, $type]) }}" class="btn btn-sm {{ $plan ? '' : 'btn-primary' }}">
-            <i class="fas {{ $plan ? 'fa-edit' : 'fa-plus' }}"></i> {{ $plan ? __('Update plan') : __('Create plan') }}
-          </a>
+          @if(!$plan && $lastPlans[$type])
+            <form method="POST" action="{{ route('coach.plans.repeat', [$subscription, $type]) }}">
+              @csrf
+              <button type="submit" class="btn btn-sm btn-primary" title="{{ $lastPlans[$type]->title }}"><i class="fas fa-copy"></i> {{ __('Send last plan again') }}</button>
+            </form>
+            <a href="{{ route('coach.plans.edit', [$subscription, $type]) }}" class="btn btn-sm"><i class="fas fa-edit"></i> {{ __('Change it first') }}</a>
+          @else
+            <a href="{{ route('coach.plans.edit', [$subscription, $type]) }}" class="btn btn-sm {{ $plan ? '' : 'btn-primary' }}">
+              <i class="fas {{ $plan ? 'fa-edit' : 'fa-plus' }}"></i> {{ $plan ? __('Update plan') : __('Create plan') }}
+            </a>
+          @endif
         </div>
       @endforeach
     </section>
@@ -112,7 +134,7 @@
   @if($checkIns->isNotEmpty())
     <h3 class="sub-title">{{ __('Check-ins') }}</h3>
     @foreach($checkIns as $i => $checkIn)
-      @include('check-ins._item', ['checkIn' => $checkIn, 'previous' => $checkIns[$i + 1] ?? null, 'coachView' => true])
+      @include('check-ins._item', ['checkIn' => $checkIn, 'previous' => $checkIns[$i + 1] ?? null, 'coachView' => true, 'target' => $subscription->intake['days_per_week'] ?? null])
     @endforeach
   @else
     <p class="muted small">{{ __('Your client sends a check-in once a week: weight, how the week went and photos. You reply here.') }}</p>

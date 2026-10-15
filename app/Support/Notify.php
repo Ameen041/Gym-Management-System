@@ -39,10 +39,10 @@ class Notify
     }
 
     public static function admins(string $message, array $params = [], ?string $url = null,
-                                  string $icon = 'fa-bell', ?string $tag = null): void
+                                  string $icon = 'fa-bell', ?string $tag = null, bool $once = false): void
     {
         User::where('role', 'admin')->where('is_active', true)->get()
-            ->each(fn (User $admin) => self::user($admin, $message, $params, $url, $icon, $tag));
+            ->each(fn (User $admin) => self::user($admin, $message, $params, $url, $icon, $tag, $once));
     }
 
     /** Relative URL, so links keep working behind any domain / proxy. */
