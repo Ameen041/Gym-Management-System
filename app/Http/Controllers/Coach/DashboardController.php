@@ -23,6 +23,7 @@ class DashboardController extends Controller
             ->where('coach_id', $coach->id)
             ->confirmed()
             ->where('ends_at', '<=', now())
+            ->whereNotIn('trainee_id', $clients->pluck('trainee_id'))   // renewed ones are still clients
             ->latest('ends_at')
             ->limit(10)
             ->get();
@@ -40,8 +41,14 @@ class DashboardController extends Controller
             ]];
         });
 
+        $renewals = $clients->mapWithKeys(fn (Subscription $sub) => [$sub->id => [
+            'renewed'  => $sub->renewal()?->status === 'active',
+            'daysLeft' => $sub->daysLeft(),
+        ]]);
+
         return view('coach.dashboard', [
             'checkIns'     => $checkIns,
+            'renewals'     => $renewals,
             'toAnswer'     => $checkIns->sum('unanswered'),
             'coach'        => $coach,
             'profile'      => $profile,

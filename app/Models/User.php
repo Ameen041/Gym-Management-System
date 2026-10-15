@@ -94,7 +94,12 @@ public function payments()
     /** Coach profile, created empty on first use. */
     public function ensureCoachProfile(): CoachProfile
     {
-        return $this->coachProfile ?: $this->coachProfile()->create(['status' => 'pending']);
+        if (!$this->coachProfile) {
+            // keep it on the model, so a second call doesn't try to create it again
+            $this->setRelation('coachProfile', $this->coachProfile()->create(['status' => 'pending']));
+        }
+
+        return $this->coachProfile;
     }
 
     public function getPhotoUrlAttribute(): string

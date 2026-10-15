@@ -18,7 +18,7 @@ class AdminSubscriptionController extends Controller
 
         $subscriptions = Subscription::with(['trainee', 'coach'])
             ->when($tab === 'review', fn ($q) => $q->where('status', 'payment_review')->oldest('payment_submitted_at'))
-            ->when($tab === 'running', fn ($q) => $q->running()->latest('starts_at'))
+            ->when($tab === 'running', fn ($q) => $q->notEnded()->latest('starts_at'))
             ->when($tab === 'awaiting', fn ($q) => $q->whereIn('status', ['awaiting_payment', 'rejected'])->latest())
             ->when($tab === 'all', fn ($q) => $q->latest())
             ->when($search !== '', fn ($q) => $q->where(fn ($q) => $q
@@ -30,7 +30,7 @@ class AdminSubscriptionController extends Controller
 
         $counts = [
             'review'   => Subscription::where('status', 'payment_review')->count(),
-            'running'  => Subscription::running()->count(),
+            'running'  => Subscription::notEnded()->count(),
             'awaiting' => Subscription::whereIn('status', ['awaiting_payment', 'rejected'])->count(),
         ];
 
@@ -52,7 +52,7 @@ class AdminSubscriptionController extends Controller
         $currentEnd = Subscription::where('trainee_id', $subscription->trainee_id)
             ->where('coach_id', $subscription->coach_id)
             ->whereKeyNot($subscription->id)
-            ->running()
+            ->notEnded()
             ->max('ends_at');
         $startsAt = $currentEnd ? \Carbon\Carbon::parse($currentEnd) : now();
 
@@ -72,11 +72,19 @@ class AdminSubscriptionController extends Controller
             'coach' => $subscription->coach->name,
         ], Notify::link('trainee.dashboard'), 'fa-check-circle');
 
-        Notify::user($subscription->coach, 'New client: :trainee subscribed to ":package". Please send the plan within :days days.', [
-            'trainee' => $subscription->trainee->name,
-            'package' => $subscription->package_title,
-            'days'    => Subscription::PLAN_DUE_DAYS,
-        ], Notify::link('coach.clients.show', $subscription), 'fa-user-plus');
+        if ($currentEnd) {
+            Notify::user($subscription->coach, ':trainee renewed ":package". The new period starts on :date.', [
+                'trainee' => $subscription->trainee->name,
+                'package' => $subscription->package_title,
+                'date'    => $startsAt->translatedFormat('j M'),
+            ], Notify::link('coach.clients.show', $subscription), 'fa-rotate-right');
+        } else {
+            Notify::user($subscription->coach, 'New client: :trainee subscribed to ":package". Please send the plan within :days days.', [
+                'trainee' => $subscription->trainee->name,
+                'package' => $subscription->package_title,
+                'days'    => Subscription::PLAN_DUE_DAYS,
+            ], Notify::link('coach.clients.show', $subscription), 'fa-user-plus');
+        }
 
         return back()->with('status', __('Payment confirmed. The subscription is active.'));
     }

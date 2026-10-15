@@ -578,3 +578,10 @@ fieldset.form-group > legend.label{display:block;font-weight:700;font-size:.86re
 .ci-edit > summary{display:inline-flex;gap:6px;align-items:center;cursor:pointer;color:var(--muted);font-size:.8rem;font-weight:700;list-style:none}
 .ci-edit > summary::-webkit-details-marker{display:none}
 .ci-edit[open] > summary{display:none}
+
+/* ---------- Renewals ---------- */
+.renew-strip{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 12px;margin-bottom:12px;border-radius:14px;background:var(--warning-bg)}
+.renew-strip > i{color:var(--warning)}
+.renew-strip .grow{display:grid;gap:1px;min-width:180px}
+.renew-strip.is-done{background:var(--success-bg)}
+.renew-strip.is-done > i{color:var(--success)}

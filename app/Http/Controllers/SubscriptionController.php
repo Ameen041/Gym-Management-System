@@ -108,6 +108,56 @@ class SubscriptionController extends Controller
         return redirect()->route('subscriptions.pay', $subscription);
     }
 
+    /**
+     * Renew in one tap: same coach and package, the answers carried over with
+     * the current weight, straight to payment. Once confirmed it starts when
+     * the current subscription ends.
+     */
+    public function renew(Subscription $subscription)
+    {
+        $this->authorizeOwner($subscription);
+        abort_unless($subscription->status === 'active', 404);
+
+        $coach = $subscription->coach;
+        $package = $subscription->package;
+        $buyable = $package && $coach->role === 'trainer' && $coach->is_active && $coach->coachProfile?->isApproved()
+            && $package->coach_id === $coach->id && $package->is_active;
+        if (!$buyable) {
+            return redirect()->route('coaches.show', $coach)
+                ->with('error', __('This package is no longer offered. Choose one of the coach\'s packages.'));
+        }
+
+        if ($pending = $this->pendingWith($coach)) {
+            return $pending->status === 'payment_review'
+                ? redirect()->route('trainee.dashboard')->with('error', __('Your payment for this coach is being reviewed. Please wait for the confirmation.'))
+                : redirect()->route('subscriptions.pay', $pending);
+        }
+        if ($subscription->renewal()) {
+            return redirect()->route('trainee.dashboard')->with('success', __('You already renewed this subscription.'));
+        }
+
+        $user = auth()->user();
+        $intake = array_merge($subscription->intake ?? [], array_filter(
+            ['age' => $user->age, 'height' => $user->height, 'weight' => $user->weight], fn ($v) => $v !== null
+        ));
+
+        $renewal = Subscription::create([
+            'trainee_id'         => $user->id,
+            'coach_id'           => $coach->id,
+            'package_id'         => $package->id,
+            'package_title'      => $package->title,
+            'includes_workout'   => $package->includes_workout,
+            'includes_nutrition' => $package->includes_nutrition,
+            'duration_days'      => $package->duration_days,
+            'price'              => $package->price,
+            'status'             => 'awaiting_payment',
+            'intake'             => $intake,
+        ]);
+
+        return redirect()->route('subscriptions.pay', $renewal)
+            ->with('success', __('Renewal started. Pay as before; it continues right after your current subscription.'));
+    }
+
     public function payForm(Subscription $subscription)
     {
         $this->authorizeOwner($subscription);

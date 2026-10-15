@@ -29,12 +29,16 @@ class PlanController extends Controller
         $subscription->load('trainee');
 
         $plan = $type === 'workout' ? $subscription->workoutPlan : $subscription->nutritionPlan;
+        // a renewal starts from the last plan, so the coach only changes what is needed
+        $draftFrom = $plan ? null : $this->lastPlan($subscription, $type);
+        $source = $plan ?? $draftFrom;
 
         if ($type === 'nutrition') {
             return view('coach.nutrition-builder', [
                 'subscription' => $subscription,
                 'plan'         => $plan,
-                'days'         => NutritionMath::builderDays($plan ? (json_decode($plan->plan_details, true) ?: []) : [], self::WEEK_DAYS),
+                'draftFrom'    => $draftFrom,
+                'days'         => NutritionMath::builderDays($source ? (json_decode($source->plan_details, true) ?: []) : [], self::WEEK_DAYS),
                 'templates'    => PlanTemplate::where('type', 'nutrition')->where('is_active', true)->orderBy('title')->get(),
                 'foods'        => Food::active()->get()->sortBy(fn ($f) => $f->display_name)->values(),
                 'weekDays'     => self::WEEK_DAYS,
@@ -44,7 +48,8 @@ class PlanController extends Controller
         return view('coach.workout-builder', [
             'subscription' => $subscription,
             'plan'         => $plan,
-            'details'      => $plan ? (json_decode($plan->plan_details, true) ?: []) : [],
+            'draftFrom'    => $draftFrom,
+            'details'      => $source ? (json_decode($source->plan_details, true) ?: []) : [],
             'templates'    => PlanTemplate::where('type', 'workout')->where('is_active', true)->orderBy('title')->get(),
             'library'      => Exercise::active()->get()->sortBy(fn ($e) => $e->display_name)->values(),
             'weekDays'     => self::WEEK_DAYS,
@@ -105,6 +110,24 @@ class PlanController extends Controller
         }
 
         return $this->store($subscription, $type, $request->title, $details);
+    }
+
+    /** Renewal: send the last plan again as it is. */
+    public function repeat(Subscription $subscription, string $type)
+    {
+        $this->authorizePlan($subscription, $type);
+        $last = $this->lastPlan($subscription, $type);
+        abort_unless($last && !($type === 'workout' ? $subscription->workoutPlan : $subscription->nutritionPlan), 404);
+
+        return $this->store($subscription, $type, $last->title, json_decode($last->plan_details, true) ?: []);
+    }
+
+    /** The plan of this type from the client's previous subscription with this coach. */
+    private function lastPlan(Subscription $subscription, string $type)
+    {
+        $previous = $subscription->previousWithCoach();
+
+        return $type === 'workout' ? $previous?->workoutPlan : $previous?->nutritionPlan;
     }
 
     private function store(Subscription $subscription, string $type, string $title, array $details)

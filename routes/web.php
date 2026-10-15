@@ -73,6 +73,8 @@ Route::middleware(['auth', 'active', 'role:trainer'])->group(function () {
             ->whereIn('type', ['workout', 'nutrition'])->name('plans.edit');
         Route::post('/clients/{subscription}/plan/{type}', [CoachPlanController::class, 'save'])
             ->whereIn('type', ['workout', 'nutrition'])->name('plans.save');
+        Route::post('/clients/{subscription}/plan/{type}/repeat', [CoachPlanController::class, 'repeat'])
+            ->whereIn('type', ['workout', 'nutrition'])->name('plans.repeat');
 
         Route::post('/check-ins/{checkIn}/reply', [CheckInController::class, 'reply'])->name('check-ins.reply');
     });
@@ -91,6 +93,7 @@ Route::middleware(['auth', 'active', 'role:trainee'])->group(function () {
     Route::get('/subscriptions/{subscription}/pay', [SubscriptionController::class, 'payForm'])->name('subscriptions.pay');
     Route::post('/subscriptions/{subscription}/pay', [SubscriptionController::class, 'submitPayment'])->name('subscriptions.pay.submit');
     Route::post('/subscriptions/{subscription}/cancel', [SubscriptionController::class, 'cancel'])->name('subscriptions.cancel');
+    Route::post('/subscriptions/{subscription}/renew', [SubscriptionController::class, 'renew'])->name('subscriptions.renew');
     Route::post('/subscriptions/{subscription}/review', [SubscriptionController::class, 'review'])->name('subscriptions.review');
 
     // Weekly check-in

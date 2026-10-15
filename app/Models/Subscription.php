@@ -134,15 +134,53 @@ class Subscription extends Model
         return $query->where('status', 'active');
     }
 
-    /** Confirmed and still running. */
+    /** Confirmed, started and not ended yet. */
     public function scopeRunning($query)
+    {
+        return $query->where('status', 'active')->where('starts_at', '<=', now())->where('ends_at', '>', now());
+    }
+
+    /** Confirmed and not ended: running now, or a renewal waiting for the current one to end. */
+    public function scopeNotEnded($query)
     {
         return $query->where('status', 'active')->where('ends_at', '>', now());
     }
 
     public function isRunning(): bool
     {
-        return $this->status === 'active' && $this->ends_at && $this->ends_at->isFuture();
+        return $this->status === 'active' && $this->ends_at && $this->ends_at->isFuture()
+            && (!$this->starts_at || !$this->starts_at->isFuture());
+    }
+
+    /** A paid renewal that starts when the current subscription ends. */
+    public function isUpcoming(): bool
+    {
+        return $this->status === 'active' && $this->starts_at && $this->starts_at->isFuture();
+    }
+
+    /** The next subscription with the same coach, if the trainee renewed (paid or still paying). */
+    public function renewal(): ?self
+    {
+        return self::where('trainee_id', $this->trainee_id)->where('coach_id', $this->coach_id)
+            ->whereKeyNot($this->id)->where('created_at', '>=', $this->created_at)
+            ->whereIn('status', ['awaiting_payment', 'payment_review', 'rejected', 'active'])
+            ->where(fn ($q) => $q->where('status', '!=', 'active')->orWhere('starts_at', '>=', $this->starts_at))
+            ->oldest()->first();
+    }
+
+    /** The most recent earlier subscription with this coach (for plans to carry over). */
+    public function previousWithCoach(): ?self
+    {
+        return self::where('trainee_id', $this->trainee_id)->where('coach_id', $this->coach_id)
+            ->whereKeyNot($this->id)->confirmed()
+            ->where('starts_at', '<', $this->starts_at ?? now())
+            ->latest('starts_at')->first();
+    }
+
+    /** Whole days left until the end (0 on the last day). */
+    public function daysLeft(): ?int
+    {
+        return $this->ends_at ? max(0, (int) today()->diffInDays($this->ends_at->copy()->startOfDay(), false)) : null;
     }
 
     /** Status shown to people: an active subscription past its end date is "expired". */

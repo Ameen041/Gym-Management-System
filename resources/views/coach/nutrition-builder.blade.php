@@ -26,11 +26,18 @@
 <form method="POST" action="{{ route('coach.plans.save', [$subscription, 'nutrition']) }}" id="nutrition-form" class="builder" data-first-day="{{ $firstDay }}">
   @csrf
 
+  @if($draftFrom)
+    <div class="alert" role="status">
+      <i class="fas fa-copy"></i>
+      <div>{{ __('Started from the last plan (:date). Change what you need, then send.', ['date' => $draftFrom->updated_at->translatedFormat('j M')]) }}</div>
+    </div>
+  @endif
+
   <div class="builder-top">
     <div class="builder-who">
       <img src="{{ $subscription->trainee->photo_url }}" alt="" class="avatar-sm">
       <div class="grow">
-        <input type="text" name="title" required maxlength="255" class="builder-title" value="{{ old('title', $plan->title ?? '') }}"
+        <input type="text" name="title" required maxlength="255" class="builder-title" value="{{ old('title', $plan->title ?? $draftFrom->title ?? '') }}"
                placeholder="{{ __('Plan name, e.g. Cutting - Week 1') }}" aria-label="{{ __('Plan Title') }}">
         <span class="muted small">{{ $subscription->trainee->name }} · {{ $subscription->package_title }}</span>
       </div>

@@ -64,7 +64,7 @@
               <td>
                 @php($badge = ['active' => 'badge-success', 'payment_review' => 'badge-warning', 'rejected' => 'badge-danger', 'expired' => 'badge-primary'][$sub->display_status] ?? 'badge-primary')
                 <span class="badge {{ $badge }}">{{ $sub->status_label }}</span>
-                @if($sub->ends_at)<div style="color:var(--gray-700);font-size:.75rem">{{ $sub->starts_at->format('Y-m-d') }} → {{ $sub->ends_at->format('Y-m-d') }}</div>@endif
+                @if($sub->ends_at)<div style="color:var(--gray-700);font-size:.75rem">{{ $sub->starts_at->format('Y-m-d') }} {{ app()->isLocale('ar') ? '←' : '→' }} {{ $sub->ends_at->format('Y-m-d') }}</div>@endif
                 @if($sub->admin_note)<div style="color:var(--danger);font-size:.75rem">{{ $sub->admin_note }}</div>@endif
               </td>
               <td>
