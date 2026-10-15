@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class CoachPayout extends Model
 {
-    protected $fillable = ['coach_id', 'amount', 'method', 'reference', 'note', 'created_by'];
+    protected $fillable = ['coach_id', 'amount', 'method', 'account', 'reference', 'note', 'created_by'];
 
     protected $casts = ['amount' => 'float'];
 

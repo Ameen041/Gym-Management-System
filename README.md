@@ -256,6 +256,12 @@ new plan the trainee keeps the last one, and the coach can send it again as it i
 unfinished payments, plans due tomorrow or late (coach, and the admin when late) and receipts waiting
 for review for more than a day. Each reminder is sent once.
 
+Coach payouts: each coach adds their Sham Cash account (name, number, optional QR) at the bottom of
+My Profile; only the admin sees it. Admin → Coach payouts shows it next to the amount ready to pay,
+with a copy button. Changing an account needs the coach's password, the admins are told, and the
+account is flagged for a week so it can be confirmed before money is sent. Each payout keeps the
+account it was sent to.
+
 Password resets: if email is not set up, Admin → Users → **Reset link** makes a one-time link
 (valid 60 minutes) to send to the user on WhatsApp.
 
