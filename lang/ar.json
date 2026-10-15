@@ -1108,7 +1108,6 @@
     "Weight from :from kg to :to kg between :start and :end": "الوزن من :from كغ إلى :to كغ بين :start و:end",
     "Needs a reply": "بانتظار ردك",
     "Waist": "الخصر",
-    "{0} No workouts|{1} 1 workout|[2,*] :count workouts": "{0} بدون تمارين|{1} تمرين واحد|{2} تمرينان|[3,*] :count تمارين",
     "Diet": "الغذاء",
     "Energy": "الطاقة",
     "Sleep": "النوم",
@@ -1126,7 +1125,6 @@
     "Weekly check-in": "المتابعة الأسبوعية",
     "How was your week?": "كيف كان أسبوعك؟",
     "Waist (cm)": "محيط الخصر (سم)",
-    "Workouts done this week": "عدد التمارين هذا الأسبوع",
     "How closely did you follow the diet?": "إلى أي حد التزمت بالنظام الغذائي؟",
     "Energy this week": "طاقتك هذا الأسبوع",
     "Sleep this week": "نومك هذا الأسبوع",
@@ -1152,5 +1150,8 @@
     "Your client sends a check-in once a week: weight, how the week went and photos. You reply here.": "يرسل متدربك متابعة مرة كل أسبوع: الوزن وكيف كان أسبوعه وصور. ترد عليه من هنا.",
     "Check-ins to answer": "متابعات بانتظار ردك",
     "New check-in": "متابعة جديدة",
-    "Edit reply": "تعديل الرد"
+    "Edit reply": "تعديل الرد",
+    "How many days did you train this week?": "كم يوماً تمرنت هذا الأسبوع؟",
+    "Training days: :count": "أيام التمرين: :count",
+    "Training days: :count of :target": "أيام التمرين: :count من :target"
 }

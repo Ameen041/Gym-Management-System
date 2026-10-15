@@ -244,7 +244,7 @@ Backups: `php artisan app:backup` writes a gzipped backup of all data to `storag
 with a backup after saving the current data first. The format is the same for SQLite, MySQL and
 PostgreSQL, so a backup can also move data between them.
 
-Weekly check-ins: a trainee sends one a week (weight, waist, workouts, diet, energy, sleep, notes,
+Weekly check-ins: a trainee sends one a week (weight, waist, training days, diet, energy, sleep, notes,
 private photos); the coach sees a weight chart and replies. `php artisan app:check-in-reminders`
 runs every morning from the scheduler: it reminds trainees on the due day and tells the coach after
 3 late days.

@@ -112,7 +112,7 @@
   @if($checkIns->isNotEmpty())
     <h3 class="sub-title">{{ __('Check-ins') }}</h3>
     @foreach($checkIns as $i => $checkIn)
-      @include('check-ins._item', ['checkIn' => $checkIn, 'previous' => $checkIns[$i + 1] ?? null, 'coachView' => true])
+      @include('check-ins._item', ['checkIn' => $checkIn, 'previous' => $checkIns[$i + 1] ?? null, 'coachView' => true, 'target' => $subscription->intake['days_per_week'] ?? null])
     @endforeach
   @else
     <p class="muted small">{{ __('Your client sends a check-in once a week: weight, how the week went and photos. You reply here.') }}</p>

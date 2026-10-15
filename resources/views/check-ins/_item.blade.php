@@ -1,4 +1,4 @@
-{{-- One check-in. $checkIn, $previous (earlier check-in or null), $coachView (bool) --}}
+{{-- One check-in. $checkIn, $previous (earlier check-in or null), $coachView (bool), $target (planned training days a week, optional) --}}
 @php
   use App\Models\CheckIn;
   $kg = fn ($w) => \App\Http\Controllers\CheckInController::kg($w);
@@ -18,7 +18,11 @@
 
   <div class="ci-facts">
     @if($checkIn->waist)<span><i class="fas fa-ruler-horizontal"></i>{{ __('Waist') }} {{ $kg($checkIn->waist) }} {{ __('cm') }}</span>@endif
-    @if($checkIn->workouts_done !== null)<span><i class="fas fa-dumbbell"></i>{{ trans_choice('{0} No workouts|{1} 1 workout|[2,*] :count workouts', $checkIn->workouts_done) }}</span>@endif
+    @if($checkIn->workouts_done !== null)
+      <span><i class="fas fa-dumbbell"></i>{{ ($target ?? null)
+        ? __('Training days: :count of :target', ['count' => $checkIn->workouts_done, 'target' => $target])
+        : __('Training days: :count', ['count' => $checkIn->workouts_done]) }}</span>
+    @endif
     @if($checkIn->diet_adherence)<span><i class="fas fa-utensils"></i>{{ __('Diet') }}: {{ __(CheckIn::DIET_SCALE[$checkIn->diet_adherence]) }}</span>@endif
     @if($checkIn->energy)<span><i class="fas fa-bolt"></i>{{ __('Energy') }}: {{ __(CheckIn::FEEL_SCALE[$checkIn->energy]) }}</span>@endif
     @if($checkIn->sleep)<span><i class="fas fa-moon"></i>{{ __('Sleep') }}: {{ __(CheckIn::FEEL_SCALE[$checkIn->sleep]) }}</span>@endif
