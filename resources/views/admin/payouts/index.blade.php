@@ -23,11 +23,32 @@
   @else
     <div class="table-wrapper">
       <table class="table">
-        <thead><tr><th>{{ __('Coach') }}</th><th>{{ __('Earned') }}</th><th>{{ __('Paid') }}</th><th>{{ __('On hold') }}</th><th>{{ __('Ready to pay') }}</th><th>{{ __('Send payout') }}</th></tr></thead>
+        <thead><tr><th>{{ __('Coach') }}</th><th>{{ __('Sham Cash account') }}</th><th>{{ __('Earned') }}</th><th>{{ __('Paid') }}</th><th>{{ __('On hold') }}</th><th>{{ __('Ready to pay') }}</th><th>{{ __('Send payout') }}</th></tr></thead>
         <tbody>
           @foreach($coaches as $coach)
             <tr>
               <td><strong>{{ $coach->name }}</strong><div style="color:var(--gray-700);font-size:.8rem" dir="ltr">{{ $coach->phone }}</div></td>
+              <td class="payout-account">
+                @php($p = $coach->coachProfile)
+                @if($p?->hasPayoutAccount())
+                  <div>{{ $p->shamcash_name }}</div>
+                  <div class="copy-row" style="margin-top:4px">
+                    <input type="text" id="acct-{{ $coach->id }}" value="{{ $p->shamcash_account }}" readonly dir="ltr" onfocus="this.select()">
+                    <button type="button" class="btn btn-sm btn-secondary" data-copy="acct-{{ $coach->id }}" data-copied="{{ __('Copied') }}"><i class="fas fa-copy"></i> <span>{{ __('Copy') }}</span></button>
+                    @if($p->shamcash_qr)
+                      <a href="{{ route('coaches.payout-qr', $coach) }}" target="_blank" class="btn btn-sm btn-secondary" title="{{ __('Account QR code') }}"><i class="fas fa-qrcode"></i></a>
+                    @endif
+                  </div>
+                  @if($p->payoutAccountChangedRecently())
+                    <span class="badge badge-warning" style="margin-top:4px"><i class="fas fa-triangle-exclamation"></i> {{ __('Changed :when: confirm with the coach', ['when' => $p->payout_account_updated_at->diffForHumans()]) }}</span>
+                  @endif
+                @else
+                  <span class="badge badge-danger">{{ __('No account yet') }}</span>
+                  @if($coach->whatsapp_url)
+                    <a href="{{ $coach->whatsapp_url }}?text={{ rawurlencode(__('Hi :name, please add your Sham Cash account in your profile (My Profile, bottom of the page) so we can send your earnings.', ['name' => $coach->name])) }}" target="_blank" rel="noopener" class="btn btn-sm btn-secondary" style="margin-top:4px"><i class="fab fa-whatsapp"></i> {{ __('Ask on WhatsApp') }}</a>
+                  @endif
+                @endif
+              </td>
               <td>{{ Money::format($coach->earnings['earned']) }}</td>
               <td>{{ Money::format($coach->earnings['paid']) }}</td>
               <td>{{ Money::format($coach->earnings['pending']) }}</td>
@@ -57,7 +78,8 @@
 <div class="card">
   <h3 style="margin-bottom:16px">{{ __('Payout history') }}</h3>
   @forelse($payouts as $payout)
-    <p>{{ $payout->created_at->format('Y-m-d') }} — <strong>{{ $payout->coach->name ?? '—' }}</strong>: {{ Money::format($payout->amount) }} @if($payout->reference)<span dir="ltr">({{ $payout->reference }})</span>@endif</p>
+    <p>{{ $payout->created_at->format('Y-m-d') }} — <strong>{{ $payout->coach->name ?? '—' }}</strong>: {{ Money::format($payout->amount) }} @if($payout->reference)<span dir="ltr">({{ $payout->reference }})</span>@endif
+      @if($payout->account)<span style="color:var(--gray-700);font-size:.85rem">· {{ __('Sent to') }} <span dir="ltr">{{ $payout->account }}</span></span>@endif</p>
   @empty
     <p style="color:var(--gray-700)">{{ __('No payouts yet.') }}</p>
   @endforelse

@@ -94,4 +94,50 @@
     <a href="{{ route('coaches.show', $coach) }}" class="btn btn-light" target="_blank"><i class="fas fa-eye"></i> {{ __('Preview') }}</a>
   </div>
 </form>
+
+{{-- Private: where the platform sends the coach's earnings --}}
+<form class="panel" id="payout" method="POST" action="{{ route('coach.profile.payout') }}" enctype="multipart/form-data">
+  @csrf
+  <div class="panel-head">
+    <h2><i class="fas fa-wallet"></i> {{ __('Your Sham Cash account') }}</h2>
+    <span class="muted small"><i class="fas fa-lock"></i> {{ __('Only the platform admin sees it') }}</span>
+  </div>
+  <p class="muted small" style="margin-bottom:14px">{{ __('Your earnings are sent here every week.') }}</p>
+
+  @if($errors->payout->any())
+    <div class="alert alert-error"><i class="fas fa-circle-exclamation"></i><div>{{ $errors->payout->first() }}</div></div>
+  @endif
+
+  <div class="form-row">
+    <div class="form-group">
+      <label for="shamcash-name">{{ __('Account holder name') }}</label>
+      <input type="text" id="shamcash-name" name="shamcash_name" maxlength="100" required value="{{ old('shamcash_name', $profile->shamcash_name) }}">
+    </div>
+    <div class="form-group">
+      <label for="shamcash-account">{{ __('Sham Cash account number / code') }}</label>
+      <input type="text" id="shamcash-account" name="shamcash_account" maxlength="100" required dir="ltr" value="{{ old('shamcash_account', $profile->shamcash_account) }}">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="shamcash-qr">{{ __('Account QR code') }} <span class="muted small">{{ __('optional') }}</span></label>
+    @if($profile->shamcash_qr)
+      <div class="profile-head" style="margin-bottom:8px">
+        <img src="{{ route('coaches.payout-qr', $coach) }}" alt="{{ __('Account QR code') }}" style="width:96px;height:96px;object-fit:contain;border-radius:12px;border:1px solid var(--line);background:#fff">
+        <label class="muted small"><input type="checkbox" name="remove_qr" value="1"> {{ __('Remove image') }}</label>
+      </div>
+    @endif
+    <input type="file" id="shamcash-qr" name="shamcash_qr" accept="image/*">
+  </div>
+
+  @if($profile->hasPayoutAccount())
+    <div class="form-group">
+      <label for="payout-password">{{ __('Your password') }}</label>
+      <input type="password" id="payout-password" name="current_password" autocomplete="current-password" style="max-width:320px">
+      <div class="form-hint">{{ __('Needed to change the account, to protect your money.') }}</div>
+    </div>
+  @endif
+
+  <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> {{ __('Save account') }}</button>
+</form>
 @endsection

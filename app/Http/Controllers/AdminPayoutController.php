@@ -16,7 +16,7 @@ class AdminPayoutController extends Controller
     {
         $coachIds = Subscription::confirmed()->distinct()->pluck('coach_id');
 
-        $coaches = User::whereIn('id', $coachIds)
+        $coaches = User::with('coachProfile')->whereIn('id', $coachIds)
             ->orderBy('name')
             ->get()
             ->each(fn (User $coach) => $coach->earnings = $coach->coachEarnings())
@@ -44,7 +44,9 @@ class AdminPayoutController extends Controller
             'note'      => ['nullable', 'string', 'max:255'],
         ]);
 
-        $payout = CoachPayout::create($data + ['method' => 'sham_cash', 'created_by' => auth()->id()]);
+        // keep which account the money went to, even if the coach changes it later
+        $account = User::find($data['coach_id'])->coachProfile?->payoutAccountLabel();
+        $payout = CoachPayout::create($data + ['method' => 'sham_cash', 'account' => $account, 'created_by' => auth()->id()]);
 
         Notify::user($payout->coach, 'A payout of :amount was sent to you on Sham Cash.', [
             'amount' => Money::format($payout->amount),

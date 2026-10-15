@@ -62,6 +62,7 @@ Route::middleware(['auth', 'active', 'role:trainer'])->group(function () {
     Route::prefix('coach')->name('coach.')->group(function () {
         Route::get('/profile', [CoachProfileController::class, 'edit'])->name('profile.edit');
         Route::post('/profile', [CoachProfileController::class, 'update'])->name('profile.update');
+        Route::post('/profile/payout', [CoachProfileController::class, 'updatePayout'])->name('profile.payout');
 
         Route::get('/packages', [CoachPackageController::class, 'index'])->name('packages.index');
         Route::post('/packages', [CoachPackageController::class, 'store'])->name('packages.store');
@@ -110,6 +111,7 @@ Route::middleware(['auth', 'active'])->group(function () {
     // Private subscription files (payment receipt, body photos)
     Route::get('/subscriptions/{subscription}/files/{kind}/{index?}', [SubscriptionFileController::class, 'show'])
         ->whereIn('kind', ['proof', 'photo'])->whereNumber('index')->name('subscriptions.file');
+    Route::get('/coaches/{coach}/payout-qr', [CoachProfileController::class, 'payoutQr'])->whereNumber('coach')->name('coaches.payout-qr');
     Route::get('/check-ins/{checkIn}/photos/{index}', [CheckInController::class, 'photo'])
         ->whereNumber('index')->name('check-ins.photo');
 

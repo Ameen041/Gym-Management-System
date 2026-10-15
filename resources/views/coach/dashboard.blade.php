@@ -100,6 +100,18 @@
       <div class="list-row"><span class="grow">{{ __('On hold') }}</span><strong>{{ Money::format($earnings['pending']) }}</strong></div>
       <div class="list-row"><span class="grow">{{ __('Ready to be paid') }}</span><strong style="color:var(--primary)">{{ Money::format($earnings['available']) }}</strong></div>
       <p class="muted small" style="margin-top:8px">{{ __('The money of each client becomes ready :days days after the payment is confirmed, once you have sent the plan. The platform sends ready earnings to your Sham Cash account every week.', ['days' => $earnings['hold_days']]) }}</p>
+      @if($profile->hasPayoutAccount())
+        <div class="list-row" style="margin-top:6px">
+          <i class="fas fa-wallet muted"></i>
+          <span class="grow small">{{ __('Sent to') }} <strong>{{ $profile->shamcash_name }}</strong> <span dir="ltr" class="muted">{{ $profile->maskedPayoutAccount() }}</span></span>
+          <a href="{{ route('coach.profile.edit') }}#payout" class="btn btn-sm">{{ __('Edit') }}</a>
+        </div>
+      @else
+        <div class="alert alert-warning" style="margin:10px 0 0">
+          <i class="fas fa-wallet"></i>
+          <div>{{ __('Add your Sham Cash account so we can send you your earnings.') }} <a href="{{ route('coach.profile.edit') }}#payout">{{ __('Add it now') }}</a></div>
+        </div>
+      @endif
     </section>
 
     <section class="panel">

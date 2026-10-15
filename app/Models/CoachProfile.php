@@ -38,12 +38,14 @@ class CoachProfile extends Model
     protected $fillable = [
         'user_id', 'bio', 'specialties', 'experience_years', 'city', 'gender',
         'certificates', 'status', 'rejection_reason', 'is_featured', 'rating_avg', 'rating_count',
+        'shamcash_name', 'shamcash_account', 'shamcash_qr', 'payout_account_updated_at',
     ];
 
     protected $casts = [
         'specialties'  => 'array',
         'certificates' => 'array',
         'is_featured'  => 'boolean',
+        'payout_account_updated_at' => 'datetime',
         'rating_avg'   => 'float',
     ];
 
@@ -85,6 +87,29 @@ class CoachProfile extends Model
         if (!$user->packages()->where('is_active', true)->exists()) $missing[] = __('At least one package');
 
         return $missing;
+    }
+
+    public function hasPayoutAccount(): bool
+    {
+        return filled($this->shamcash_account);
+    }
+
+    /** Account changed in the last week: the admin should double-check before sending money. */
+    public function payoutAccountChangedRecently(): bool
+    {
+        return $this->payout_account_updated_at !== null && $this->payout_account_updated_at->gt(now()->subDays(7));
+    }
+
+    /** "Name · account" as kept on each payout. */
+    public function payoutAccountLabel(): ?string
+    {
+        return $this->hasPayoutAccount() ? trim($this->shamcash_name . ' · ' . $this->shamcash_account, ' ·') : null;
+    }
+
+    /** Account number with only the last 4 characters visible, e.g. "•••• 4567". */
+    public function maskedPayoutAccount(): ?string
+    {
+        return $this->hasPayoutAccount() ? '•••• ' . mb_substr(preg_replace('/\s+/u', '', $this->shamcash_account), -4) : null;
     }
 
     /** Tell the admins when a pending profile has everything needed for review. */
