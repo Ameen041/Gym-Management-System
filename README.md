@@ -33,44 +33,35 @@ Sham Cash, then record it in Admin → Coach payouts (the coach gets a notificat
 
 ## 🚀 Main Features
 
-### 🔐 Authentication System
-- Secure login & registration
-- Role-based access control (Admin / Trainer / Trainee)
-- Middleware protection
-- Active / Inactive user control
+### 🔐 Accounts & safety
+- Roles: admin, coach and trainee, each with its own area; accounts can be suspended
+- Login is slowed down after wrong passwords, security headers on every page
+- Payment receipts and body / progress photos are private (trainee, their coach and the admin only)
 
 ---
 
-### 👨‍🏫 Trainer Features
-- Trainer dashboard
-- View trainee requests (Workout & Nutrition)
-- Create weekly workout plans (Saturday → Friday)
-- Create weekly nutrition plans
-- Store plan data in structured JSON format
-- Approve / Reject trainee requests
-- Use ready-made templates
+### 👨‍🏫 Coach
+- Dashboard: active clients, plans due, check-ins to answer, renewals, earnings
+- Public profile and packages with their own prices; private Sham Cash account for payouts
+- Weekly workout and nutrition plans (Saturday → Friday) from the exercise and food libraries or admin templates
+- Weekly check-ins with a weight chart; reply to each one, remind late clients on WhatsApp
+- Renewals: send the last plan again in one tap
 
 ---
 
-### 🧑‍💪 Trainee Features
-- Personal dashboard
-- View assigned workout plan
-- View assigned nutrition plan
-- Submit workout requests
-- Submit nutrition requests
-- Upload optional body progress photos
+### 🧑‍💪 Trainee
+- Find a coach (specialty, city, gender, price), answer the intake questions, pay with Sham Cash
+- Workout and nutrition plans with exercise videos, today's day first, printable
+- Weekly check-in: weight, waist, training days, diet, energy, sleep, notes and private photos
+- One-tap renewal; the plan carries over until the coach sends the new one
 
 ---
 
-### 🛠 Admin Features (Pro Version)
-- Manage users (activate / deactivate)
-- Manage trainers & trainees
-- Create & manage reusable workout & nutrition templates
-- Monitor workout & nutrition requests
-- Subscription monitoring
-- Payment dashboard (extendable)
-- Manage the exercise library (add exercises, video links or uploaded videos; paste a YouTube link straight from the list)
-- Manage the food library used by the nutrition calculator (`/admin/foods`)
+### 🛠 Admin
+- Approve coaches, confirm or reject Sham Cash receipts, record weekly payouts to coaches
+- Users, exercises (video links or uploads), foods, workout & nutrition templates, contact messages
+- Settings: commission, payout hold period, the platform's Sham Cash account
+- System page: launch checklist and database backups
 
 ---
 
@@ -96,7 +87,7 @@ Sham Cash, then record it in Admin → Coach payouts (the coach gets a notificat
 
 ### 🌐 Arabic / English
 - One-click language switch (العربية / English) on every page: home, dashboards, plans, exercises and the admin panel
-- Arabic mode switches the whole layout to right-to-left (`public/css/rtl.css`) with the Tajawal font
+- Arabic mode switches the whole layout to right-to-left (`public/css/rtl.css`)
 - The choice is remembered (session + cookie)
 - Interface texts live in `lang/ar.json`; validation messages in `lang/ar/`
 - Exercises have Arabic name, equipment, description, steps and tips (empty Arabic fields fall back to English)
@@ -131,11 +122,10 @@ Sham Cash, then record it in Admin → Coach payouts (the coach gets a notificat
 
 ## 📦 System Requirements
 
-- PHP 8+
+- PHP 8.2+ (extensions: pdo_sqlite or pdo_mysql / pdo_pgsql, mbstring, gd, fileinfo)
 - Composer
-- MySQL
-- Laravel 9+
-- Apache or Nginx
+- A database: SQLite (local), MySQL or PostgreSQL (server)
+- Apache or Nginx with the document root on `public/` (the Dockerfile sets this up)
 
 ---
 
@@ -173,9 +163,9 @@ composer install
 
 ### 3️⃣ Setup Environment
 
-Copy environment file:
+Copy the settings template and fill it in (see "Going Live" below):
 
-cp .env.example .env  
+cp .env.production.example .env  
 
 Generate application key:
 
@@ -303,20 +293,16 @@ This structure allows flexible weekly scheduling and clean UI rendering.
 
 ## 🔄 Future Improvements
 
-- Online payment gateway integration
-- Multi-gym SaaS architecture
-- Mobile App API support
-- Progress analytics & charts
-- QR-based gym entry tracking
+- Online card payments once they work reliably in Syria
+- Native push notifications (store apps)
+- Coach templates of their own, saved from a client's plan
 
 ---
 
 ## 🎯 Target Usage
 
-- Small to Medium Gyms
-- Personal Trainers
-- Fitness Studios
-- Subscription-based Fitness Centers
+- Independent personal trainers who coach clients online
+- Trainees in Syria (and Syrians abroad) who want a coach, a plan and weekly follow-up
 
 ---
 

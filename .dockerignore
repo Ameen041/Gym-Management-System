@@ -1,0 +1,26 @@
+# Keep the image small and free of local data: the server installs its own
+# packages (composer install in the Dockerfile) and keeps uploads on its disk.
+.git
+.github
+vendor
+node_modules
+tests
+research_notes
+reports
+.env
+.env.*
+!.env.production.example
+database/*.sqlite
+storage/app/*
+!storage/app/public
+storage/app/public/*
+!storage/app/public/.gitignore
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/framework/testing/*
+bootstrap/cache/*.php
+public/storage
+*.bat
+.phpunit.result.cache

@@ -1,5 +1,5 @@
 /* Ameen Gym service worker: makes the site installable and keeps static assets fast/offline. */
-const VERSION = 'v3';
+const VERSION = 'v4';
 const STATIC_CACHE = `ameen-gym-static-${VERSION}`;
 const OFFLINE_URL = '/offline.html';
 
@@ -35,7 +35,7 @@ function isStaticAsset(url) {
   if (url.origin === self.location.origin) {
     return /^\/(css|js|images|icons|vendor)\//.test(url.pathname) || url.pathname === '/favicon.ico';
   }
-  return ['cdnjs.cloudflare.com', 'fonts.googleapis.com', 'fonts.gstatic.com', 'img.youtube.com'].includes(url.hostname);
+  return url.hostname === 'img.youtube.com';
 }
 
 self.addEventListener('fetch', (event) => {
