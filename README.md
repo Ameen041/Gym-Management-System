@@ -45,6 +45,8 @@ Each user can also turn on **phone notifications**: every notification and every
 - Dashboard: active clients, plans due, check-ins to answer, renewals, earnings
 - Public profile and packages with their own prices; private Sham Cash account for payouts
 - Weekly workout and nutrition plans (Saturday → Friday) from the exercise and food libraries or admin templates
+- Nutrition plans start from daily targets (calories, protein, carbs, fat); each day shows a bar per value
+  that turns green once it is within range (±5% calories, ±10% macros), and the client sees the daily target
 - Weekly check-ins with a weight chart; reply to each one, remind late clients in the chat
 - Chat with each client: unread badges, "seen" ticks, ready messages for renewal and check-in reminders
 - Renewals: send the last plan again in one tap

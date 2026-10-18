@@ -22,6 +22,12 @@ use Illuminate\Validation\ValidationException;
 class NutritionMath
 {
     public const MACROS = ['calories', 'protein', 'carbs', 'fat'];
+
+    // A day is on target when each value is this close to the daily target (0.05 = ±5%)
+    public const TARGET_RANGE = ['calories' => 0.05, 'protein' => 0.10, 'carbs' => 0.10, 'fat' => 0.10];
+
+    // What a coach can set as daily targets: [min, max]
+    public const TARGET_LIMITS = ['calories' => [800, 6000], 'protein' => [20, 500], 'carbs' => [0, 900], 'fat' => [10, 400]];
     private const MAX_MEALS_PER_DAY = 12;
     private const MAX_ITEMS_PER_MEAL = 30;
 

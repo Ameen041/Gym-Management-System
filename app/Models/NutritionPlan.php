@@ -12,9 +12,14 @@ class NutritionPlan extends Model
         'title',
         'plan_details',
         'subscription_id',
+        'targets',
         'created_at',
         'updated_at',
-        
+    ];
+
+    // daily targets: calories, protein, carbs, fat
+    protected $casts = [
+        'targets' => 'array',
     ];
 
     public function user()

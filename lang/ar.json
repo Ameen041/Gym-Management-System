@@ -975,5 +975,16 @@
     "Link": "رابط",
     "Email or username": "بريد أو اسم حساب",
     "Another app or paying outside": "تطبيق آخر أو دفع خارج همّة",
-    "The message was not sent. Check your connection and try again.": "لم تُرسَل الرسالة. تحقق من الاتصال وحاول مرة أخرى."
+    "The message was not sent. Check your connection and try again.": "لم تُرسَل الرسالة. تحقق من الاتصال وحاول مرة أخرى.",
+    ":n left": "باقي :n",
+    ":n over": "زيادة :n",
+    ":n per kg": ":n لكل كغ",
+    ":n% of calories": ":n% من السعرات",
+    "Carbs make up the rest": "الكارب يكمّل الباقي",
+    "Daily target": "الهدف اليومي",
+    "Daily targets": "الأهداف اليومية",
+    "Protein, carbs and fat add up to :kcal kcal, but the target is :target kcal.": "البروتين والكارب والدهون تعطي :kcal سعرة، بينما الهدف :target سعرة.",
+    "Start here: how much should your client eat each day? Then fill the days until every bar is in its range.": "ابدأ من هنا: كم يجب أن يأكل متدربك يومياً؟ ثم املأ الأيام حتى يصل كل خط إلى مجاله الأخضر.",
+    "These days are not on target yet: :days. Send the plan anyway?": "هذه الأيام لم تصل إلى الهدف بعد: :days. هل تريد إرسال الخطة على أي حال؟",
+    "Your daily target": "هدفك اليومي"
 }

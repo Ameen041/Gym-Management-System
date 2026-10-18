@@ -63,6 +63,7 @@ class CheckInDemoSeeder extends Seeder
         ]);
         NutritionPlan::create([
             'user_id' => $trainee->id, 'trainer_id' => $coach->id, 'subscription_id' => $sub->id, 'title' => '2200 kcal',
+            'targets' => ['calories' => 2200, 'protein' => 165, 'carbs' => 220, 'fat' => 70],
             'plan_details' => json_encode(['Saturday' => [[
                 'meal_number' => 1, 'description' => '', 'calories' => 350, 'protein' => 20, 'carbs' => 45, 'fat' => 10,
                 'items' => [['food_id' => null, 'name' => 'Oats with milk', 'qty' => null, 'unit' => 'g', 'grams' => null,

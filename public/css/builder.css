@@ -122,3 +122,50 @@
   .content .nb-macro-inputs input{width:100%}
   .nb-macro-inputs label{flex:1}
 }
+
+/* ---------- Nutrition: daily targets and range bars ---------- */
+.nb-targets{display:grid;gap:10px}
+.nb-targets .panel-head{margin-bottom:0}
+.nb-targets-help{margin-top:-4px}
+.nb-target-grid{display:grid;gap:10px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.nb-target{display:grid;gap:5px;padding:10px 12px;border-radius:var(--radius);background:var(--surface-2);border:1px solid var(--line)}
+.nb-target-label{font-weight:800;font-size:.84rem}
+.nb-target-input{display:flex;align-items:center;gap:6px}
+.content .nb-target-input input{min-height:40px;padding:6px 10px;font-family:var(--font-display);font-weight:800;font-size:1.1rem;font-variant-numeric:tabular-nums}
+.nb-target-input small{color:var(--muted);font-weight:700;font-size:.78rem}
+.nb-target-hint{color:var(--muted);font-size:.74rem;min-height:1.2em;font-variant-numeric:tabular-nums}
+.nb-target-check{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 12px;border-radius:12px;background:var(--warning-bg);color:var(--text);font-size:.86rem}
+.nb-target-check[hidden]{display:none}
+.nb-target-check > i{color:var(--warning)}
+@media (max-width:760px){ .nb-target-grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+
+.nb-range{display:grid;gap:9px;padding:14px 16px;border-radius:var(--radius-lg);background:var(--surface);border:1px solid var(--line)}
+.range-row{display:grid;grid-template-columns:62px minmax(0,1fr) 136px;gap:12px;align-items:center;font-size:.82rem}
+.range-label{font-weight:800}
+.range-track{position:relative;height:12px;border-radius:99px;background:var(--surface-3);overflow:hidden}
+/* the target range: the fill should end inside it */
+.range-zone{position:absolute;inset-block:0;inset-inline-start:var(--zone-a,0);width:calc(var(--zone-b,0) - var(--zone-a,0));
+  background:color-mix(in srgb,var(--success) 26%,transparent);border-inline:2px solid var(--success)}
+/* grey while filling up, green once in range, red when over */
+.range-fill{position:absolute;inset-block:2px;inset-inline-start:2px;width:calc(var(--fill,0%) - 2px);max-width:calc(100% - 4px);
+  border-radius:99px;background:color-mix(in srgb,var(--text) 32%,transparent);transition:width .3s var(--ease),background .2s}
+.range-row.is-ok .range-fill{background:var(--success)}
+.range-row.is-over .range-fill{background:var(--danger)}
+.range-v{display:grid;justify-items:end;text-align:end;font-variant-numeric:tabular-nums;color:var(--muted);line-height:1.3}
+.range-v b{color:var(--text);font-family:var(--font-display);font-size:.95rem}
+.range-v small{font-size:.72rem;font-weight:700}
+.range-row.is-under .range-v small{color:var(--muted)}
+.range-row.is-ok .range-v small{color:var(--success)}
+.range-row.is-over .range-v small{color:var(--danger)}
+.nb-range.no-targets .range-track{display:none}
+.nb-range.no-targets .range-row{grid-template-columns:62px auto}
+.nb-range.no-targets .range-v{justify-items:start;text-align:start}
+.daytab.on-target b{color:var(--success)}
+.daytab.off-target b{color:var(--warning)}
+.daytab.on.on-target b,.daytab.on.off-target b{color:var(--on-accent)}
+.daytab.on.on-target b::before{content:"✓ "}
+.nb-week td.is-ok{color:var(--success);font-weight:800}
+.nb-week td.is-under{color:var(--warning)}
+.nb-week td.is-over{color:var(--danger)}
+.nb-week [data-summary-target] th{color:var(--muted)}
+@media (max-width:520px){ .range-row{grid-template-columns:54px minmax(0,1fr) 118px;gap:8px} .range-v b{font-size:.88rem} }

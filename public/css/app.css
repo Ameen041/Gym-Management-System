@@ -420,6 +420,11 @@ details.fold > summary::-webkit-details-marker{display:none}
 details.fold[open] .fold-icon{transform:rotate(180deg)}
 
 /* ---------- Day total (nutrition) ---------- */
+.target-strip{display:flex;gap:12px;align-items:center;padding:12px 14px;margin-bottom:12px;border-radius:var(--radius-lg);background:var(--accent-soft)}
+.target-strip > i{font-size:1.2rem;color:var(--accent-text)}
+.target-strip .grow{display:grid;gap:2px}
+.target-strip span{color:var(--muted);font-size:.86rem;font-variant-numeric:tabular-nums}
+.target-strip strong{color:var(--text)}
 .nb-daytotal{
   display:grid;grid-template-columns:auto minmax(0,1fr);gap:22px;align-items:center;
   padding:16px 18px;border-radius:var(--radius-lg);background:var(--surface);border:1px solid var(--line);

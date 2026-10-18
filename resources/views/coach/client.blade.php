@@ -57,6 +57,9 @@
             <div class="muted small">
               @if($plan)
                 {{ __('Sent') }} · {{ $plan->updated_at->translatedFormat('j M Y') }}
+                @if($type === 'nutrition' && $plan->targets)
+                  · {{ \App\Support\NutritionMath::number($plan->targets['calories']) }} {{ __('kcal') }}
+                @endif
               @else
                 {{ __('Due by :date', ['date' => $subscription->plan_due_at->translatedFormat('j M')]) }}
               @endif

@@ -38,6 +38,9 @@ class PlanController extends Controller
                 'subscription' => $subscription,
                 'plan'         => $plan,
                 'draftFrom'    => $draftFrom,
+                'targets'      => $source?->targets ?? [],
+                // to show protein and fat per kg of body weight
+                'weight'       => (float) ($subscription->trainee->weight ?: ($subscription->intake['weight'] ?? 0)),
                 'days'         => NutritionMath::builderDays($source ? (json_decode($source->plan_details, true) ?: []) : [], self::WEEK_DAYS),
                 'templates'    => PlanTemplate::where('type', 'nutrition')->where('is_active', true)->orderBy('title')->get(),
                 'foods'        => Food::active()->get()->sortBy(fn ($f) => $f->display_name)->values(),
@@ -61,10 +64,21 @@ class PlanController extends Controller
         $this->authorizePlan($subscription, $type);
 
         if ($type === 'nutrition') {
-            $request->validate(['title' => 'required|string|max:255', 'meals' => 'nullable|array|max:100']);
+            $rules = ['title' => 'required|string|max:255', 'meals' => 'nullable|array|max:100'];
+            $names = [];
+            foreach (NutritionMath::TARGET_LIMITS as $macro => [$min, $max]) {
+                $rules["targets.$macro"] = ['required', 'numeric', "between:$min,$max"];
+                $names["targets.$macro"] = __(ucfirst($macro));
+            }
+            $request->validate($rules, [], $names);
+
+            $targets = [];
+            foreach (NutritionMath::MACROS as $macro) {
+                $targets[$macro] = round((float) $request->input("targets.$macro"), $macro === 'calories' ? 0 : 1);
+            }
             $details = NutritionMath::fromRequest((array) $request->input('meals', []), self::WEEK_DAYS);
 
-            return $this->store($subscription, $type, $request->title, $details);
+            return $this->store($subscription, $type, $request->title, $details, $targets);
         }
 
         $request->validate([
@@ -119,7 +133,8 @@ class PlanController extends Controller
         $last = $this->lastPlan($subscription, $type);
         abort_unless($last && !($type === 'workout' ? $subscription->workoutPlan : $subscription->nutritionPlan), 404);
 
-        return $this->store($subscription, $type, $last->title, json_decode($last->plan_details, true) ?: []);
+        return $this->store($subscription, $type, $last->title, json_decode($last->plan_details, true) ?: [],
+            $type === 'nutrition' ? $last->targets : null);
     }
 
     /** The plan of this type from the client's previous subscription with this coach. */
@@ -130,7 +145,7 @@ class PlanController extends Controller
         return $type === 'workout' ? $previous?->workoutPlan : $previous?->nutritionPlan;
     }
 
-    private function store(Subscription $subscription, string $type, string $title, array $details)
+    private function store(Subscription $subscription, string $type, string $title, array $details, ?array $targets = null)
     {
         $model = $type === 'workout' ? WorkoutPlan::class : NutritionPlan::class;
         $isUpdate = $model::where('subscription_id', $subscription->id)->exists();
@@ -141,7 +156,7 @@ class PlanController extends Controller
                 'trainer_id'   => $subscription->coach_id,
                 'title'        => $title,
                 'plan_details' => json_encode($details, JSON_UNESCAPED_UNICODE),
-            ]
+            ] + ($type === 'nutrition' ? ['targets' => $targets] : [])
         );
 
         $message = match (true) {
