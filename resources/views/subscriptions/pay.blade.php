@@ -73,6 +73,11 @@
         <input type="text" name="payment_reference" value="{{ old('payment_reference', $subscription->payment_reference) }}" dir="ltr">
       </div>
       <button type="submit" class="btn btn-success btn-block"><i class="fas fa-paper-plane"></i> {{ __('Send for confirmation') }}</button>
+      <p class="muted small" style="margin-top:10px">
+        <i class="fas fa-rotate-left"></i>
+        {{ __('If your coach doesn\'t send the plan within :days days, you get your money back.', ['days' => \App\Models\Subscription::PLAN_DUE_DAYS]) }}
+        <a href="{{ route('terms') }}#refunds" target="_blank">{{ __('Refund policy') }}</a>
+      </p>
     </form>
 
     <form method="POST" action="{{ route('subscriptions.cancel', $subscription) }}" onsubmit="return confirm(@js(__('Cancel this subscription?')))">

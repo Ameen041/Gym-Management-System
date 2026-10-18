@@ -90,6 +90,12 @@ class AdminSubscriptionController extends Controller
             ], Notify::link('coach.clients.show', $subscription), 'fa-user-plus');
         }
 
+        if ($subscription->healthFlags()) {
+            Notify::user($subscription->coach, ':trainee answered "yes" to a health question. Read the answers before you build the plan.', [
+                'trainee' => $subscription->trainee->name,
+            ], Notify::link('coach.clients.show', $subscription) . '#health', 'fa-heart-pulse', 'health-' . $subscription->id, true);
+        }
+
         return back()->with('status', __('Payment confirmed. The subscription is active.'));
     }
 

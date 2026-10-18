@@ -16,6 +16,7 @@ use App\Http\Controllers\AdminSystemController;
 use App\Http\Controllers\ExerciseController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\LegalController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\CoachDirectoryController;
 use App\Http\Controllers\SubscriptionController;
@@ -46,6 +47,10 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login.form
 Route::get('/coaches', [CoachDirectoryController::class, 'index'])->name('coaches.index');
 Route::get('/coaches/{coach}', [CoachDirectoryController::class, 'show'])->whereNumber('coach')->name('coaches.show');
 Route::redirect('/trainers', '/coaches', 301)->name('trainers');
+
+// Terms and privacy policy
+Route::get('/terms', [LegalController::class, 'terms'])->name('terms');
+Route::get('/privacy', [LegalController::class, 'privacy'])->name('privacy');
 
 // Contact form on the home page
 Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:5,1')->name('contact.store');

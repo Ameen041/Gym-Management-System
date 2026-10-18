@@ -90,4 +90,5 @@
 @else
   <div class="panel empty"><i class="fas fa-triangle-exclamation"></i><p>{{ __('No valid nutrition plan data available.') }}</p></div>
 @endif
+@include('plans._disclaimer')
 @endsection

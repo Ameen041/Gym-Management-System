@@ -81,8 +81,22 @@
     </section>
   </div>
 
-  <section class="panel">
+  <section class="panel" id="health">
     <div class="panel-head"><h2><i class="fas fa-user"></i> {{ __('Client answers') }}</h2></div>
+    @if(isset($intake['health']))
+      @if($healthFlags)
+        <div class="alert health-alert">
+          <i class="fas fa-heart-pulse" style="color:var(--warning)"></i>
+          <div>
+            <strong>{{ __('Health alert: the client answered "yes" to:') }}</strong>
+            <ul>@foreach($healthFlags as $flag)<li>{{ __(\App\Models\Subscription::HEALTH_LABELS[$flag] ?? $flag) }}</li>@endforeach</ul>
+            <div class="small" style="margin-top:6px">{{ __('Build the plan around it, keep it gentle at first, and ask for their doctor\'s approval. Don\'t give medical treatment or medicine.') }}</div>
+          </div>
+        </div>
+      @else
+        <p class="small" style="margin-bottom:8px"><i class="fas fa-circle-check" style="color:var(--success)"></i> {{ __('No health problems in the client\'s answers.') }}</p>
+      @endif
+    @endif
     <div class="list-row"><span class="grow muted">{{ __('Main goal') }}</span><strong>{{ __(Sub::GOALS[$intake['goal'] ?? ''] ?? '—') }}</strong></div>
     <div class="list-row"><span class="grow muted">{{ __('Training experience') }}</span><strong>{{ __(Sub::LEVELS[$intake['level'] ?? ''] ?? '—') }}</strong></div>
     <div class="list-row"><span class="grow muted">{{ __('Training days per week') }}</span><strong>{{ $intake['days_per_week'] ?? '—' }}</strong></div>
@@ -95,6 +109,9 @@
     @endif
     @if(!empty($intake['health_notes']))
       <div class="list-row"><div class="grow"><div class="muted small">{{ __('Injuries or health notes') }}</div><p style="white-space:pre-line">{{ $intake['health_notes'] }}</p></div></div>
+    @endif
+    @if(!empty($intake['food_notes']))
+      <div class="list-row"><div class="grow"><div class="muted small">{{ __('Food allergies or foods they don\'t eat') }}</div><p style="white-space:pre-line">{{ $intake['food_notes'] }}</p></div></div>
     @endif
     @if(!empty($subscription->body_photos))
       <div style="margin-top:12px">

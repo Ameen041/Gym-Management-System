@@ -27,6 +27,9 @@ class SubscriptionController extends Controller
         'other'       => 'Other',
     ];
 
+    // Youngest age that can subscribe (under 18 with a parent's consent, see the terms)
+    public const MIN_AGE = 16;
+
     public const LEVELS = [
         'beginner'     => 'Beginner (less than 6 months)',
         'intermediate' => 'Intermediate (6 months – 2 years)',
@@ -64,20 +67,36 @@ class SubscriptionController extends Controller
             return redirect()->route('trainee.dashboard');
         }
 
+        // every health question needs a yes / no; a "yes" means: explain it and check with a doctor
+        $health = (array) $request->input('health', []);
+        $answered = collect(Subscription::HEALTH_QUESTIONS)->keys()
+            ->every(fn ($key) => in_array((string) ($health[$key] ?? ''), ['0', '1'], true));
+        $anyYes = collect(Subscription::HEALTH_QUESTIONS)->keys()->contains(fn ($key) => (string) ($health[$key] ?? '') === '1');
+
         $data = $request->validate([
             'goal'          => ['required', Rule::in(array_keys(self::GOALS))],
             'goal_details'  => ['nullable', 'string', 'max:1000', new NoContactDetails],
             'level'         => ['required', Rule::in(array_keys(self::LEVELS))],
             'days_per_week' => ['required', 'integer', 'min:1', 'max:7'],
             'gym'           => ['nullable', 'string', 'max:255', new NoContactDetails],
-            'health_notes'  => ['nullable', 'string', 'max:1000', new NoContactDetails],
-            'age'           => ['required', 'integer', 'min:10', 'max:100'],
+            'health'        => ['required', 'array', fn ($attribute, $value, $fail) => $answered ?: $fail(__('Answer every health question.'))],
+            'health_notes'  => [$anyYes ? 'required' : 'nullable', 'string', 'max:1000', new NoContactDetails],
+            'food_notes'    => ['nullable', 'string', 'max:500', new NoContactDetails],
+            'doctor'        => $anyYes ? ['accepted'] : ['nullable'],
+            'consent'       => ['accepted'],
+            'age'           => ['required', 'integer', 'min:' . self::MIN_AGE, 'max:100'],
             'height'        => ['required', 'numeric', 'min:100', 'max:250'],
             'weight'        => ['required', 'numeric', 'min:30', 'max:300'],
             'phone'         => ['required', 'string', 'max:30', 'regex:/^[0-9+\s-]{8,20}$/'],
             'body_photos'   => ['nullable', 'array', 'max:4'],
             'body_photos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+        ], [
+            'health.required'       => __('Answer every health question.'),
+            'health_notes.required' => __('You answered "yes" to a health question: tell your coach what it is and what your doctor said.'),
+            'doctor.accepted'       => __('Please confirm that you will check with your doctor before you start.'),
+            'consent.accepted'      => __('Please read and accept the health notice.'),
         ]);
+        $data['health'] = collect(Subscription::HEALTH_QUESTIONS)->map(fn ($q, $key) => (string) $health[$key] === '1')->all();
 
         $user = auth()->user();
         $user->update([
@@ -102,7 +121,8 @@ class SubscriptionController extends Controller
             'duration_days'      => $package->duration_days,
             'price'              => $package->price,
             'status'             => 'awaiting_payment',
-            'intake'             => collect($data)->only(['goal', 'goal_details', 'level', 'days_per_week', 'gym', 'health_notes', 'age', 'height', 'weight'])->all(),
+            'intake'             => collect($data)->only(['goal', 'goal_details', 'level', 'days_per_week', 'gym', 'health', 'health_notes', 'food_notes', 'age', 'height', 'weight'])->all()
+                + ['health_confirmed_at' => now()->toIso8601String()],
             'body_photos'        => $photos ?: null,
         ]);
 

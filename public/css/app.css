@@ -121,6 +121,9 @@ button{font:inherit;color:inherit;cursor:pointer}
   min-width:22px;height:22px;padding:0 7px;border-radius:999px;display:grid;place-items:center;margin-inline-start:auto;
   background:var(--danger);color:#fff;font-size:.72rem;font-weight:800;
 }
+.side-legal{padding:2px 12px 4px;font-size:.74rem;color:var(--faint)}
+.side-legal a{color:var(--muted)}
+.side-legal a:hover{color:var(--text)}
 .side-foot{margin-top:auto;display:flex;flex-direction:column;gap:6px;padding-top:12px;border-top:1px solid var(--line)}
 .side-foot form{display:block}
 .side-foot .side-link{width:100%;background:none;border:0;text-align:start}
@@ -663,3 +666,21 @@ html[dir="rtl"] .chat-send i{transform:scaleX(-1)}
 .push-card > i{font-size:1.2rem;color:var(--accent-text)}
 .push-card .grow{display:grid;gap:2px;min-width:180px}
 .chat .push-card{margin-bottom:0}
+
+/* ---------- Health questions (subscribe form) and health notes ---------- */
+.health-qs{display:grid;gap:8px;margin-bottom:12px}
+.health-q{display:flex;gap:8px 14px;align-items:center;justify-content:space-between;flex-wrap:wrap;
+  border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--surface);transition:border-color .15s,background .15s}
+.health-q-text{flex:1 1 240px;margin:0;font-size:.9rem;font-weight:600;line-height:1.6}
+.health-q:has(input[value="1"]:checked){border-color:var(--warning);background:var(--warning-bg)}
+.yes-no{display:inline-flex;gap:6px;flex-shrink:0}
+.yes-no label{position:relative;display:inline-flex;align-items:center;padding:6px 14px;border:1px solid var(--line-strong);border-radius:999px;cursor:pointer;font-weight:700;font-size:.85rem;background:var(--surface)}
+.yes-no label:has(input:checked){background:var(--text);color:var(--bg);border-color:var(--text)}
+.yes-no label:has(input:focus-visible){box-shadow:0 0 0 3px var(--accent-ring)}
+.content .yes-no input{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;cursor:pointer}
+.check[hidden],.alert[hidden]{display:none}
+.content [id]{scroll-margin-top:84px}   /* links to #health, #progress… land below the sticky top bar */
+.health-alert{border-inline-start-color:var(--warning);background:var(--warning-bg)}
+.health-alert ul{margin-top:4px}
+.plan-disclaimer{display:flex;gap:8px;align-items:flex-start;margin-top:18px;color:var(--muted);font-size:.78rem;line-height:1.7}
+.plan-disclaimer i{margin-top:4px}

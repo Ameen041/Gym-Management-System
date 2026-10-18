@@ -18,6 +18,33 @@ class Subscription extends Model
     // How many days the coach has to deliver the plan after activation
     public const PLAN_DUE_DAYS = 3;
 
+    // Asked before subscribing (based on the PAR-Q+ and two questions for nutrition).
+    // A "yes" means: check with a doctor first, and the coach is warned.
+    public const HEALTH_QUESTIONS = [
+        'heart'      => 'Has a doctor ever told you that you have a heart condition or high blood pressure?',
+        'chest_pain' => 'Do you feel pain in your chest at rest, during daily activities or when you exercise?',
+        'dizziness'  => 'In the last 12 months, have you lost your balance because of dizziness, or fainted?',
+        'chronic'    => 'Do you have another long-term condition, such as diabetes, asthma, or a kidney, liver or thyroid disease?',
+        'medication' => 'Do you take medicine for a long-term condition?',
+        'joints'     => 'Do you have a bone, joint or muscle problem (back, knee, shoulder…) that exercise could make worse?',
+        'supervised' => 'Has a doctor told you to exercise only under medical supervision?',
+        'pregnancy'  => 'For women: are you pregnant, or did you give birth in the last 6 months?',
+        'eating'     => 'Have you ever had an eating disorder (such as anorexia or bulimia)?',
+    ];
+
+    // The same, short, for the coach
+    public const HEALTH_LABELS = [
+        'heart'      => 'Heart condition or high blood pressure',
+        'chest_pain' => 'Chest pain',
+        'dizziness'  => 'Dizziness or fainting',
+        'chronic'    => 'Long-term condition',
+        'medication' => 'Takes medicine for a long-term condition',
+        'joints'     => 'Bone, joint or muscle problem',
+        'supervised' => 'Doctor asked for supervised exercise only',
+        'pregnancy'  => 'Pregnant or gave birth recently',
+        'eating'     => 'Eating disorder (now or before)',
+    ];
+
     // Body photos and payment receipts are private: kept outside public/ and
     // only shown through SubscriptionFileController to the people involved.
     public const FILES_DISK = 'local';
@@ -106,6 +133,12 @@ class Subscription extends Model
         return is_numeric($weight) && $first->starts_at
             ? ['date' => $first->starts_at, 'weight' => (float) $weight]
             : null;
+    }
+
+    /** Health questions the client answered "yes" to (keys of HEALTH_QUESTIONS). */
+    public function healthFlags(): array
+    {
+        return array_keys(array_filter((array) ($this->intake['health'] ?? []), fn ($yes) => (bool) $yes));
     }
 
     /** Link to the payment receipt (admin and the trainee only). */

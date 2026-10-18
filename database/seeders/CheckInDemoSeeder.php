@@ -47,7 +47,9 @@ class CheckInDemoSeeder extends Seeder
             'duration_days' => 60, 'price' => 40, 'commission_rate' => 10, 'commission_amount' => 4, 'coach_amount' => 36,
             'status' => 'active', 'payment_method' => 'sham_cash', 'payment_reference' => 'DEMO-1001',
             'intake' => ['goal' => 'weight_loss', 'level' => 'beginner', 'days_per_week' => 4, 'age' => 29, 'height' => 178, 'weight' => 92.4,
-                         'goal_details' => 'Lose the belly before summer.'],
+                         'goal_details' => 'Lose the belly before summer.',
+                         'health' => array_map(fn ($key) => $key === 'joints', array_combine(array_keys(Subscription::HEALTH_QUESTIONS), array_keys(Subscription::HEALTH_QUESTIONS))),
+                         'health_notes' => 'My right knee hurts a little on deep squats. The doctor said it is fine to train with lighter weights.'],
             'payment_submitted_at' => $start->copy()->subDay(), 'confirmed_at' => $start, 'starts_at' => $start, 'ends_at' => $start->copy()->addDays(60),
         ]);
 

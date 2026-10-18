@@ -64,6 +64,7 @@
     </nav>
     <div class="side-foot">
       <button type="button" class="side-link" data-install-app hidden><i class="fas fa-download"></i>{{ __('Install App') }}</button>
+      <div class="side-legal"><a href="{{ route('terms') }}">{{ __('Terms & Conditions') }}</a> · <a href="{{ route('privacy') }}">{{ __('Privacy Policy') }}</a></div>
       @include('partials.lang-switch', ['class' => 'side-link'])
       @auth
         <form action="{{ route('logout') }}" method="POST">

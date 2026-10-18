@@ -280,6 +280,13 @@ Profiles, packages, check-ins and reviews are checked the same way. Chats are pr
 read one only after the coach or the client reports it. The filter stops the easy ways around the
 platform, not every possible one, so the terms should also forbid it.
 
+Terms, privacy and health: `/terms` and `/privacy` (Arabic and English, in `resources/views/legal`) cover
+payments outside Himma, refunds, the chat rules, the health notice and the coach rules; signing up needs
+accepting them (the time is kept on the account). Before paying, the client answers 9 health questions
+(based on the PAR-Q+): a "yes" asks for details and a check with a doctor, and the coach gets a health
+alert on the client page, the dashboard and a notification. Every plan ends with a short health notice.
+Have a lawyer read the texts before launch, and change `LegalController::UPDATED` when they change.
+
 Password resets: if email is not set up, Admin → Users → **Reset link** makes a one-time link
 (valid 60 minutes) to send to the user on WhatsApp.
 

@@ -90,7 +90,7 @@
             <div class="form-row trainee-only">
                 <div class="form-group">
                     <label>{{ __('Age') }}</label>
-                    <input type="number" name="age" min="10" max="100" value="{{ old('age') }}">
+                    <input type="number" name="age" min="{{ \App\Http\Controllers\SubscriptionController::MIN_AGE }}" max="100" value="{{ old('age') }}">
                 </div>
                 <div class="form-group">
                     <label>{{ __('Weight (kg)') }}</label>
@@ -103,9 +103,9 @@
             </div>
 
             <div class="form-checkbox">
-                <input type="checkbox" id="terms" required>
+                <input type="checkbox" id="terms" name="terms" value="1" required @checked(old('terms'))>
                 <label for="terms">
-                    {{ __('I agree to the') }} <a href="#">{{ __('Terms & Conditions') }}</a> {{ __('and') }} <a href="#">{{ __('Privacy Policy') }}</a>
+                    {{ __('I agree to the') }} <a href="{{ route('terms') }}" target="_blank">{{ __('Terms & Conditions') }}</a> {{ __('and') }} <a href="{{ route('privacy') }}" target="_blank">{{ __('Privacy Policy') }}</a>
                 </label>
             </div>
 

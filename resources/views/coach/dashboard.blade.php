@@ -78,6 +78,9 @@
           @elseif($renewals[$sub->id]['daysLeft'] <= 7)
             <span class="badge badge-warn"><i class="fas fa-hourglass-end"></i> {{ $renewals[$sub->id]['daysLeft'] === 0 ? __('Ends today') : trans_choice('{1} Ends tomorrow|[2,*] Ends in :count days', $renewals[$sub->id]['daysLeft']) }}</span>
           @endif
+          @if($sub->healthFlags())
+            <a href="{{ route('coach.clients.show', $sub) }}#health" class="badge badge-warn"><i class="fas fa-heart-pulse"></i> {{ __('Health alert') }}</a>
+          @endif
           @if($chatUnread[$sub->trainee_id] ?? 0)
             <a href="{{ route('chat.with', $sub->trainee_id) }}" class="badge"><i class="fas fa-comments"></i> {{ trans_choice('{1} 1 new message|[2,*] :count new messages', $chatUnread[$sub->trainee_id]) }}</a>
           @endif
