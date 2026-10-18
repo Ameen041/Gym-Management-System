@@ -12,8 +12,6 @@ class PlanTemplate extends Model
         'description',
         'plan_details',
         'is_active',
-        'is_active',
-        'body_photos',
     ];
 
     protected $casts = [

@@ -1,5 +1,5 @@
 /* =====================================================================
-   Ameen Gym – design system (trainee / coach / public panel pages)
+   Himma – design system (trainee / coach / public panel pages)
    Layout: sidebar on desktop, bottom tab bar on phones, content in one
    centred column. Themes: light / dark (data-theme, or the device setting);
    brand colour: green.
@@ -104,8 +104,9 @@ button{font:inherit;color:inherit;cursor:pointer}
 .brand{display:flex;align-items:center;gap:10px;padding:4px 8px 14px}
 .brand-mark{
   width:40px;height:40px;border-radius:12px;display:grid;place-items:center;flex-shrink:0;
-  background:var(--accent);color:var(--on-accent);font-size:1.05rem;
+  background:var(--accent);color:var(--accent);font-size:1.05rem;
 }
+.brand-mark svg{width:74%;height:74%;display:block}
 .brand-name{font-family:var(--font-display);font-weight:900;font-size:1.15rem;line-height:1.1}
 .brand-name small{display:block;font-family:var(--font-body);font-weight:600;font-size:.72rem;color:var(--muted);margin-top:3px}
 .side-nav{display:flex;flex-direction:column;gap:2px}

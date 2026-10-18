@@ -19,7 +19,8 @@ class Backup
 {
     public const DIR = 'backups';
     public const KEEP = 14;
-    private const FORMAT = 'ameen-gym-backup';
+    private const FORMAT = 'himma-backup';
+    private const OLD_FORMATS = ['ameen-gym-backup'];   // backups made before the rename
 
     // Rebuilt by the app on its own; never worth restoring.
     private const SKIP_TABLES = [
@@ -35,7 +36,7 @@ class Backup
     /** Write a new backup and return its file name. */
     public static function create(string $label = ''): string
     {
-        $name = 'ameen-gym-' . now()->format('Y-m-d-His') . ($label ? "-$label" : '') . '.json.gz';
+        $name = 'himma-' . now()->format('Y-m-d-His') . ($label ? "-$label" : '') . '.json.gz';
         $disk = self::disk();
         $disk->makeDirectory(self::DIR);
         $path = $disk->path(self::DIR . '/' . $name);
@@ -86,8 +87,8 @@ class Backup
 
         try {
             $header = json_decode((string) gzgets($gz), true);
-            if (($header['format'] ?? null) !== self::FORMAT) {
-                throw new RuntimeException('This file is not an Ameen Gym backup.');
+            if (!in_array($header['format'] ?? null, [self::FORMAT, ...self::OLD_FORMATS], true)) {
+                throw new RuntimeException('This file is not a Himma backup.');
             }
 
             // the target database decides the order: parent tables before the tables pointing at them
@@ -98,7 +99,7 @@ class Backup
             }
 
             // 1) split the rows per table into temporary files
-            $tmpDir = sys_get_temp_dir() . '/ameen-gym-restore-' . bin2hex(random_bytes(6));
+            $tmpDir = sys_get_temp_dir() . '/himma-restore-' . bin2hex(random_bytes(6));
             mkdir($tmpDir, 0700);
             $parts = [];
             while (($line = gzgets($gz)) !== false) {
@@ -199,7 +200,7 @@ class Backup
     public static function prune(int $keep = self::KEEP): void
     {
         self::all()
-            ->filter(fn ($b) => preg_match('/^ameen-gym-\d{4}-\d\d-\d\d-\d{6}\.json\.gz$/', $b['name']))
+            ->filter(fn ($b) => preg_match('/^(himma|ameen-gym)-\d{4}-\d\d-\d\d-\d{6}\.json\.gz$/', $b['name']))
             ->slice($keep)
             ->each(fn ($b) => self::delete($b['name']));
     }

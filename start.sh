@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "🚀 Starting Ameen Gym (Laravel)..."
+echo "🚀 Starting Himma (Laravel)..."
 
 # storage/app holds uploads and backups: on the server it must be a persistent disk
 mkdir -p /var/www/html/storage/app/public /var/www/html/storage/logs /var/www/html/bootstrap/cache

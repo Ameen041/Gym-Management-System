@@ -49,21 +49,6 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function workoutPlan()
-{
-    return $this->hasOne(\App\Models\WorkoutPlan::class);
-}
-
-public function nutritionPlan()
-{
-    return $this->hasOne(\App\Models\NutritionPlan::class);
-}
-
-public function payments()
-{
-    return $this->hasMany(\App\Models\Payment::class);
-}
-
     /* ---------- Coach marketplace ---------- */
 
     public function coachProfile()

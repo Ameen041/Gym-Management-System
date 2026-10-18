@@ -1,8 +1,8 @@
 <footer class="site-footer">
   <div class="wrap site-footer-row">
     <a href="{{ route('home') }}" class="brand">
-      <span class="brand-mark"><i class="fas fa-dumbbell"></i></span>
-      <span class="brand-name">{{ __('Ameen Gym') }}</span>
+      <span class="brand-mark">@include('partials.logo-mark')</span>
+      <span class="brand-name">{{ __('Himma') }}</span>
     </a>
     <nav class="site-footer-links">
       <a href="{{ route('coaches.index') }}">{{ __('Coaches') }}</a>
@@ -12,5 +12,5 @@
     </nav>
     <button type="button" class="btn btn-sm" data-install-app hidden><i class="fas fa-download"></i> {{ __('Install App') }}</button>
   </div>
-  <div class="wrap site-copy">© {{ date('Y') }} {{ __('Ameen Gym') }} · {{ __('Online coaching') }}</div>
+  <div class="wrap site-copy">© {{ date('Y') }} {{ __('Himma') }} · {{ __('Online coaching') }}</div>
 </footer>

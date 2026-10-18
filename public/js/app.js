@@ -57,3 +57,21 @@
     }
   });
 })();
+
+/* An exercise picture that can't load (offline, blocked, video removed) shows the dumbbell icon instead of a broken image. */
+(function () {
+  "use strict";
+  function fallback(img) {
+    var icon = document.createElement("i");
+    icon.className = "fas fa-dumbbell";
+    img.replaceWith(icon);
+  }
+  document.addEventListener("error", function (e) {
+    var img = e.target;
+    if (img && img.tagName === "IMG" && img.closest(".pick-icon, .lib-thumb")) fallback(img);
+  }, true);
+  // pictures that already failed before this script ran
+  document.querySelectorAll(".pick-icon img, .lib-thumb img").forEach(function (img) {
+    if (img.complete && img.naturalWidth === 0) fallback(img);
+  });
+})();

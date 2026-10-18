@@ -87,7 +87,7 @@ class AdminUserController extends Controller
 
         $minutes = config('auth.passwords.users.expire', 60);
         $url = route('password.reset', ['token' => Password::broker()->createToken($user), 'email' => $user->email]);
-        $message = __('Hi :name, open this link to set a new password for Ameen Gym (valid for :minutes minutes): :url', [
+        $message = __('Hi :name, open this link to set a new password for Himma (valid for :minutes minutes): :url', [
             'name' => $user->name, 'minutes' => $minutes, 'url' => $url,
         ]);
 

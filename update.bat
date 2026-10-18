@@ -1,10 +1,10 @@
 @echo off
 setlocal EnableExtensions
-title Ameen Gym - Update
+title Himma - Update
 cd /d "%~dp0"
 
 rem ==================================================================
-rem  Ameen Gym - get the latest version from GitHub
+rem  Himma - get the latest version from GitHub
 rem
 rem  Double-click this file: it downloads the newest changes (master)
 rem  and then starts the system with start-local.bat.
@@ -14,7 +14,7 @@ rem ==================================================================
 
 echo.
 echo  ===============================================
-echo           Ameen Gym - Update
+echo             Himma - Update
 echo  ===============================================
 echo.
 

@@ -1,10 +1,10 @@
 @echo off
 setlocal EnableExtensions
-title Ameen Gym - Local Server
+title Himma - Local Server
 cd /d "%~dp0"
 
 rem ==================================================================
-rem  Ameen Gym - one-click local run (no Laragon / MySQL needed)
+rem  Himma - one-click local run (no Laragon / MySQL needed)
 rem
 rem  Double-click this file: it prepares everything and opens the
 rem  system in your browser. Keep this window open while you use it;
@@ -19,7 +19,7 @@ set "PORT=8000"
 
 echo.
 echo  ===============================================
-echo           Ameen Gym - Local Server
+echo             Himma - Local Server
 echo  ===============================================
 echo.
 
@@ -31,6 +31,7 @@ if not defined PHP goto :nophp
 if not exist "%PHP%" goto :nophp
 for %%P in ("%PHP%") do set "PHPDIR=%%~dpP"
 echo  [1/5] PHP found: %PHP%
+"%PHP%" -r "exit(version_compare(PHP_VERSION, '8.2.0', '<') ? 1 : 0);" || goto :oldphp
 
 rem Enable any required PHP extension that is not already loaded
 set "MISSING="
@@ -61,7 +62,7 @@ echo  [2/5] Dependencies OK
 rem ---- 3) Local settings, folders and database -----------------------
 if not exist ".env.local" (
   > ".env.local" (
-    echo APP_NAME="Ameen Gym"
+    echo APP_NAME="Himma"
     echo APP_ENV=local
     echo APP_KEY=
     echo APP_DEBUG=true
@@ -112,6 +113,7 @@ echo   Open:     %URL%
 echo   Admin:    admin@demo.com    / Admin@12345
 echo   Trainer:  trainer@demo.com  / Trainer@12345
 echo   Trainee:  trainee@demo.com  / Trainee@12345
+echo   Trainee:  rami@demo.com     / Trainee@12345  (5 weeks of check-ins)
 echo.
 echo   Keep this window open. Close it to stop.
 echo  -----------------------------------------------
@@ -122,6 +124,13 @@ start "" /b powershell -NoProfile -WindowStyle Hidden -Command "Start-Sleep -Sec
 pushd public
 "%PHP%" %PHPX% -S 127.0.0.1:%PORT% "%~dp0vendor\laravel\framework\src\Illuminate\Foundation\resources\server.php"
 popd
+goto :end
+
+:oldphp
+for /f "delims=" %%V in ('call "%PHP%" -r "echo PHP_VERSION;"') do set "PHPVER=%%V"
+echo  This project needs PHP 8.2 or newer, but found PHP %PHPVER%.
+echo  In Laragon: right-click the tray icon, PHP, Version, and pick 8.2 or newer
+echo  (or download PHP 8.2+ from https://windows.php.net/download and add it to PATH).
 goto :end
 
 :nophp

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', __('Ameen Gym') . ' | ' . __('Online coaching'))
+@section('title', __('Himma') . ' | ' . __('Online coaching'))
 
 @section('content')
 {{-- Hero --}}
