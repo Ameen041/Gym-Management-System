@@ -26,9 +26,9 @@
       <input type="text" name="name" value="{{ old('name', $coach->name) }}" required>
     </div>
     <div class="form-group">
-      <label>{{ __('WhatsApp number') }}</label>
-      <input type="tel" name="phone" value="{{ old('phone', $coach->phone) }}" placeholder="09xxxxxxxx" required>
-      <div class="form-hint">{{ __('Shown only to your clients after they pay.') }}</div>
+      <label>{{ __('Phone number') }}</label>
+      <input type="tel" name="phone" value="{{ old('phone', $coach->phone) }}" placeholder="09xxxxxxxx" dir="ltr" required>
+      <div class="form-hint">{{ __('Only the Himma team sees it, to reach you about payouts. Clients talk to you in the chat.') }}</div>
     </div>
   </div>
 

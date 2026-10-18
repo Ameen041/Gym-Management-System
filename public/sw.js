@@ -1,5 +1,5 @@
-/* Himma service worker: makes the site installable and keeps static assets fast/offline. */
-const VERSION = 'v5';
+/* Himma service worker: makes the site installable, keeps static assets fast/offline and shows phone notifications. */
+const VERSION = 'v6';
 const STATIC_CACHE = `himma-static-${VERSION}`;
 const OFFLINE_URL = '/offline.html';
 
@@ -10,6 +10,8 @@ const PRECACHE = [
   '/vendor/fontawesome/css/all.min.css',
   '/js/app.js',
   '/js/app-install.js',
+  '/js/push.js',
+  '/js/chat.js',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
 ];
@@ -67,4 +69,44 @@ self.addEventListener('fetch', (event) => {
       )
     );
   }
+});
+
+// Phone notifications: the server sends {title, body, url, tag}, encrypted for this device.
+self.addEventListener('push', (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch (e) {
+    data = { body: event.data ? event.data.text() : '' };
+  }
+
+  event.waitUntil(self.registration.showNotification(data.title || 'همّة', {
+    body: data.body || '',
+    icon: '/icons/icon-192.png',
+    badge: '/icons/badge-96.png',
+    dir: 'auto',
+    tag: data.tag || undefined,
+    renotify: Boolean(data.tag),
+    data: { url: data.url || '/' },
+  }));
+});
+
+// Tapping a notification opens its page, in the app window if one is open.
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const target = new URL((event.notification.data && event.notification.data.url) || '/', self.location.origin);
+  if (target.origin !== self.location.origin) return;
+
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windows) => {
+      const same = windows.find((w) => w.url === target.href);
+      if (same) return same.focus();
+      const any = windows.find((w) => new URL(w.url).origin === target.origin && 'navigate' in w);
+      if (any) {
+        return any.navigate(target.href).then((w) => (w || any).focus())
+          .catch(() => self.clients.openWindow(target.href));
+      }
+      return self.clients.openWindow(target.href);
+    })
+  );
 });

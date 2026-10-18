@@ -11,6 +11,10 @@
   </div>
 </div>
 
+@if($running->isNotEmpty())
+  @include('partials.push-prompt')
+@endif
+
 {{-- Running subscriptions --}}
 @forelse($running as $sub)
   <section class="panel">
@@ -83,11 +87,12 @@
           @else{{ __('Next: :date', ['date' => $ci['opens']->translatedFormat('j M')]) }}@endif
         </small>
       </a>
-      @if($sub->coach->whatsapp_url)
-        <a href="{{ $sub->coach->whatsapp_url }}" target="_blank" rel="noopener" class="tile tile-wa">
-          <i class="fab fa-whatsapp"></i><b>{{ __('WhatsApp') }}</b><small>{{ __('Talk to your coach') }}</small>
-        </a>
-      @endif
+      @php($chat = $chats[$sub->coach_id] ?? null)
+      <a href="{{ $chat ? route('chat.show', $chat) : route('chat.with', $sub->coach_id) }}" class="tile tile-chat">
+        <i class="fas fa-comments"></i><b>{{ __('Chat') }}</b>
+        <small>{{ $chat?->unread_count ? trans_choice('{1} 1 new message|[2,*] :count new messages', $chat->unread_count) : __('Talk to your coach') }}</small>
+        @if($chat?->unread_count)<b class="count-pill">{{ $chat->unread_count }}</b>@endif
+      </a>
     </div>
 
     @if($sub->review)
@@ -164,8 +169,9 @@
           <input type="text" name="name" value="{{ old('name', $user->name) }}" required>
         </div>
         <div class="form-group">
-          <label>{{ __('WhatsApp number') }}</label>
-          <input type="tel" name="phone" value="{{ old('phone', $user->phone) }}" placeholder="09xxxxxxxx">
+          <label>{{ __('Phone number') }}</label>
+          <input type="tel" name="phone" value="{{ old('phone', $user->phone) }}" placeholder="09xxxxxxxx" dir="ltr">
+          <p class="form-hint">{{ __('Only the Himma team sees it, for support. Your coach doesn\'t.') }}</p>
         </div>
       </div>
       <div class="form-row">

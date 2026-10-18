@@ -4,6 +4,7 @@
 
 @section('content')
 @php use App\Support\Money; @endphp
+@include('partials.push-prompt')
 <div class="stats-grid">
   <a class="stat-card" href="{{ route('admin.subscriptions.index', ['tab' => 'review']) }}" style="text-decoration:none;color:inherit">
     <div class="stat-icon"><i class="fas fa-receipt"></i></div>

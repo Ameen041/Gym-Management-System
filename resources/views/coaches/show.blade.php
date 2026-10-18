@@ -107,7 +107,7 @@
         <li>{{ __('Choose a package and answer a few questions about your goal.') }}</li>
         <li>{{ __('Pay with Sham Cash and upload the receipt.') }}</li>
         <li>{{ __('After we confirm the payment, your coach sends your plan within :days days.', ['days' => \App\Models\Subscription::PLAN_DUE_DAYS]) }}</li>
-        <li>{{ __('Follow up with your coach directly on WhatsApp.') }}</li>
+        <li>{{ __('Talk to your coach in the Himma chat. Your number stays private.') }}</li>
       </ol>
     </section>
   </div>

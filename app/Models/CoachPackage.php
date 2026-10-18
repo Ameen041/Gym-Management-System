@@ -28,7 +28,7 @@ class CoachPackage extends Model
         $parts = [];
         if ($this->includes_workout)   $parts[] = __('Workout plan');
         if ($this->includes_nutrition) $parts[] = __('Nutrition plan');
-        $parts[] = __('WhatsApp follow-up');
+        $parts[] = __('Chat follow-up');
 
         return implode(' + ', $parts);
     }

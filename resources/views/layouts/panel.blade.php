@@ -6,6 +6,7 @@
   <title>@yield('title') | {{ __('Himma') }}</title>
   @include('partials.theme-init')
   @include('partials.head')
+  @include('partials.push-meta')
   <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
   <link rel="stylesheet" href="{{ \App\Support\Asset::url('css/app.css') }}">
   <link rel="stylesheet" href="{{ \App\Support\Asset::url('css/notifications.css') }}">
@@ -38,6 +39,8 @@
       ],
   };
   $isActive = fn ($route, $pattern) => request()->routeIs($route) || request()->routeIs($pattern);
+  // coach and client talk in the app; the bell in the top bar holds the notifications
+  $chatUnread = in_array($role, ['trainee', 'trainer'], true) ? \App\Models\Conversation::unreadCountFor($me) : null;
 @endphp
 <div class="app">
   <aside class="side">
@@ -49,6 +52,12 @@
       @foreach($links as [$route, $icon, $label, $pattern])
         <a href="{{ route($route) }}" class="side-link {{ $isActive($route, $pattern) ? 'active' : '' }}"><i class="fas {{ $icon }}"></i>{{ $label }}</a>
       @endforeach
+      @if($chatUnread !== null)
+        <a href="{{ route('chat.index') }}" class="side-link {{ request()->routeIs('chat.*') ? 'active' : '' }}">
+          <i class="fas fa-comments"></i>{{ __('Messages') }}
+          @if($chatUnread)<b class="side-count">{{ $chatUnread > 99 ? '99+' : $chatUnread }}</b>@endif
+        </a>
+      @endif
       @auth
         <a href="{{ route('notifications.index') }}" class="side-link {{ request()->routeIs('notifications.*') ? 'active' : '' }}"><i class="fas fa-bell"></i>{{ __('Notifications') }}</a>
       @endauth
@@ -114,7 +123,12 @@
     @foreach($links as [$route, $icon, $label, $pattern])
       <a href="{{ route($route) }}" class="tab {{ $isActive($route, $pattern) ? 'active' : '' }}"><i class="fas {{ $icon }}"></i>{{ $label }}</a>
     @endforeach
-    @auth
+    @if($chatUnread !== null)
+      <a href="{{ route('chat.index') }}" class="tab {{ request()->routeIs('chat.*') ? 'active' : '' }}">
+        <i class="fas fa-comments"></i>{{ __('Messages') }}
+        @if($chatUnread)<b class="tab-count">{{ $chatUnread > 99 ? '99+' : $chatUnread }}</b>@endif
+      </a>
+    @elseif(auth()->check())
       <a href="{{ route('notifications.index') }}" class="tab {{ request()->routeIs('notifications.*') ? 'active' : '' }}"><i class="fas fa-bell"></i>{{ __('Alerts') }}</a>
     @else
       <a href="{{ route('home') }}#login" class="tab"><i class="fas fa-right-to-bracket"></i>{{ __('Login') }}</a>
@@ -123,6 +137,7 @@
 </div>
 
 <script src="{{ \App\Support\Asset::url('js/app.js') }}" defer></script>
+@auth<script src="{{ \App\Support\Asset::url('js/push.js') }}" defer></script>@endauth
 @stack('scripts')
 </body>
 </html>

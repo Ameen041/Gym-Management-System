@@ -22,6 +22,9 @@ use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\SubscriptionFileController;
 use App\Http\Controllers\CheckInController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\PushSubscriptionController;
+use App\Http\Controllers\AdminChatController;
 use App\Http\Controllers\Coach\DashboardController as CoachDashboardController;
 use App\Http\Controllers\Coach\ProfileController as CoachProfileController;
 use App\Http\Controllers\Coach\PackageController as CoachPackageController;
@@ -102,11 +105,28 @@ Route::middleware(['auth', 'active', 'role:trainee'])->group(function () {
     Route::post('/subscriptions/{subscription}/check-in', [CheckInController::class, 'store'])->name('check-ins.store');
 });
 
+// Chat between a coach and their client (instead of WhatsApp)
+Route::middleware(['auth', 'active', 'role:trainer,trainee'])->group(function () {
+    Route::get('/messages', [ChatController::class, 'index'])->name('chat.index');
+    Route::get('/messages/with/{user}', [ChatController::class, 'with'])->whereNumber('user')->name('chat.with');
+    Route::get('/messages/{conversation}', [ChatController::class, 'show'])->whereNumber('conversation')->name('chat.show');
+    Route::post('/messages/{conversation}', [ChatController::class, 'store'])->whereNumber('conversation')
+        ->middleware('throttle:30,1')->name('chat.store');
+    Route::get('/messages/{conversation}/new', [ChatController::class, 'poll'])->whereNumber('conversation')
+        ->middleware('throttle:120,1')->name('chat.poll');
+    Route::post('/messages/{conversation}/report', [ChatController::class, 'report'])->whereNumber('conversation')
+        ->middleware('throttle:5,1')->name('chat.report');
+});
+
 // Exercise library (weight training exercises with video explanations)
 Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.readAll');
     Route::get('/notifications/{id}', [NotificationController::class, 'open'])->name('notifications.open');
+
+    // Phone notifications (Web Push) for this device
+    Route::post('/push-subscriptions', [PushSubscriptionController::class, 'store'])->middleware('throttle:20,1')->name('push.store');
+    Route::delete('/push-subscriptions', [PushSubscriptionController::class, 'destroy'])->name('push.destroy');
 
     // Private subscription files (payment receipt, body photos)
     Route::get('/subscriptions/{subscription}/files/{kind}/{index?}', [SubscriptionFileController::class, 'show'])
@@ -182,6 +202,11 @@ Route::middleware(['auth','active','role:admin'])
         Route::post('/system/backups', [AdminSystemController::class, 'backup'])->name('system.backup');
         Route::get('/system/backups/{name}', [AdminSystemController::class, 'download'])->name('system.download');
         Route::delete('/system/backups/{name}', [AdminSystemController::class, 'destroy'])->name('system.destroy');
+
+        // Chats: reported ones and messages stopped for holding contact details
+        Route::get('/chats', [AdminChatController::class, 'index'])->name('chats.index');
+        Route::get('/chats/{conversation}', [AdminChatController::class, 'show'])->name('chats.show');
+        Route::post('/chats/{conversation}/resolve', [AdminChatController::class, 'resolve'])->name('chats.resolve');
 
         Route::get('/messages', [AdminMessageController::class, 'index'])->name('messages.index');
         Route::post('/messages/{message}/read', [AdminMessageController::class, 'markRead'])->name('messages.read');

@@ -6,6 +6,7 @@
   <title>@yield('title', __('Admin')) | {{ __('Himma') }}</title>
   @include('partials.theme-init')
   @include('partials.head')
+  @include('partials.push-meta')
   <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
   <link rel="stylesheet" href="{{ \App\Support\Asset::url('css/app.css') }}">
   <link rel="stylesheet" href="{{ \App\Support\Asset::url('css/notifications.css') }}">
@@ -16,6 +17,7 @@
   $paymentsToReview = \App\Models\Subscription::where('status', 'payment_review')->count();
   $coachesPending   = \App\Models\CoachProfile::where('status', 'pending')->count();
   $unreadMessages   = \App\Models\ContactMessage::where('is_read', false)->count();
+  $openChatReports  = \App\Models\ChatReport::open()->count();
   $adminLinks = [
       ['admin.dashboard',           'admin.dashboard',       'fa-gauge-high',        __('Dashboard'),     0],
       ['admin.subscriptions.index', 'admin.subscriptions.*', 'fa-receipt',           __('Payments'),      $paymentsToReview],
@@ -25,6 +27,7 @@
       ['admin.exercises.index',     'admin.exercises.*',     'fa-dumbbell',          __('Exercises'),     0],
       ['admin.foods.index',         'admin.foods.*',         'fa-apple-whole',       __('Foods'),         0],
       ['admin.templates.index',     'admin.templates.*',     'fa-file-lines',        __('Templates'),     0],
+      ['admin.chats.index',         'admin.chats.*',         'fa-comments',          __('Chats'),         $openChatReports],
       ['admin.messages.index',      'admin.messages.*',      'fa-inbox',             __('Messages'),      $unreadMessages],
       ['admin.settings.edit',       'admin.settings.*',      'fa-gear',              __('Settings'),      0],
       ['admin.system.index',        'admin.system.*',        'fa-shield-halved',     __('System'),        0],
@@ -82,5 +85,6 @@
 
 <script src="{{ \App\Support\Asset::url('js/app.js') }}" defer></script>
 <script src="{{ \App\Support\Asset::url('js/admin.js') }}" defer></script>
+<script src="{{ \App\Support\Asset::url('js/push.js') }}" defer></script>
 </body>
 </html>

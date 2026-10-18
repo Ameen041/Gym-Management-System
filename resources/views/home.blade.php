@@ -9,7 +9,7 @@
     <div class="hero-copy">
       <span class="eyebrow">{{ __('Online coaching in Syria') }}</span>
       <h1>{{ __('Your personal coach, online.') }}</h1>
-      <p class="hero-sub">{{ __('A workout and nutrition plan made for you, a video for every exercise, and follow-up on WhatsApp.') }}</p>
+      <p class="hero-sub">{{ __('A workout and nutrition plan made for you, a video for every exercise, and a chat with your coach.') }}</p>
       <div class="hero-cta">
         <a href="{{ route('coaches.index') }}" class="btn btn-primary btn-lg"><i class="fas fa-magnifying-glass"></i> {{ __('Find your coach') }}</a>
         <a href="#for-coaches" class="btn btn-lg">{{ __('I am a coach') }}</a>
@@ -51,7 +51,7 @@
           ['fa-user-check', __('Choose your coach'), __('By specialty, city and price.')],
           ['fa-clipboard-list', __('Tell us about you'), __('Your goal, level and training days.')],
           ['fa-wallet', __('Pay with Sham Cash'), __('Upload the receipt, we confirm it.')],
-          ['fa-dumbbell', __('Get your plan'), __('Within :days days, with follow-up on WhatsApp.', ['days' => \App\Models\Subscription::PLAN_DUE_DAYS])],
+          ['fa-dumbbell', __('Get your plan'), __('Within :days days, with follow-up in the chat.', ['days' => \App\Models\Subscription::PLAN_DUE_DAYS])],
       ] as [$icon, $title, $text])
         <li class="step">
           <span class="step-icon"><i class="fas {{ $icon }}"></i></span>

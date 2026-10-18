@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\NutritionPlan;
+use App\Models\Conversation;
 use App\Models\Subscription;
 use App\Models\WorkoutPlan;
 use Illuminate\Http\Request;
@@ -50,8 +51,14 @@ class TraineeController extends Controller
         $currentCoaches = $subscriptions->filter(fn ($s) => in_array($s->status, ['awaiting_payment', 'payment_review', 'rejected'], true)
             || ($s->status === 'active' && $s->ends_at?->isFuture()))->pluck('coach_id')->unique();
 
+        // the chat with each coach, with unread messages
+        $chats = Conversation::where('trainee_id', $user->id)->whereIn('coach_id', $running->pluck('coach_id'))
+            ->withCount(['messages as unread_count' => fn ($q) => $q->where('sender_id', '!=', $user->id)->whereNull('read_at')])
+            ->get()->keyBy('coach_id');
+
         return view('trainee-dashboard', [
             'user'           => $user,
+            'chats'          => $chats,
             'running'        => $running,
             'checkIns'       => $checkIns,
             'extra'          => $extra,

@@ -34,14 +34,13 @@
           </div>
         </div>
       </div>
-      @if($trainee->whatsapp_url)
-        <a href="{{ $trainee->whatsapp_url }}" target="_blank" rel="noopener" class="btn btn-whatsapp btn-block" style="margin-top:14px">
-          <i class="fab fa-whatsapp"></i> {{ __('Message on WhatsApp') }} <span dir="ltr">({{ $trainee->phone }})</span>
-        </a>
-      @endif
+      <a href="{{ route('chat.with', $trainee) }}" class="btn btn-primary btn-block" style="margin-top:14px">
+        <i class="fas fa-comments"></i> {{ __('Chat') }}
+        @if($chatUnread)<b class="count-pill" style="background:var(--on-accent);color:var(--accent-text)">{{ $chatUnread }}</b>@endif
+      </a>
       @if($renewUrl)
-        <a href="{{ $renewUrl }}" target="_blank" rel="noopener" class="btn btn-block" style="margin-top:8px">
-          <i class="fas fa-rotate-right"></i> {{ __('Invite to renew on WhatsApp') }}
+        <a href="{{ $renewUrl }}" class="btn btn-block" style="margin-top:8px">
+          <i class="fas fa-rotate-right"></i> {{ __('Invite to renew') }}
         </a>
       @endif
     </section>
@@ -122,7 +121,7 @@
             {{ $lateDays === 0 ? __('Check-in due today') : trans_choice('{1} Check-in late by 1 day|[2,*] Check-in late by :count days', $lateDays) }}
           </span>
           @if($remindUrl)
-            <a href="{{ $remindUrl }}" target="_blank" rel="noopener" class="btn btn-sm btn-whatsapp"><i class="fab fa-whatsapp"></i> {{ __('Remind on WhatsApp') }}</a>
+            <a href="{{ $remindUrl }}" class="btn btn-sm"><i class="fas fa-comments"></i> {{ __('Remind in the chat') }}</a>
           @endif
         </div>
       @endif

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CoachProfile;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Rules\NoContactDetails;
 use App\Support\Notify;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -33,7 +34,7 @@ class ProfileController extends Controller
             'name'               => ['required', 'string', 'max:255'],
             'phone'              => ['required', 'string', 'max:30', 'regex:/^[0-9+\s-]{8,20}$/'],
             'photo'              => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
-            'bio'                => ['required', 'string', 'min:30', 'max:2000'],
+            'bio'                => ['required', 'string', 'min:30', 'max:2000', new NoContactDetails],
             'specialties'        => ['required', 'array', 'min:1'],
             'specialties.*'      => [Rule::in(array_keys(CoachProfile::SPECIALTIES))],
             'experience_years'   => ['nullable', 'integer', 'min:0', 'max:60'],

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Conversation;
 use App\Models\Setting;
 use App\Models\Subscription;
 use App\Support\Notify;
@@ -67,6 +68,9 @@ class AdminSubscriptionController extends Controller
             'ends_at'           => $startsAt->copy()->addDays($subscription->duration_days),
             'admin_note'        => null,
         ]);
+
+        // coach and client can talk from now on
+        Conversation::between($subscription->coach_id, $subscription->trainee_id);
 
         Notify::user($subscription->trainee, 'Your payment was confirmed. Your subscription with :coach is active.', [
             'coach' => $subscription->coach->name,

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Coach;
 
 use App\Http\Controllers\Controller;
+use App\Models\ChatMessage;
 use App\Models\CheckIn;
 use App\Models\Subscription;
 
@@ -41,6 +42,13 @@ class DashboardController extends Controller
             ]];
         });
 
+        // unread chat messages per client
+        $chatUnread = ChatMessage::whereNull('read_at')->where('sender_id', '!=', $coach->id)
+            ->join('conversations', 'conversations.id', '=', 'chat_messages.conversation_id')
+            ->where('conversations.coach_id', $coach->id)
+            ->selectRaw('conversations.trainee_id, count(*) as unread')->groupBy('conversations.trainee_id')
+            ->pluck('unread', 'trainee_id');
+
         $renewals = $clients->mapWithKeys(fn (Subscription $sub) => [$sub->id => [
             'renewed'  => $sub->renewal()?->status === 'active',
             'daysLeft' => $sub->daysLeft(),
@@ -48,6 +56,7 @@ class DashboardController extends Controller
 
         return view('coach.dashboard', [
             'checkIns'     => $checkIns,
+            'chatUnread'   => $chatUnread,
             'renewals'     => $renewals,
             'toAnswer'     => $checkIns->sum('unanswered'),
             'coach'        => $coach,

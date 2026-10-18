@@ -71,6 +71,9 @@ return [
 
     'timezone' => 'UTC',
 
+    // Times people read (chat messages) are shown in this time zone; the database stays in UTC.
+    'display_timezone' => env('APP_DISPLAY_TIMEZONE', 'Asia/Damascus'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration
