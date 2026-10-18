@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 use App\Models\Exercise;
 use App\Models\Review;
 use App\Models\User;
@@ -125,10 +126,19 @@ public function logout(Request $request)
             'height' => $isTrainee ? $request->height : null,
             'weight' => $isTrainee ? $request->weight : null,
         ]);
-        $user->forceFill(['terms_accepted_at' => now()])->save();
+        // signed up from a coach's invite link: the coach's own client
+        $invitedBy = $isTrainee ? InviteController::invitingCoach($request) : null;
+        $user->forceFill(['terms_accepted_at' => now(), 'invited_by' => $invitedBy?->id])->save();
 
         RateLimiter::hit($signupKey, 3600);
         Auth::login($user);
+
+        if ($invitedBy) {
+            Cookie::queue(Cookie::forget(InviteController::COOKIE));
+
+            return redirect()->route('coaches.show', $invitedBy)
+                ->with('success', __('Welcome to Himma! Choose a package from :coach to start.', ['coach' => $invitedBy->name]));
+        }
 
         return redirect()->route($isTrainee ? 'trainee.dashboard' : 'trainer.dashboard');
     }

@@ -101,6 +101,29 @@
   </section>
 
   <div class="stack">
+    <section class="panel invite-card" id="invite">
+      <div class="panel-head"><h2><i class="fas fa-link"></i> {{ __('Your invite link') }}</h2></div>
+      <p class="small">{{ __('Share it with your own clients. Whoever signs up from it is your client: Himma takes :rate% on their subscriptions with you instead of :normal%.', ['rate' => $invite['rate'] + 0, 'normal' => $invite['normal'] + 0]) }}</p>
+      @if($invite['url'])
+        <div class="copy-row">
+          <input type="text" id="invite-link" value="{{ $invite['url'] }}" readonly dir="ltr" aria-label="{{ __('Your invite link') }}">
+          <button type="button" class="btn btn-sm" data-copy="invite-link" data-copied="{{ __('Copied') }}"><i class="fas fa-copy"></i> <span>{{ __('Copy') }}</span></button>
+        </div>
+        @php($shareText = __('Train with me online on Himma: a plan made for you and follow-up in the app.') . ' ' . $invite['url'])
+        <div class="row-actions" style="margin-top:8px">
+          <a href="https://wa.me/?text={{ rawurlencode($shareText) }}" target="_blank" rel="noopener" class="btn btn-sm"><i class="fab fa-whatsapp"></i> {{ __('Share on WhatsApp') }}</a>
+          <button type="button" class="btn btn-sm" data-share data-share-text="{{ $shareText }}" hidden><i class="fas fa-share-nodes"></i> {{ __('Share') }}</button>
+        </div>
+        <div class="invite-stats">
+          <div><b>{{ $invite['visits'] }}</b><span>{{ __('Opened') }}</span></div>
+          <div><b>{{ $invite['signups'] }}</b><span>{{ __('Signed up') }}</span></div>
+          <div><b>{{ $invite['clients'] }}</b><span>{{ __('Subscribed') }}</span></div>
+        </div>
+      @else
+        <p class="muted small"><i class="fas fa-hourglass-half"></i> {{ __('Your link is ready once your profile is approved.') }}</p>
+      @endif
+    </section>
+
     <section class="panel">
       <div class="panel-head"><h2><i class="fas fa-wallet"></i> {{ __('Earnings') }}</h2></div>
       <div class="list-row"><span class="grow">{{ __('Total earned (after commission)') }}</span><strong>{{ Money::format($earnings['earned']) }}</strong></div>

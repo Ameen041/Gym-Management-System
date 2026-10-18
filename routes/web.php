@@ -18,6 +18,7 @@ use App\Http\Controllers\ExerciseController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\LegalController;
+use App\Http\Controllers\InviteController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\CoachDirectoryController;
 use App\Http\Controllers\SubscriptionController;
@@ -48,6 +49,9 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login.form
 Route::get('/coaches', [CoachDirectoryController::class, 'index'])->name('coaches.index');
 Route::get('/coaches/{coach}', [CoachDirectoryController::class, 'show'])->whereNumber('coach')->name('coaches.show');
 Route::redirect('/trainers', '/coaches', 301)->name('trainers');
+
+// Coach invite link: remembers the coach, then shows their profile
+Route::get('/c/{code}', [InviteController::class, 'visit'])->where('code', '[A-Za-z0-9]{4,16}')->name('invite');
 
 // Terms and privacy policy
 Route::get('/terms', [LegalController::class, 'terms'])->name('terms');

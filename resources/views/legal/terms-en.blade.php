@@ -69,6 +69,7 @@
   <li>Respect the client's health answers, send them to a doctor when needed, and never give a medical diagnosis, medicine or steroids.</li>
   <li>Never ask for or accept payment outside Himma, and never share outside contact details.</li>
   <li>Each subscription's earnings are ready once the plan is sent and the hold period has passed, and are paid to the Sham Cash account the coach added.</li>
+  <li>Every coach has an invite link. People who sign up to Himma from it are the coach's own clients, and Himma's commission on their subscriptions with that coach is lower (the rate is in the coach's dashboard). It does not count for people who already had a Himma account.</li>
   <li>The admin can hide a coach's profile or suspend the account if these terms are broken.</li>
 </ul>
 

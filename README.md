@@ -287,6 +287,12 @@ accepting them (the time is kept on the account). Before paying, the client answ
 alert on the client page, the dashboard and a notification. Every plan ends with a short health notice.
 Have a lawyer read the texts before launch, and change `LegalController::UPDATED` when they change.
 
+Coach invite links: every approved coach has a link (`/c/xxxxxxxx`) on their dashboard, with copy and share
+buttons and how many people opened it, signed up and paid. The browser remembers the coach for 60 days;
+whoever signs up from it is the coach's own client, and Himma takes the lower "own clients" commission
+(default 5%, Admin → Settings) on all their subscriptions with that coach. People who already had an account
+don't count. Admin → Payments marks these subscriptions.
+
 Payments: the Sham Cash transaction number is required and can pay for one subscription only (stored in one
 spelling: Western digits, capitals, no spaces or dashes; a unique index backs it). Trying a used number tells
 the admins.

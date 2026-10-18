@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Coach;
 use App\Http\Controllers\Controller;
 use App\Models\ChatMessage;
 use App\Models\CheckIn;
+use App\Models\Setting;
 use App\Models\Subscription;
+use App\Models\User;
 
 class DashboardController extends Controller
 {
@@ -54,7 +56,19 @@ class DashboardController extends Controller
             'daysLeft' => $sub->daysLeft(),
         ]]);
 
+        // the coach's invite link and what it brought
+        $invite = [
+            'url'     => $profile->isApproved() ? $profile->inviteUrl() : null,
+            'visits'  => (int) $profile->invite_visits,
+            'signups' => User::where('invited_by', $coach->id)->count(),
+            'clients' => Subscription::where('coach_id', $coach->id)->where('source', Subscription::SOURCE_COACH_LINK)
+                ->confirmed()->distinct()->count('trainee_id'),
+            'rate'    => Setting::inviteCommissionRate(),
+            'normal'  => Setting::commissionRate(),
+        ];
+
         return view('coach.dashboard', [
+            'invite'       => $invite,
             'checkIns'     => $checkIns,
             'chatUnread'   => $chatUnread,
             'renewals'     => $renewals,

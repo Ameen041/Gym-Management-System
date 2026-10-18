@@ -1053,5 +1053,20 @@
     "Your profile and packages disappear from Himma.": "يختفي ملفك وباقاتك من همّة.",
     "Your reviews stay, without your name.": "تبقى تقييماتك، دون اسمك.",
     "{1} You have an active client. You can delete your account after the subscription ends.|[2,*] You have :count active clients. You can delete your account after their subscriptions end.": "{1} لديك متدرب فعّال. يمكنك حذف حسابك بعد انتهاء اشتراكه.|{2} لديك متدربان فعّالان. يمكنك حذف حسابك بعد انتهاء اشتراكاتهم.|[3,10] لديك :count متدربين فعّالين. يمكنك حذف حسابك بعد انتهاء اشتراكاتهم.|[11,*] لديك :count متدرباً فعّالاً. يمكنك حذف حسابك بعد انتهاء اشتراكاتهم.",
-    "Deleted :date": "محذوف :date"
+    "Deleted :date": "محذوف :date",
+    "Bring your own clients with your invite link: Himma takes only :rate% on them.": "أحضر متدربيك برابط الدعوة الخاص بك: عمولة همّة عليهم :rate% فقط.",
+    "Coach's client": "متدرب المدرب",
+    "Commission on a coach's own clients (%)": "العمولة على متدربي المدرب الخاصين (%)",
+    "For clients who signed up from the coach's invite link, on all their subscriptions with that coach. Lower, so coaches bring their clients to Himma.": "للمتدربين الذين سجّلوا من رابط دعوة المدرب، على كل اشتراكاتهم مع هذا المدرب. نسبة أقل تشجّع المدربين على إحضار متدربيهم إلى همّة.",
+    "Opened": "فتحوا الرابط",
+    "Share": "مشاركة",
+    "Share it with your own clients. Whoever signs up from it is your client: Himma takes :rate% on their subscriptions with you instead of :normal%.": "شاركه مع متدربيك. كل من يسجّل منه يُعدّ متدربك الخاص، وتكون عمولة همّة على اشتراكاته معك :rate% بدلاً من :normal%.",
+    "Share on WhatsApp": "مشاركة على واتساب",
+    "Signed up": "سجّلوا",
+    "Signed up from the coach's invite link": "سجّل من رابط دعوة المدرب",
+    "Subscribed": "اشتركوا",
+    "Train with me online on Himma: a plan made for you and follow-up in the app.": "تدرّب معي أونلاين على همّة: خطة مصممة لك ومتابعة داخل التطبيق.",
+    "Welcome to Himma! Choose a package from :coach to start.": "أهلاً بك في همّة! اختر باقة من :coach لتبدأ.",
+    "Your invite link": "رابط الدعوة الخاص بك",
+    "Your link is ready once your profile is approved.": "يصبح رابطك جاهزاً بعد الموافقة على ملفك."
 }

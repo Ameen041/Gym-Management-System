@@ -53,8 +53,30 @@ class Subscription extends Model
         'trainee_id', 'coach_id', 'package_id', 'package_title', 'includes_workout', 'includes_nutrition',
         'duration_days', 'price', 'commission_rate', 'commission_amount', 'coach_amount', 'status',
         'intake', 'body_photos', 'payment_method', 'payment_reference', 'payment_proof', 'admin_note',
-        'payment_submitted_at', 'confirmed_at', 'confirmed_by', 'starts_at', 'ends_at',
+        'payment_submitted_at', 'confirmed_at', 'confirmed_by', 'starts_at', 'ends_at', 'source',
     ];
+
+    // Where the client came from: found the coach on Himma, or signed up from the coach's invite link
+    public const SOURCE_HIMMA = 'himma';
+    public const SOURCE_COACH_LINK = 'coach_link';
+
+    protected static function booted(): void
+    {
+        // a client who signed up from this coach's link is the coach's own client, renewals included
+        static::creating(function (self $subscription) {
+            if (!$subscription->source || $subscription->source === self::SOURCE_HIMMA) {
+                $invitedBy = User::whereKey($subscription->trainee_id)->value('invited_by');
+                $subscription->source = $invitedBy && (int) $invitedBy === (int) $subscription->coach_id
+                    ? self::SOURCE_COACH_LINK : self::SOURCE_HIMMA;
+            }
+        });
+    }
+
+    /** Himma's commission for this subscription, in %: lower on the coach's own clients. */
+    public function commissionRateNow(): float
+    {
+        return $this->source === self::SOURCE_COACH_LINK ? Setting::inviteCommissionRate() : Setting::commissionRate();
+    }
 
     protected $casts = [
         'intake'               => 'array',

@@ -46,7 +46,7 @@ class AdminSubscriptionController extends Controller
     {
         abort_unless($subscription->status === 'payment_review', 403);
 
-        $rate = Setting::commissionRate();
+        $rate = $subscription->commissionRateNow();
         $commission = round($subscription->price * $rate / 100, 2);
 
         // Renewal: start right after the current subscription with the same coach ends

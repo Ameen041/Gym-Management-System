@@ -94,3 +94,15 @@
   box.addEventListener("change", sync);
   sync();
 })();
+
+/* Share buttons: [data-share] opens the phone's share sheet, where there is one. */
+(function () {
+  "use strict";
+  if (!navigator.share) return;
+  document.querySelectorAll("[data-share]").forEach(function (btn) {
+    btn.hidden = false;
+    btn.addEventListener("click", function () {
+      navigator.share({ text: btn.getAttribute("data-share-text") }).catch(function () {});
+    });
+  });
+})();

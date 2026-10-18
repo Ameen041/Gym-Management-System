@@ -53,6 +53,9 @@
                 @if($sub->commission_amount !== null)
                   <div style="color:var(--gray-700);font-size:.8rem">{{ __('Commission') }}: {{ Money::format($sub->commission_amount) }}</div>
                 @endif
+                @if($sub->source === \App\Models\Subscription::SOURCE_COACH_LINK)
+                  <span class="badge badge-secondary" title="{{ __('Signed up from the coach\'s invite link') }}"><i class="fas fa-link"></i> {{ __('Coach\'s client') }}</span>
+                @endif
               </td>
               <td>
                 @if($sub->payment_proof)
