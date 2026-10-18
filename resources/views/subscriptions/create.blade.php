@@ -79,9 +79,9 @@
     </div>
 
     <div class="form-group">
-      <label>{{ __('WhatsApp number') }}</label>
-      <input type="tel" name="phone" value="{{ old('phone', $user->phone) }}" placeholder="09xxxxxxxx" required>
-      <div class="form-hint">{{ __('Your coach will contact you on this number after the payment is confirmed.') }}</div>
+      <label>{{ __('Phone number') }}</label>
+      <input type="tel" name="phone" value="{{ old('phone', $user->phone) }}" placeholder="09xxxxxxxx" dir="ltr" required>
+      <div class="form-hint">{{ __('Only the Himma team sees it, for support. You talk to your coach in the Himma chat.') }}</div>
     </div>
 
     <div class="form-group">

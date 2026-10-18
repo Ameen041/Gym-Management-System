@@ -8,17 +8,17 @@ Himma (همّة) is an online coaching marketplace for Syria, built with Laravel
 Coaches publish their profile and packages, trainees choose a coach and pay with
 **Sham Cash**, and the platform keeps a commission. Coaches build workout and
 nutrition plans from a ready exercise library with videos, and follow up with
-their clients on WhatsApp.
+their clients in the built-in chat (phone numbers stay private).
 
 ---
 
 ### 🛒 How the marketplace works
-1. A coach signs up, completes the profile (photo, bio, specialties, city, WhatsApp, certificates) and adds packages with their own prices.
+1. A coach signs up, completes the profile (photo, bio, specialties, city, phone for the admin, certificates) and adds packages with their own prices.
 2. The admin reviews the profile and certificates, then approves it; the coach appears on `/coaches`.
 3. A trainee filters coaches (specialty, city, gender, price), picks a package and answers the intake questions.
 4. The trainee transfers the amount with Sham Cash and uploads the receipt.
 5. The admin checks the transfer and confirms it: the subscription starts (30/60/90 days) and the commission is calculated (default 15%, set in Admin → Settings).
-6. The coach sees the new client, builds the plan (exercises picked from the library get a video link) and both sides get a WhatsApp button.
+6. The coach sees the new client, builds the plan (exercises picked from the library get a video link) and both sides talk in the chat.
 7. The trainee reviews the coach; the admin records payouts to coaches from Admin → Coach payouts.
 
 **Coach payouts:** all payments arrive in the platform's Sham Cash account. A client's money becomes *ready to pay*
@@ -28,6 +28,7 @@ Sham Cash, then record it in Admin → Coach payouts (the coach gets a notificat
 
 **Notifications:** a bell in every dashboard shows what happened: new payment receipts and coaches waiting for review
 (admin), new clients, reviews and payouts (coach), confirmed / rejected payments, new plans and renewal reminders (trainee).
+Each user can also turn on **phone notifications**: every notification and every chat message then reaches the phone.
 
 ---
 
@@ -44,7 +45,8 @@ Sham Cash, then record it in Admin → Coach payouts (the coach gets a notificat
 - Dashboard: active clients, plans due, check-ins to answer, renewals, earnings
 - Public profile and packages with their own prices; private Sham Cash account for payouts
 - Weekly workout and nutrition plans (Saturday → Friday) from the exercise and food libraries or admin templates
-- Weekly check-ins with a weight chart; reply to each one, remind late clients on WhatsApp
+- Weekly check-ins with a weight chart; reply to each one, remind late clients in the chat
+- Chat with each client: unread badges, "seen" ticks, ready messages for renewal and check-in reminders
 - Renewals: send the last plan again in one tap
 
 ---
@@ -54,6 +56,7 @@ Sham Cash, then record it in Admin → Coach payouts (the coach gets a notificat
 - Workout and nutrition plans with exercise videos, today's day first, printable
 - Weekly check-in: weight, waist, training days, diet, energy, sleep, notes and private photos
 - One-tap renewal; the plan carries over until the coach sends the new one
+- Chat with the coach, open while the subscription runs and a week after; report a problem in one tap
 
 ---
 
@@ -106,6 +109,8 @@ Sham Cash, then record it in Admin → Coach payouts (the coach gets a notificat
 - The system can be installed on Android, iPhone and desktop like a normal app ("Install App" button)
 - Web app manifest, app icons and a service worker (`public/sw.js`) with an offline page
 - Requires HTTPS in production (installation is disabled on plain HTTP)
+- Phone notifications (Web Push) on Android and computers, and on iPhone once the app is added to the Home Screen (iOS 16.4+).
+  No outside service: the site makes its own key on first use (kept in the settings table, so it moves with backups)
 
 ---
 
@@ -265,6 +270,14 @@ with a copy button. Changing an account needs the coach's password, the admins a
 account is flagged for a week so it can be confirmed before money is sent. Each payout keeps the
 account it was sent to.
 
+Chat instead of WhatsApp: coach and client talk in the app and never see each other's number (only
+the admin does, for support). Messages with a phone or account number (also in Arabic digits or written
+in words), a link, an email, a username, or the name of another app or payment service are not sent;
+each try is kept, and the admin is told when someone tries 3 times in 30 days (Admin → Chats).
+Profiles, packages, check-ins and reviews are checked the same way. Chats are private: the admin can
+read one only after the coach or the client reports it. The filter stops the easy ways around the
+platform, not every possible one, so the terms should also forbid it.
+
 Password resets: if email is not set up, Admin → Users → **Reset link** makes a one-time link
 (valid 60 minutes) to send to the user on WhatsApp.
 
@@ -294,7 +307,7 @@ This structure allows flexible weekly scheduling and clean UI rendering.
 ## 🔄 Future Improvements
 
 - Online card payments once they work reliably in Syria
-- Native push notifications (store apps)
+- Photos in the chat (they could carry a number, so they need a check first)
 - Coach templates of their own, saved from a client's plan
 
 ---

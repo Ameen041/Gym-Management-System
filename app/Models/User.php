@@ -27,7 +27,7 @@ class User extends Authenticatable
         'weight',
         'profile_photo',
         'phone',
-
+        'locale',
     ];
 
     /**
@@ -74,6 +74,11 @@ class User extends Authenticatable
     public function payouts()
     {
         return $this->hasMany(CoachPayout::class, 'coach_id');
+    }
+
+    public function pushSubscriptions()
+    {
+        return $this->hasMany(PushSubscription::class);
     }
 
     /** Coach profile, created empty on first use. */

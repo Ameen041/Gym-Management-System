@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             FoodsSeeder::class,
             MarketplaceDemoSeeder::class,
             CheckInDemoSeeder::class,
+            ChatDemoSeeder::class,
         ]);
     }
 

@@ -10,10 +10,6 @@
 
 /* menu: always visible on desktop, slides in on small screens */
 .admin-menu{display:none}
-.side-count{
-  min-width:22px;height:22px;padding:0 7px;border-radius:999px;display:grid;place-items:center;
-  background:var(--danger);color:#fff;font-size:.72rem;font-weight:800;
-}
 .side-backdrop{display:none}
 @media (max-width:1023px){
   .admin .side{display:flex;transform:translateX(-105%);transition:transform .25s var(--ease);box-shadow:var(--shadow-lg)}
@@ -97,3 +93,7 @@ a.stat-card:hover{border-color:var(--accent);transform:translateY(-2px)}
 .payout-account{min-width:220px}
 .payout-account .copy-row{margin-top:4px;gap:6px}
 .content .payout-account input{flex:1 1 120px;min-width:0;min-height:34px;padding:4px 8px;font-size:.82rem}
+
+/* reported chat */
+.admin-msg{padding:10px 12px;border-radius:12px;background:var(--surface-2);margin-bottom:8px;max-width:640px}
+.admin-msg.from-coach{background:var(--accent-soft);margin-inline-start:auto}

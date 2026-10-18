@@ -18,6 +18,12 @@ class SetLocale
         if (in_array($locale, self::LOCALES, true)) {
             App::setLocale($locale);
             Carbon::setLocale($locale);
+
+            // remembered on the account, for notifications sent to the phone
+            $user = $request->user();
+            if ($user && $user->locale !== $locale) {
+                $user->forceFill(['locale' => $locale])->saveQuietly();
+            }
         }
 
         return $next($request);

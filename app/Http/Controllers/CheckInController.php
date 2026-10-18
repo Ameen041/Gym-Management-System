@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CheckIn;
 use App\Models\Subscription;
+use App\Rules\NoContactDetails;
 use App\Support\Notify;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -46,7 +47,7 @@ class CheckInController extends Controller
             'diet_adherence' => ['nullable', 'integer', 'min:1', 'max:5'],
             'energy'         => ['nullable', 'integer', 'min:1', 'max:5'],
             'sleep'          => ['nullable', 'integer', 'min:1', 'max:5'],
-            'note'           => ['nullable', 'string', 'max:2000'],
+            'note'           => ['nullable', 'string', 'max:2000', new NoContactDetails],
             'photos'         => ['nullable', 'array', 'max:3'],
             'photos.*'       => ['image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ]);
@@ -83,7 +84,7 @@ class CheckInController extends Controller
     {
         abort_unless((int) $checkIn->coach_id === (int) auth()->id(), 404);
 
-        $data = $request->validate(['coach_reply' => ['required', 'string', 'max:2000']]);
+        $data = $request->validate(['coach_reply' => ['required', 'string', 'max:2000', new NoContactDetails]]);
         $firstReply = $checkIn->replied_at === null;
 
         $checkIn->update(['coach_reply' => $data['coach_reply'], 'replied_at' => now()]);

@@ -31,5 +31,5 @@
 </div>
 <div class="form-group">
   <label>{{ __('Description (optional)') }}</label>
-  <textarea name="description" rows="2" placeholder="{{ __('e.g. Weekly plan updates and follow-up on WhatsApp') }}">{{ $package->description ?? '' }}</textarea>
+  <textarea name="description" rows="2" placeholder="{{ __('e.g. Weekly plan updates and follow-up in the chat') }}">{{ $package->description ?? '' }}</textarea>
 </div>

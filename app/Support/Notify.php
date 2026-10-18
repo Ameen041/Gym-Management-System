@@ -13,12 +13,13 @@ use App\Notifications\AppNotification;
  *
  * $tag avoids duplicates: with $once = false nothing is sent while an unread
  * notification with the same tag exists; with $once = true it is sent only once ever.
+ * Every notification also goes to the user's phone when they turned phone notifications on ($push).
  * A failure never breaks the action that triggered the notification.
  */
 class Notify
 {
     public static function user(?User $user, string $message, array $params = [], ?string $url = null,
-                                string $icon = 'fa-bell', ?string $tag = null, bool $once = false): void
+                                string $icon = 'fa-bell', ?string $tag = null, bool $once = false, bool $push = true): void
     {
         if (!$user) {
             return;
@@ -33,6 +34,10 @@ class Notify
             }
 
             $user->notify(new AppNotification($message, $params, $url, $icon, $tag));
+            if ($push) {
+                $locale = $user->locale ?? config('app.locale');
+                WebPush::send($user, __('Himma', [], $locale), __($message, $params, $locale), $url, $tag);
+            }
         } catch (\Throwable $e) {
             report($e);
         }

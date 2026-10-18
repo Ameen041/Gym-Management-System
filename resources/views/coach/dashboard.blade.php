@@ -11,6 +11,8 @@
   </div>
 </div>
 
+@include('partials.push-prompt')
+
 {{-- Profile status --}}
 @if($profile->status === 'rejected')
   <div class="alert alert-error">
@@ -75,6 +77,9 @@
             <span class="badge badge-ok"><i class="fas fa-rotate-right"></i> {{ __('Renewed') }}</span>
           @elseif($renewals[$sub->id]['daysLeft'] <= 7)
             <span class="badge badge-warn"><i class="fas fa-hourglass-end"></i> {{ $renewals[$sub->id]['daysLeft'] === 0 ? __('Ends today') : trans_choice('{1} Ends tomorrow|[2,*] Ends in :count days', $renewals[$sub->id]['daysLeft']) }}</span>
+          @endif
+          @if($chatUnread[$sub->trainee_id] ?? 0)
+            <a href="{{ route('chat.with', $sub->trainee_id) }}" class="badge"><i class="fas fa-comments"></i> {{ trans_choice('{1} 1 new message|[2,*] :count new messages', $chatUnread[$sub->trainee_id]) }}</a>
           @endif
           @if($checkIns[$sub->id]['unanswered'])
             <span class="badge badge-warn"><i class="fas fa-clipboard-check"></i> {{ __('New check-in') }}</span>

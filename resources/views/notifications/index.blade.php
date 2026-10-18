@@ -13,6 +13,7 @@
       </form>
     @endif
   </div>
+  @include('partials.push-prompt')
 
   <div class="notif-list">
     @forelse($notifications as $note)

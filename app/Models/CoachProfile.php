@@ -83,7 +83,7 @@ class CoachProfile extends Model
         if (!$user->profile_photo)                        $missing[] = __('Profile photo');
         if (blank($this->bio))                            $missing[] = __('Bio');
         if (empty($this->specialties))                    $missing[] = __('Specialties');
-        if (blank($user->phone))                          $missing[] = __('WhatsApp number');
+        if (blank($user->phone))                          $missing[] = __('Phone number');
         if (!$user->packages()->where('is_active', true)->exists()) $missing[] = __('At least one package');
 
         return $missing;

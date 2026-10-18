@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Coach;
 
 use App\Http\Controllers\Controller;
 use App\Models\CoachPackage;
+use App\Rules\NoContactDetails;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -46,8 +47,8 @@ class PackageController extends Controller
     private function validated(Request $request): array
     {
         $data = $request->validate([
-            'title'              => ['required', 'string', 'max:120'],
-            'description'        => ['nullable', 'string', 'max:1000'],
+            'title'              => ['required', 'string', 'max:120', new NoContactDetails],
+            'description'        => ['nullable', 'string', 'max:1000', new NoContactDetails],
             'includes_workout'   => ['nullable', 'boolean'],
             'includes_nutrition' => ['nullable', 'boolean'],
             'price'              => ['required', 'numeric', 'min:5', 'max:1000'],

@@ -27,7 +27,7 @@ class MarketplaceDemoSeeder extends Seeder
                 'packages' => [
                     ['title' => 'Workout plan', 'includes_workout' => true, 'includes_nutrition' => false, 'price' => 25],
                     ['title' => 'Full coaching', 'includes_workout' => true, 'includes_nutrition' => true, 'price' => 40,
-                     'description' => 'Workout + nutrition plan, weekly updates and WhatsApp follow-up.'],
+                     'description' => 'Workout + nutrition plan, weekly updates and follow-up in the chat.'],
                 ],
             ],
             [

@@ -7,6 +7,7 @@ use App\Models\Review;
 use App\Models\Setting;
 use App\Models\Subscription;
 use App\Models\User;
+use App\Rules\NoContactDetails;
 use App\Support\Money;
 use App\Support\Notify;
 use Illuminate\Http\Request;
@@ -65,11 +66,11 @@ class SubscriptionController extends Controller
 
         $data = $request->validate([
             'goal'          => ['required', Rule::in(array_keys(self::GOALS))],
-            'goal_details'  => ['nullable', 'string', 'max:1000'],
+            'goal_details'  => ['nullable', 'string', 'max:1000', new NoContactDetails],
             'level'         => ['required', Rule::in(array_keys(self::LEVELS))],
             'days_per_week' => ['required', 'integer', 'min:1', 'max:7'],
-            'gym'           => ['nullable', 'string', 'max:255'],
-            'health_notes'  => ['nullable', 'string', 'max:1000'],
+            'gym'           => ['nullable', 'string', 'max:255', new NoContactDetails],
+            'health_notes'  => ['nullable', 'string', 'max:1000', new NoContactDetails],
             'age'           => ['required', 'integer', 'min:10', 'max:100'],
             'height'        => ['required', 'numeric', 'min:100', 'max:250'],
             'weight'        => ['required', 'numeric', 'min:30', 'max:300'],
@@ -226,7 +227,7 @@ class SubscriptionController extends Controller
 
         $data = $request->validate([
             'rating'  => ['required', 'integer', 'min:1', 'max:5'],
-            'comment' => ['nullable', 'string', 'max:1000'],
+            'comment' => ['nullable', 'string', 'max:1000', new NoContactDetails],
         ]);
 
         Review::create($data + [
