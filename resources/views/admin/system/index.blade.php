@@ -55,7 +55,7 @@
   <details class="fold sys-restore">
     <summary>{{ __('How to restore a backup') }}</summary>
     <p class="muted small">{{ __('Restoring replaces all current data, so it is done from the server console. The current data is backed up first.') }}</p>
-    <pre dir="ltr">php artisan app:restore ameen-gym-YYYY-MM-DD-HHMMSS.json.gz</pre>
+    <pre dir="ltr">php artisan app:restore himma-YYYY-MM-DD-HHMMSS.json.gz</pre>
   </details>
 </section>
 @endsection

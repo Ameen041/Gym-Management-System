@@ -1,10 +1,10 @@
-# Ameen Gym – Gym Management System (Laravel)
+# همّة · Himma – online coaching marketplace (Laravel)
 
 [![Tests](https://github.com/Ameen041/Gym-Management-System/actions/workflows/tests.yml/badge.svg)](https://github.com/Ameen041/Gym-Management-System/actions/workflows/tests.yml)
 
 ## 🏋️ Project Overview
 
-Ameen Gym is an online coaching marketplace for Syria, built with Laravel.
+Himma (همّة) is an online coaching marketplace for Syria, built with Laravel.
 Coaches publish their profile and packages, trainees choose a coach and pay with
 **Sham Cash**, and the platform keeps a commission. Coaches build workout and
 nutrition plans from a ready exercise library with videos, and follow up with

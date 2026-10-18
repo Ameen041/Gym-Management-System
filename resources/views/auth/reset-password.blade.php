@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', __('Choose a new password') . ' | ' . __('Ameen Gym'))
+@section('title', __('Choose a new password') . ' | ' . __('Himma'))
 
 @section('content')
 <section class="auth-page">

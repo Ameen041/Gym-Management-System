@@ -2,7 +2,7 @@
 
 /*
  * More exercises for the library (names chosen from the open free-exercise-db list).
- * Descriptions, steps and tips were written for Ameen Gym in English and Arabic;
+ * Descriptions, steps and tips were written for Himma in English and Arabic;
  * no text or images were copied from the source.
  * Videos are added by the admin (Admin -> Exercises).
  */

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>@yield('title', __('Admin')) | {{ __('Ameen Gym') }}</title>
+  <title>@yield('title', __('Admin')) | {{ __('Himma') }}</title>
   @include('partials.theme-init')
   @include('partials.head')
   <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
@@ -33,8 +33,8 @@
 <div class="app">
   <aside class="side" id="admin-side">
     <a href="{{ route('admin.dashboard') }}" class="brand">
-      <span class="brand-mark"><i class="fas fa-dumbbell"></i></span>
-      <span class="brand-name">{{ __('Ameen Gym') }}<small>{{ __('Admin Panel') }}</small></span>
+      <span class="brand-mark">@include('partials.logo-mark')</span>
+      <span class="brand-name">{{ __('Himma') }}<small>{{ __('Admin Panel') }}</small></span>
     </a>
     <nav class="side-nav">
       @foreach($adminLinks as [$route, $pattern, $icon, $label, $badge])

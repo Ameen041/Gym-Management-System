@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>@yield('title') | {{ __('Ameen Gym') }}</title>
+  <title>@yield('title') | {{ __('Himma') }}</title>
   @include('partials.theme-init')
   @include('partials.head')
   <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
@@ -42,8 +42,8 @@
 <div class="app">
   <aside class="side">
     <a href="{{ route('home') }}" class="brand">
-      <span class="brand-mark"><i class="fas fa-dumbbell"></i></span>
-      <span class="brand-name">{{ __('Ameen Gym') }}<small>{{ $role === 'trainer' ? __('Coach area') : ($role === 'trainee' ? __('Trainee area') : __('Online coaching')) }}</small></span>
+      <span class="brand-mark">@include('partials.logo-mark')</span>
+      <span class="brand-name">{{ __('Himma') }}<small>{{ $role === 'trainer' ? __('Coach area') : ($role === 'trainee' ? __('Trainee area') : __('Online coaching')) }}</small></span>
     </a>
     <nav class="side-nav">
       @foreach($links as [$route, $icon, $label, $pattern])
@@ -69,8 +69,8 @@
 
   <div class="main">
     <header class="topbar">
-      <a href="{{ route('home') }}" class="brand" aria-label="{{ __('Ameen Gym') }}">
-        <span class="brand-mark"><i class="fas fa-dumbbell"></i></span>
+      <a href="{{ route('home') }}" class="brand" aria-label="{{ __('Himma') }}">
+        <span class="brand-mark">@include('partials.logo-mark')</span>
       </a>
       <div class="topbar-title">@yield('title')</div>
       <div class="topbar-actions">

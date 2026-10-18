@@ -1,10 +1,10 @@
 @echo off
 setlocal EnableExtensions
-title Ameen Gym - Local Server
+title Himma - Local Server
 cd /d "%~dp0"
 
 rem ==================================================================
-rem  Ameen Gym - one-click local run (no Laragon / MySQL needed)
+rem  Himma - one-click local run (no Laragon / MySQL needed)
 rem
 rem  Double-click this file: it prepares everything and opens the
 rem  system in your browser. Keep this window open while you use it;
@@ -19,7 +19,7 @@ set "PORT=8000"
 
 echo.
 echo  ===============================================
-echo           Ameen Gym - Local Server
+echo             Himma - Local Server
 echo  ===============================================
 echo.
 
@@ -62,7 +62,7 @@ echo  [2/5] Dependencies OK
 rem ---- 3) Local settings, folders and database -----------------------
 if not exist ".env.local" (
   > ".env.local" (
-    echo APP_NAME="Ameen Gym"
+    echo APP_NAME="Himma"
     echo APP_ENV=local
     echo APP_KEY=
     echo APP_DEBUG=true

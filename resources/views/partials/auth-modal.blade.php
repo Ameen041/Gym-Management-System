@@ -8,7 +8,7 @@
         <button type="button" class="icon-btn close-modal" aria-label="{{ __('Close') }}">
             <i class="fas fa-xmark"></i>
         </button>
-        <div class="auth-brand"><span class="brand-mark"><i class="fas fa-dumbbell"></i></span></div>
+        <div class="auth-brand"><span class="brand-mark">@include('partials.logo-mark')</span></div>
 
         <div class="auth-tabs">
             <button type="button" class="auth-tab active" data-tab="login">{{ __('Login') }}</button>

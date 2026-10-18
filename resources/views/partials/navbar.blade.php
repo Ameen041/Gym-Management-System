@@ -1,8 +1,8 @@
 <header class="site-header">
   <div class="wrap site-header-row">
     <a href="{{ route('home') }}" class="brand">
-      <span class="brand-mark"><i class="fas fa-dumbbell"></i></span>
-      <span class="brand-name">{{ __('Ameen Gym') }}</span>
+      <span class="brand-mark">@include('partials.logo-mark')</span>
+      <span class="brand-name">{{ __('Himma') }}</span>
     </a>
 
     <nav class="site-nav" id="site-nav">

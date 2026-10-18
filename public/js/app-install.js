@@ -42,7 +42,7 @@
             show(false);
           });
         } else if (isIos) {
-          alert((window.I18N && I18N.install_ios) || 'To install Ameen Gym: tap the Share button, then "Add to Home Screen".');
+          alert((window.I18N && I18N.install_ios) || 'To install Himma: tap the Share button, then "Add to Home Screen".');
         }
       });
     });

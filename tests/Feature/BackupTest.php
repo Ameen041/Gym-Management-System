@@ -58,7 +58,7 @@ class BackupTest extends TestCase
     {
         $file = tempnam(sys_get_temp_dir(), 'bk');
         file_put_contents($file, gzencode("{\"hello\":1}\n"));
-        $this->expectExceptionMessage('not an Ameen Gym backup');
+        $this->expectExceptionMessage('not a Himma backup');
         try {
             Backup::restore($file);
         } finally {
@@ -70,7 +70,7 @@ class BackupTest extends TestCase
     {
         Storage::disk('local')->makeDirectory(Backup::DIR);
         foreach (range(1, 16) as $day) {
-            $path = Backup::DIR . sprintf('/ameen-gym-2026-01-%02d-000000.json.gz', $day);
+            $path = Backup::DIR . sprintf('/himma-2026-01-%02d-000000.json.gz', $day);
             Storage::disk('local')->put($path, 'x');
             touch(Storage::disk('local')->path($path), strtotime("2026-01-$day"));
         }
@@ -80,8 +80,8 @@ class BackupTest extends TestCase
 
         $names = Backup::all()->pluck('name');
         $this->assertCount(15, $names);
-        $this->assertFalse($names->contains('ameen-gym-2026-01-02-000000.json.gz'));
-        $this->assertTrue($names->contains('ameen-gym-2026-01-16-000000.json.gz'));
+        $this->assertFalse($names->contains('himma-2026-01-02-000000.json.gz'));
+        $this->assertTrue($names->contains('himma-2026-01-16-000000.json.gz'));
         $this->assertTrue($names->contains('ameen-gym-2025-12-01-000000-before-restore.json.gz'));
     }
 }

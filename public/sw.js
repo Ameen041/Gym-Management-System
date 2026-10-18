@@ -1,6 +1,6 @@
-/* Ameen Gym service worker: makes the site installable and keeps static assets fast/offline. */
-const VERSION = 'v4';
-const STATIC_CACHE = `ameen-gym-static-${VERSION}`;
+/* Himma service worker: makes the site installable and keeps static assets fast/offline. */
+const VERSION = 'v5';
+const STATIC_CACHE = `himma-static-${VERSION}`;
 const OFFLINE_URL = '/offline.html';
 
 const PRECACHE = [
