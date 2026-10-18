@@ -10,7 +10,6 @@
     @include(app()->isLocale('ar') ? 'legal.terms-ar' : 'legal.terms-en', [
         'planDays' => \App\Models\Subscription::PLAN_DUE_DAYS,
         'chatDays' => \App\Models\Conversation::OPEN_DAYS_AFTER_END,
-        'minAge'   => \App\Http\Controllers\SubscriptionController::MIN_AGE,
     ])
     <p class="legal-other"><a href="{{ route('privacy') }}"><i class="fas fa-shield-halved"></i> {{ __('Privacy Policy') }}</a></p>
   </article>

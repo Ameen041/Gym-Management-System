@@ -140,4 +140,9 @@
 
   <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> {{ __('Save account') }}</button>
 </form>
+
+<div class="danger-zone">
+  <span class="muted small">{{ __('Want to leave Himma?') }}</span>
+  <a href="{{ route('account.delete') }}"><i class="fas fa-user-xmark"></i> {{ __('Delete account') }}</a>
+</div>
 @endsection

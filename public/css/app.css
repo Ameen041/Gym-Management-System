@@ -684,3 +684,9 @@ html[dir="rtl"] .chat-send i{transform:scaleX(-1)}
 .health-alert ul{margin-top:4px}
 .plan-disclaimer{display:flex;gap:8px;align-items:flex-start;margin-top:18px;color:var(--muted);font-size:.78rem;line-height:1.7}
 .plan-disclaimer i{margin-top:4px}
+
+/* ---------- Delete account ---------- */
+.delete-account{max-width:680px}
+.delete-list{padding-inline-start:20px;margin:8px 0 18px;display:grid;gap:6px;line-height:1.7}
+.danger-zone{margin-top:18px;padding-top:14px;border-top:1px solid var(--line);display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.danger-zone a{color:var(--danger);font-weight:700;font-size:.86rem}

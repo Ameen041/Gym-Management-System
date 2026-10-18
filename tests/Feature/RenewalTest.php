@@ -170,7 +170,7 @@ class RenewalTest extends TestCase
     {
         $fresh = $this->subscription(['starts_at' => now(), 'ends_at' => now()->addDays(30)]);
 
-        $this->travel(2)->days();
+        $this->travel(Subscription::PLAN_DUE_DAYS - 1)->days();   // due tomorrow
         $this->artisan('app:subscription-reminders');
         $this->assertSame(1, $this->coach->notifications()->where('data', 'like', '%"plan-due-' . $fresh->id . '"%')->count());
         $this->assertSame(0, $this->admin->notifications()->count());

@@ -27,9 +27,6 @@ class SubscriptionController extends Controller
         'other'       => 'Other',
     ];
 
-    // Youngest age that can subscribe (under 18 with a parent's consent, see the terms)
-    public const MIN_AGE = 16;
-
     public const LEVELS = [
         'beginner'     => 'Beginner (less than 6 months)',
         'intermediate' => 'Intermediate (6 months – 2 years)',
@@ -84,7 +81,7 @@ class SubscriptionController extends Controller
             'food_notes'    => ['nullable', 'string', 'max:500', new NoContactDetails],
             'doctor'        => $anyYes ? ['accepted'] : ['nullable'],
             'consent'       => ['accepted'],
-            'age'           => ['required', 'integer', 'min:' . self::MIN_AGE, 'max:100'],
+            'age'           => ['required', 'integer', 'min:10', 'max:100'],
             'height'        => ['required', 'numeric', 'min:100', 'max:250'],
             'weight'        => ['required', 'numeric', 'min:30', 'max:300'],
             'phone'         => ['required', 'string', 'max:30', 'regex:/^[0-9+\s-]{8,20}$/'],
@@ -203,13 +200,27 @@ class SubscriptionController extends Controller
         $this->authorizeOwner($subscription);
         abort_unless(in_array($subscription->status, ['awaiting_payment', 'rejected'], true), 403);
 
-        $data = $request->validate([
-            'payment_reference' => ['nullable', 'string', 'max:100'],
+        $request->validate([
+            'payment_reference' => ['required', 'string', 'max:100'],
             'payment_proof'     => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
-        ]);
+        ], [], ['payment_reference' => __('Transaction number'), 'payment_proof' => __('Transfer screenshot')]);
 
+        // one transaction pays for one subscription only
+        $reference = Subscription::normalizeReference($request->payment_reference);
+        if (strlen($reference) < 4 || strlen($reference) > 40) {
+            return back()->withErrors(['payment_reference' => __('Enter the transaction number as it is on the Sham Cash receipt.')]);
+        }
+        if (Subscription::where('payment_reference', $reference)->whereKeyNot($subscription->id)->exists()) {
+            Notify::admins(':name tried to use a Sham Cash transaction number that was already used (:reference).', [
+                'name' => $subscription->trainee->name, 'reference' => $reference,
+            ], Notify::link('admin.subscriptions.index', ['q' => $reference]), 'fa-triangle-exclamation', 'reused-' . $reference);
+
+            return back()->withErrors(['payment_reference' => __('This transaction number was already used for a subscription. Check it, or contact us if you think this is a mistake.')]);
+        }
+
+        // (the database refuses a number used twice too, if two people send it at the same moment)
         $subscription->update([
-            'payment_reference'    => $data['payment_reference'] ?? null,
+            'payment_reference'    => $reference,
             'payment_proof'        => $request->file('payment_proof')->store('payments', Subscription::FILES_DISK),
             'status'               => 'payment_review',
             'payment_submitted_at' => now(),

@@ -287,6 +287,15 @@ accepting them (the time is kept on the account). Before paying, the client answ
 alert on the client page, the dashboard and a notification. Every plan ends with a short health notice.
 Have a lawyer read the texts before launch, and change `LegalController::UPDATED` when they change.
 
+Payments: the Sham Cash transaction number is required and can pay for one subscription only (stored in one
+spelling: Western digits, capitals, no spaces or dashes; a unique index backs it). Trying a used number tells
+the admins.
+
+Deleting an account: trainees and coaches delete their own account from their profile (password needed).
+Name, email, phone, photos, health answers, check-ins and chats are deleted; the account row stays without
+personal data so payment records and coach earnings still add up, and reviews stay without the name. It
+waits while a payment is under review, and for coaches while they have active clients or unpaid earnings.
+
 Password resets: if email is not set up, Admin → Users → **Reset link** makes a one-time link
 (valid 60 minutes) to send to the user on WhatsApp.
 

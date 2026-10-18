@@ -105,7 +105,7 @@ public function logout(Request $request)
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6|confirmed',
             'role' => 'required|in:trainer,trainee',
-            'age' => 'nullable|integer|min:' . SubscriptionController::MIN_AGE . '|max:100',
+            'age' => 'nullable|integer|min:10|max:100',
             'height' => 'nullable|numeric|min:50|max:300',
             'weight' => 'nullable|numeric|min:20|max:300',
             'terms' => 'accepted',

@@ -1,4 +1,4 @@
-{{-- Terms & conditions (English). Numbers come from the code: $planDays, $chatDays, $minAge --}}
+{{-- Terms & conditions (English). Numbers come from the code: $planDays, $chatDays --}}
 <p class="legal-lead">Himma is an online platform that connects trainees with independent fitness coaches who give workout and nutrition plans and follow-up remotely. By using Himma or creating an account you accept these terms and the <a href="{{ route('privacy') }}">privacy policy</a>.</p>
 
 <nav class="legal-toc" aria-label="Contents">
@@ -15,7 +15,6 @@
 
 <h2 id="account">1. Account</h2>
 <ul>
-  <li>You must be {{ $minAge }} or older. If you are under 18, subscribing means your parent or guardian agrees to it.</li>
   <li>Give true information, use one account that is yours only, and keep your password secret. You are responsible for what happens from your account.</li>
 </ul>
 
@@ -83,7 +82,7 @@
 <h2 id="ending">9. Suspension and liability</h2>
 <ul>
   <li>Himma can suspend any account that breaks these terms, misuses the platform or gets around the payment.</li>
-  <li>You can stop using Himma at any time and ask to delete your account, as described in the privacy policy.</li>
+  <li>You can stop using Himma at any time and delete your account yourself from your profile. Deleting it during an active subscription ends the subscription without a refund.</li>
   <li>Himma is not responsible for injuries or harm caused by ignoring the health notice or hiding health information, or for any agreement or payment made outside the platform.</li>
   <li>The platform may stop for a while for maintenance, or because of internet or power cuts.</li>
   <li>We may change these terms; important changes are announced in the app, and using Himma afterwards means you accept them.</li>

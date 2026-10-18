@@ -65,7 +65,7 @@ class CoachDirectoryController extends Controller
 
         $profile = $coach->ensureCoachProfile();
         $packages = $coach->packages()->where('is_active', true)->orderBy('price')->get();
-        $reviews = Review::with('trainee:id,name')
+        $reviews = Review::with('trainee:id,name,deleted_at')
             ->where('coach_id', $coach->id)
             ->latest()
             ->limit(20)

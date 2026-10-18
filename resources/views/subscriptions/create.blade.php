@@ -97,7 +97,7 @@
     <div class="form-row">
       <div class="form-group">
         <label>{{ __('Age') }}</label>
-        <input type="number" name="age" min="{{ Sub::MIN_AGE }}" max="100" value="{{ old('age', $user->age) }}" required>
+        <input type="number" name="age" min="10" max="100" value="{{ old('age', $user->age) }}" required>
       </div>
       <div class="form-group">
         <label>{{ __('Height (cm)') }}</label>

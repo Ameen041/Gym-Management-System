@@ -90,7 +90,7 @@
             <div class="form-row trainee-only">
                 <div class="form-group">
                     <label>{{ __('Age') }}</label>
-                    <input type="number" name="age" min="{{ \App\Http\Controllers\SubscriptionController::MIN_AGE }}" max="100" value="{{ old('age') }}">
+                    <input type="number" name="age" min="10" max="100" value="{{ old('age') }}">
                 </div>
                 <div class="form-group">
                     <label>{{ __('Weight (kg)') }}</label>

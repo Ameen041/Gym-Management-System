@@ -1,6 +1,7 @@
 <?php
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\TraineeController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminUserController;
@@ -108,6 +109,12 @@ Route::middleware(['auth', 'active', 'role:trainee'])->group(function () {
     // Weekly check-in
     Route::get('/subscriptions/{subscription}/check-in', [CheckInController::class, 'show'])->name('check-ins.show');
     Route::post('/subscriptions/{subscription}/check-in', [CheckInController::class, 'store'])->name('check-ins.store');
+});
+
+// Delete my account
+Route::middleware(['auth', 'active', 'role:trainer,trainee'])->group(function () {
+    Route::get('/account/delete', [AccountController::class, 'confirmDelete'])->name('account.delete');
+    Route::delete('/account', [AccountController::class, 'destroy'])->middleware('throttle:5,1')->name('account.destroy');
 });
 
 // Chat between a coach and their client (instead of WhatsApp)

@@ -169,3 +169,5 @@
 .legal-box{background:var(--warning-bg);border-radius:var(--radius);padding:14px 16px}
 .legal-box ul{margin:0}
 .legal-other{margin-top:32px;padding-top:16px;border-top:1px solid var(--line)}
+.site-flash{padding-top:16px}
+.site-flash .alert{margin:0}

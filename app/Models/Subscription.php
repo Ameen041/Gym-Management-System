@@ -16,7 +16,7 @@ class Subscription extends Model
     ];
 
     // How many days the coach has to deliver the plan after activation
-    public const PLAN_DUE_DAYS = 3;
+    public const PLAN_DUE_DAYS = 7;
 
     // Asked before subscribing (based on the PAR-Q+ and two questions for nutrition).
     // A "yes" means: check with a doctor first, and the coach is warned.
@@ -133,6 +133,20 @@ class Subscription extends Model
         return is_numeric($weight) && $first->starts_at
             ? ['date' => $first->starts_at, 'weight' => (float) $weight]
             : null;
+    }
+
+    /**
+     * A Sham Cash transaction number in one spelling, so the same number can't be used twice:
+     * Western digits, capital letters, no spaces, dashes or other marks ("١٢٣ 45-ab" -> "12345AB").
+     */
+    public static function normalizeReference(?string $reference): string
+    {
+        $reference = strtr((string) $reference, [
+            '٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4', '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9',
+            '۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9',
+        ]);
+
+        return strtoupper(preg_replace('/[^A-Za-z0-9]+/', '', $reference));
     }
 
     /** Health questions the client answered "yes" to (keys of HEALTH_QUESTIONS). */
