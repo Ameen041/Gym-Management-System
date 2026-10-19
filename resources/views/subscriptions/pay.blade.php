@@ -69,10 +69,16 @@
         <input type="file" name="payment_proof" accept="image/*" required>
       </div>
       <div class="form-group">
-        <label>{{ __('Transaction number (optional)') }}</label>
-        <input type="text" name="payment_reference" value="{{ old('payment_reference', $subscription->payment_reference) }}" dir="ltr">
+        <label for="payment_reference">{{ __('Transaction number') }}</label>
+        <input type="text" id="payment_reference" name="payment_reference" value="{{ old('payment_reference', $subscription->payment_reference) }}" dir="ltr" required maxlength="100" autocomplete="off">
+        <div class="form-hint">{{ __('It is on the Sham Cash receipt after the transfer. Each number can be used once.') }}</div>
       </div>
       <button type="submit" class="btn btn-success btn-block"><i class="fas fa-paper-plane"></i> {{ __('Send for confirmation') }}</button>
+      <p class="muted small" style="margin-top:10px">
+        <i class="fas fa-rotate-left"></i>
+        {{ __('If your coach doesn\'t send the plan within :days days, you get your money back.', ['days' => \App\Models\Subscription::PLAN_DUE_DAYS]) }}
+        <a href="{{ route('terms') }}#refunds" target="_blank">{{ __('Refund policy') }}</a>
+      </p>
     </form>
 
     <form method="POST" action="{{ route('subscriptions.cancel', $subscription) }}" onsubmit="return confirm(@js(__('Cancel this subscription?')))">

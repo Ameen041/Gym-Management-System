@@ -38,7 +38,7 @@ class CoachProfile extends Model
     protected $fillable = [
         'user_id', 'bio', 'specialties', 'experience_years', 'city', 'gender',
         'certificates', 'status', 'rejection_reason', 'is_featured', 'rating_avg', 'rating_count',
-        'shamcash_name', 'shamcash_account', 'shamcash_qr', 'payout_account_updated_at',
+        'shamcash_name', 'shamcash_account', 'shamcash_qr', 'payout_account_updated_at', 'invite_code', 'invite_visits',
     ];
 
     protected $casts = [
@@ -52,6 +52,19 @@ class CoachProfile extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /** The coach's invite link; the code is made the first time it is needed. */
+    public function inviteUrl(): string
+    {
+        if (!$this->invite_code) {
+            do {
+                $code = strtolower(\Illuminate\Support\Str::random(8));
+            } while (self::where('invite_code', $code)->exists());
+            $this->update(['invite_code' => $code]);
+        }
+
+        return route('invite', $this->invite_code);
     }
 
     public function isApproved(): bool

@@ -76,7 +76,8 @@ class PrivateFilesTest extends TestCase
 
         $this->actingAs($this->trainee)
             ->post(route('subscriptions.pay.submit', $this->subscription), [
-                'payment_proof' => UploadedFile::fake()->image('receipt.jpg'),
+                'payment_proof'     => UploadedFile::fake()->image('receipt.jpg'),
+                'payment_reference' => 'SC-123456',
             ])
             ->assertRedirect(route('trainee.dashboard'));
 

@@ -45,6 +45,8 @@ Each user can also turn on **phone notifications**: every notification and every
 - Dashboard: active clients, plans due, check-ins to answer, renewals, earnings
 - Public profile and packages with their own prices; private Sham Cash account for payouts
 - Weekly workout and nutrition plans (Saturday → Friday) from the exercise and food libraries or admin templates
+- Nutrition plans start from daily targets (calories, protein, carbs, fat); each day shows a bar per value
+  that turns green once it is within range (±5% calories, ±10% macros), and the client sees the daily target
 - Weekly check-ins with a weight chart; reply to each one, remind late clients in the chat
 - Chat with each client: unread badges, "seen" ticks, ready messages for renewal and check-in reminders
 - Renewals: send the last plan again in one tap
@@ -277,6 +279,28 @@ each try is kept, and the admin is told when someone tries 3 times in 30 days (A
 Profiles, packages, check-ins and reviews are checked the same way. Chats are private: the admin can
 read one only after the coach or the client reports it. The filter stops the easy ways around the
 platform, not every possible one, so the terms should also forbid it.
+
+Terms, privacy and health: `/terms` and `/privacy` (Arabic and English, in `resources/views/legal`) cover
+payments outside Himma, refunds, the chat rules, the health notice and the coach rules; signing up needs
+accepting them (the time is kept on the account). Before paying, the client answers 9 health questions
+(based on the PAR-Q+): a "yes" asks for details and a check with a doctor, and the coach gets a health
+alert on the client page, the dashboard and a notification. Every plan ends with a short health notice.
+Have a lawyer read the texts before launch, and change `LegalController::UPDATED` when they change.
+
+Coach invite links: every approved coach has a link (`/c/xxxxxxxx`) on their dashboard, with copy and share
+buttons and how many people opened it, signed up and paid. The browser remembers the coach for 60 days;
+whoever signs up from it is the coach's own client, and Himma takes the lower "own clients" commission
+(default 5%, Admin → Settings) on all their subscriptions with that coach. People who already had an account
+don't count. Admin → Payments marks these subscriptions.
+
+Payments: the Sham Cash transaction number is required and can pay for one subscription only (stored in one
+spelling: Western digits, capitals, no spaces or dashes; a unique index backs it). Trying a used number tells
+the admins.
+
+Deleting an account: trainees and coaches delete their own account from their profile (password needed).
+Name, email, phone, photos, health answers, check-ins and chats are deleted; the account row stays without
+personal data so payment records and coach earnings still add up, and reviews stay without the name. It
+waits while a payment is under review, and for coaches while they have active clients or unpaid earnings.
 
 Password resets: if email is not set up, Admin → Users → **Reset link** makes a one-time link
 (valid 60 minutes) to send to the user on WhatsApp.

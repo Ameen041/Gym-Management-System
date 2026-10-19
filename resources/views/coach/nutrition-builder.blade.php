@@ -20,6 +20,9 @@
   ])->values();
   $categoryCounts = $foods->countBy('category');
   $mealIndex = 0;
+  $targets = (array) old('targets', $targets);
+  $goal = \App\Http\Controllers\SubscriptionController::GOALS[$subscription->intake['goal'] ?? ''] ?? null;
+  $macroLabels = ['calories' => __('Calories'), 'protein' => __('Protein'), 'carbs' => __('Carbs'), 'fat' => __('Fat')];
   $firstDay = collect($weekDays)->first(fn ($d) => !empty($days[$d])) ?? $weekDays[0];
 @endphp
 
@@ -52,6 +55,40 @@
     @endif
   </div>
 
+  {{-- Daily targets come first: the days are filled until each bar is in its range --}}
+  <section class="panel nb-targets" data-targets data-weight="{{ $weight ?: '' }}">
+    <div class="panel-head">
+      <h2><i class="fas fa-bullseye"></i> {{ __('Daily targets') }}</h2>
+      @if($weight || $goal)
+        <span class="muted small">
+          @if($weight){{ __('Weight') }}: {{ NutritionMath::number($weight) }} {{ __('kg') }}@endif
+          @if($weight && $goal) · @endif
+          @if($goal){{ __($goal) }}@endif
+        </span>
+      @endif
+    </div>
+    <p class="muted small nb-targets-help">{{ __('Start here: how much should your client eat each day? Then fill the days until every bar is in its range.') }}</p>
+    <div class="nb-target-grid">
+      @foreach($macroLabels as $macro => $label)
+        @php([$min, $max] = NutritionMath::TARGET_LIMITS[$macro])
+        <label class="nb-target {{ $macro }}">
+          <span class="nb-target-label">{{ $label }}</span>
+          <span class="nb-target-input">
+            <input type="number" name="targets[{{ $macro }}]" value="{{ $targets[$macro] ?? '' }}" min="{{ $min }}" max="{{ $max }}"
+                   step="{{ $macro === 'calories' ? 10 : 1 }}" inputmode="numeric" required data-target="{{ $macro }}">
+            <small>{{ $macro === 'calories' ? __('kcal') : __('g') }}</small>
+          </span>
+          <small class="nb-target-hint" data-target-hint="{{ $macro }}"></small>
+        </label>
+      @endforeach
+    </div>
+    <div class="nb-target-check" data-target-check hidden>
+      <i class="fas fa-circle-info"></i>
+      <span class="grow" data-target-check-text></span>
+      <button type="button" class="btn btn-sm" data-fill-carbs><i class="fas fa-wand-magic-sparkles"></i> {{ __('Carbs make up the rest') }}</button>
+    </div>
+  </section>
+
   <div class="daytabs" role="tablist">
     @foreach($weekDays as $day)
       <button type="button" class="daytab" role="tab" data-tab="{{ $day }}">{{ __(substr($day, 0, 3)) }}<b data-tab-count>–</b></button>
@@ -71,13 +108,14 @@
         </select>
       </div>
 
-      <div class="nb-daytotal" data-day-total>
-        <div class="kcal-big"><span data-v="calories">0</span> <small>{{ __('kcal') }}</small></div>
-        <div class="macros">
-          @foreach(['protein' => __('Protein'), 'carbs' => __('Carbs'), 'fat' => __('Fat')] as $macro => $label)
-            <div class="macro {{ $macro }}"><span>{{ $label }}</span><span class="track"><span class="fill" data-bar="{{ $macro }}" style="width:0"></span></span><span class="v"><span data-v="{{ $macro }}">0</span> {{ __('g') }}</span></div>
-          @endforeach
-        </div>
+      <div class="nb-range" data-day-total>
+        @foreach($macroLabels as $macro => $label)
+          <div class="range-row {{ $macro }}" data-range="{{ $macro }}">
+            <span class="range-label">{{ $label }}</span>
+            <span class="range-track"><span class="range-zone"></span><span class="range-fill"></span></span>
+            <span class="range-v"><span><b data-v="{{ $macro }}">0</b><span data-of></span></span><small data-left></small></span>
+          </div>
+        @endforeach
       </div>
 
       <div class="nb-meals" data-meals>
@@ -100,7 +138,10 @@
             <tr data-summary-day="{{ $day }}"><td>{{ __($day) }}</td><td data-v="calories">0</td><td data-v="protein">0</td><td data-v="carbs">0</td><td data-v="fat">0</td></tr>
           @endforeach
         </tbody>
-        <tfoot><tr data-summary-avg><th>{{ __('Daily average') }}</th><th data-v="calories">0</th><th data-v="protein">0</th><th data-v="carbs">0</th><th data-v="fat">0</th></tr></tfoot>
+        <tfoot>
+          <tr data-summary-avg><th>{{ __('Daily average') }}</th><th data-v="calories">0</th><th data-v="protein">0</th><th data-v="carbs">0</th><th data-v="fat">0</th></tr>
+          <tr data-summary-target><th>{{ __('Daily target') }}</th><th data-v="calories">–</th><th data-v="protein">–</th><th data-v="carbs">–</th><th data-v="fat">–</th></tr>
+        </tfoot>
       </table>
     </div>
   </details>
@@ -162,7 +203,14 @@
       allDays: @js(__('all days')),
       templateConfirm: @js(__('Loading the template replaces the meals you added. Continue?')),
       avg: @js(__('Daily average')),
+      left: @js(__(':n left')),
+      over: @js(__(':n over')),
+      perKg: @js(__(':n per kg')),
+      ofKcal: @js(__(':n% of calories')),
+      macrosGive: @js(__('Protein, carbs and fat add up to :kcal kcal, but the target is :target kcal.')),
+      offTarget: @js(__('These days are not on target yet: :days. Send the plan anyway?')),
     },
+    range: @json(NutritionMath::TARGET_RANGE),
   };
 </script>
 <script src="{{ \App\Support\Asset::url('js/nutrition-builder.js') }}"></script>

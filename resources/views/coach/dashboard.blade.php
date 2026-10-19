@@ -78,6 +78,9 @@
           @elseif($renewals[$sub->id]['daysLeft'] <= 7)
             <span class="badge badge-warn"><i class="fas fa-hourglass-end"></i> {{ $renewals[$sub->id]['daysLeft'] === 0 ? __('Ends today') : trans_choice('{1} Ends tomorrow|[2,*] Ends in :count days', $renewals[$sub->id]['daysLeft']) }}</span>
           @endif
+          @if($sub->healthFlags())
+            <a href="{{ route('coach.clients.show', $sub) }}#health" class="badge badge-warn"><i class="fas fa-heart-pulse"></i> {{ __('Health alert') }}</a>
+          @endif
           @if($chatUnread[$sub->trainee_id] ?? 0)
             <a href="{{ route('chat.with', $sub->trainee_id) }}" class="badge"><i class="fas fa-comments"></i> {{ trans_choice('{1} 1 new message|[2,*] :count new messages', $chatUnread[$sub->trainee_id]) }}</a>
           @endif
@@ -98,6 +101,29 @@
   </section>
 
   <div class="stack">
+    <section class="panel invite-card" id="invite">
+      <div class="panel-head"><h2><i class="fas fa-link"></i> {{ __('Your invite link') }}</h2></div>
+      <p class="small">{{ __('Share it with your own clients. Whoever signs up from it is your client: Himma takes :rate% on their subscriptions with you instead of :normal%.', ['rate' => $invite['rate'] + 0, 'normal' => $invite['normal'] + 0]) }}</p>
+      @if($invite['url'])
+        <div class="copy-row">
+          <input type="text" id="invite-link" value="{{ $invite['url'] }}" readonly dir="ltr" aria-label="{{ __('Your invite link') }}">
+          <button type="button" class="btn btn-sm" data-copy="invite-link" data-copied="{{ __('Copied') }}"><i class="fas fa-copy"></i> <span>{{ __('Copy') }}</span></button>
+        </div>
+        @php($shareText = __('Train with me online on Himma: a plan made for you and follow-up in the app.') . ' ' . $invite['url'])
+        <div class="row-actions" style="margin-top:8px">
+          <a href="https://wa.me/?text={{ rawurlencode($shareText) }}" target="_blank" rel="noopener" class="btn btn-sm"><i class="fab fa-whatsapp"></i> {{ __('Share on WhatsApp') }}</a>
+          <button type="button" class="btn btn-sm" data-share data-share-text="{{ $shareText }}" hidden><i class="fas fa-share-nodes"></i> {{ __('Share') }}</button>
+        </div>
+        <div class="invite-stats">
+          <div><b>{{ $invite['visits'] }}</b><span>{{ __('Opened') }}</span></div>
+          <div><b>{{ $invite['signups'] }}</b><span>{{ __('Signed up') }}</span></div>
+          <div><b>{{ $invite['clients'] }}</b><span>{{ __('Subscribed') }}</span></div>
+        </div>
+      @else
+        <p class="muted small"><i class="fas fa-hourglass-half"></i> {{ __('Your link is ready once your profile is approved.') }}</p>
+      @endif
+    </section>
+
     <section class="panel">
       <div class="panel-head"><h2><i class="fas fa-wallet"></i> {{ __('Earnings') }}</h2></div>
       <div class="list-row"><span class="grow">{{ __('Total earned (after commission)') }}</span><strong>{{ Money::format($earnings['earned']) }}</strong></div>

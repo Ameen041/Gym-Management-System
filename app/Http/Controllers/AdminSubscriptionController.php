@@ -46,7 +46,7 @@ class AdminSubscriptionController extends Controller
     {
         abort_unless($subscription->status === 'payment_review', 403);
 
-        $rate = Setting::commissionRate();
+        $rate = $subscription->commissionRateNow();
         $commission = round($subscription->price * $rate / 100, 2);
 
         // Renewal: start right after the current subscription with the same coach ends
@@ -88,6 +88,12 @@ class AdminSubscriptionController extends Controller
                 'package' => $subscription->package_title,
                 'days'    => Subscription::PLAN_DUE_DAYS,
             ], Notify::link('coach.clients.show', $subscription), 'fa-user-plus');
+        }
+
+        if ($subscription->healthFlags()) {
+            Notify::user($subscription->coach, ':trainee answered "yes" to a health question. Read the answers before you build the plan.', [
+                'trainee' => $subscription->trainee->name,
+            ], Notify::link('coach.clients.show', $subscription) . '#health', 'fa-heart-pulse', 'health-' . $subscription->id, true);
         }
 
         return back()->with('status', __('Payment confirmed. The subscription is active.'));

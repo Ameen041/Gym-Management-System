@@ -10,9 +10,25 @@
   $today = now()->format('l');
   $active = isset($details[$today]) ? $today : (array_key_first($details) ?? $today);
   $macroLabels = ['protein' => __('Protein'), 'carbs' => __('Carbs'), 'fat' => __('Fat')];
+  $targets = $plan->targets;
 @endphp
 
 @include('plans._header', ['plan' => $plan])
+
+@if($targets)
+  <div class="target-strip">
+    <i class="fas fa-bullseye"></i>
+    <div class="grow">
+      <b>{{ __('Your daily target') }}</b>
+      <span>
+        <strong>{{ NutritionMath::number($targets['calories']) }}</strong> {{ __('kcal') }}
+        @foreach($macroLabels as $macro => $label)
+          · {{ $label }} <strong>{{ NutritionMath::number($targets[$macro] ?? 0) }}</strong> {{ __('g') }}
+        @endforeach
+      </span>
+    </div>
+  </div>
+@endif
 
 @if($details)
   <div class="daytabs" data-tabs role="tablist">
@@ -74,4 +90,5 @@
 @else
   <div class="panel empty"><i class="fas fa-triangle-exclamation"></i><p>{{ __('No valid nutrition plan data available.') }}</p></div>
 @endif
+@include('plans._disclaimer')
 @endsection

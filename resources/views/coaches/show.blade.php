@@ -58,7 +58,7 @@
       @forelse($reviews as $review)
         <div class="review">
           <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
-            <strong>{{ \Illuminate\Support\Str::of($review->trainee->name ?? __('Trainee'))->explode(' ')->first() }}</strong>
+            <strong>{{ $review->trainee && !$review->trainee->deleted_at ? \Illuminate\Support\Str::of($review->trainee->name)->explode(' ')->first() : __('Former client') }}</strong>
             @include('partials.stars', ['rating' => $review->rating, 'count' => null])
           </div>
           @if($review->comment)<p style="margin-top:6px">{{ $review->comment }}</p>@endif

@@ -1,6 +1,7 @@
 <?php
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\TraineeController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminUserController;
@@ -16,6 +17,8 @@ use App\Http\Controllers\AdminSystemController;
 use App\Http\Controllers\ExerciseController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\LegalController;
+use App\Http\Controllers\InviteController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\CoachDirectoryController;
 use App\Http\Controllers\SubscriptionController;
@@ -46,6 +49,13 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login.form
 Route::get('/coaches', [CoachDirectoryController::class, 'index'])->name('coaches.index');
 Route::get('/coaches/{coach}', [CoachDirectoryController::class, 'show'])->whereNumber('coach')->name('coaches.show');
 Route::redirect('/trainers', '/coaches', 301)->name('trainers');
+
+// Coach invite link: remembers the coach, then shows their profile
+Route::get('/c/{code}', [InviteController::class, 'visit'])->where('code', '[A-Za-z0-9]{4,16}')->name('invite');
+
+// Terms and privacy policy
+Route::get('/terms', [LegalController::class, 'terms'])->name('terms');
+Route::get('/privacy', [LegalController::class, 'privacy'])->name('privacy');
 
 // Contact form on the home page
 Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:5,1')->name('contact.store');
@@ -103,6 +113,12 @@ Route::middleware(['auth', 'active', 'role:trainee'])->group(function () {
     // Weekly check-in
     Route::get('/subscriptions/{subscription}/check-in', [CheckInController::class, 'show'])->name('check-ins.show');
     Route::post('/subscriptions/{subscription}/check-in', [CheckInController::class, 'store'])->name('check-ins.store');
+});
+
+// Delete my account
+Route::middleware(['auth', 'active', 'role:trainer,trainee'])->group(function () {
+    Route::get('/account/delete', [AccountController::class, 'confirmDelete'])->name('account.delete');
+    Route::delete('/account', [AccountController::class, 'destroy'])->middleware('throttle:5,1')->name('account.destroy');
 });
 
 // Chat between a coach and their client (instead of WhatsApp)

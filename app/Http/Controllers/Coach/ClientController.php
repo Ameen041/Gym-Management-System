@@ -34,6 +34,7 @@ class ClientController extends Controller
         return view('coach.client', [
             'subscription' => $subscription,
             'previous'     => $previous,
+            'healthFlags'  => $subscription->healthFlags(),
             'lastPlans'    => ['workout' => $last?->workoutPlan, 'nutrition' => $last?->nutritionPlan],
             'renewal'      => $renewal,
             'chatUnread'   => $conversation ? $conversation->unreadFor(auth()->user()) : 0,

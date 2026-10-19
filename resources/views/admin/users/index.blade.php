@@ -114,7 +114,9 @@
               </td>
 
               <td>
-                @if($user->is_active)
+                @if($user->deleted_at)
+                  <span class="badge badge-secondary">{{ __('Deleted :date', ['date' => $user->deleted_at->format('Y-m-d')]) }}</span>
+                @elseif($user->is_active)
                   <span class="badge badge-success">{{ __('Active') }}</span>
                 @else
                   <span class="badge badge-danger">{{ __('Suspended') }}</span>

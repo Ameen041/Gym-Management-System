@@ -103,9 +103,9 @@
             </div>
 
             <div class="form-checkbox">
-                <input type="checkbox" id="terms" required>
+                <input type="checkbox" id="terms" name="terms" value="1" required @checked(old('terms'))>
                 <label for="terms">
-                    {{ __('I agree to the') }} <a href="#">{{ __('Terms & Conditions') }}</a> {{ __('and') }} <a href="#">{{ __('Privacy Policy') }}</a>
+                    {{ __('I agree to the') }} <a href="{{ route('terms') }}" target="_blank">{{ __('Terms & Conditions') }}</a> {{ __('and') }} <a href="{{ route('privacy') }}" target="_blank">{{ __('Privacy Policy') }}</a>
                 </label>
             </div>
 

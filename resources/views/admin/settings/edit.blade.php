@@ -17,6 +17,12 @@
   </div>
 
   <div class="form-group">
+    <label class="form-label">{{ __('Commission on a coach\'s own clients (%)') }}</label>
+    <input type="number" name="invite_commission_rate" step="0.5" min="0" max="50" class="form-control" style="max-width:200px" value="{{ old('invite_commission_rate', $settings['invite_commission_rate']) }}" required>
+    <small style="color:var(--gray-700)">{{ __('For clients who signed up from the coach\'s invite link, on all their subscriptions with that coach. Lower, so coaches bring their clients to Himma.') }}</small>
+  </div>
+
+  <div class="form-group">
     <label class="form-label">{{ __('Hold period before paying coaches (days)') }}</label>
     <input type="number" name="payout_hold_days" step="1" min="0" max="60" class="form-control" style="max-width:200px" value="{{ old('payout_hold_days', $settings['payout_hold_days']) }}" required>
     <small style="color:var(--gray-700)">{{ __('A payment becomes payable to the coach after the coach sends the plan and this many days pass since you confirmed it. This leaves time to refund a trainee if something goes wrong. 0 = right after the plan is sent.') }}</small>

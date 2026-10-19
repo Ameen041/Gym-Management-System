@@ -4,7 +4,9 @@
    - "Add food" opens a picker (search Arabic / English + categories)
    - calories / protein / carbs / fat per food, meal, day and week
      (the server recalculates library foods again when saving)
-   - form fields: meals[key][day|number|note|items][key][food_id|name|qty|unit|calories|protein|carbs|fat]
+   - daily targets first: each day shows a bar per value that fills up to the target range
+   - form fields: targets[calories|protein|carbs|fat],
+     meals[key][day|number|note|items][key][food_id|name|qty|unit|calories|protein|carbs|fat]
    ========================================================= */
 (function () {
   "use strict";
@@ -69,6 +71,68 @@
     }
   }
 
+  // ---------- daily targets ----------
+  const targetsBox = form.querySelector("[data-targets]");
+  const weight = num(targetsBox.dataset.weight);
+  const unitOf = (m) => (m === "calories" ? t.kcal : t.g);
+
+  function targets() {
+    const out = {};
+    MACROS.forEach((m) => (out[m] = num(targetsBox.querySelector(`[data-target="${m}"]`).value)));
+    return out;
+  }
+
+  /** under / ok / over the target range, or "" without a target */
+  function state(value, target, macro) {
+    if (target <= 0) return "";
+    const r = NB.range[macro];
+    return value < target * (1 - r) ? "under" : value > target * (1 + r) ? "over" : "ok";
+  }
+
+  function refreshTargets(tg) {
+    const fromMacros = tg.protein * 4 + tg.carbs * 4 + tg.fat * 9;
+    MACROS.forEach((m) => {
+      const hint = targetsBox.querySelector(`[data-target-hint="${m}"]`);
+      const parts = [];
+      if (weight && tg[m]) parts.push(t.perKg.replace(":n", fmt(tg[m] / weight, 1)));
+      if (m !== "calories" && tg[m] && tg.calories) parts.push(t.ofKcal.replace(":n", fmt((tg[m] * (m === "fat" ? 9 : 4) / tg.calories) * 100, 0)));
+      hint.textContent = parts.join(" · ");
+    });
+    // protein, carbs and fat should give about the calories asked for
+    const check = targetsBox.querySelector("[data-target-check]");
+    const off = tg.calories > 0 && (tg.protein || tg.carbs || tg.fat) && Math.abs(fromMacros - tg.calories) > tg.calories * NB.range.calories;
+    check.hidden = !off;
+    if (off) {
+      check.querySelector("[data-target-check-text]").textContent = t.macrosGive
+        .replace(":kcal", fmt(fromMacros, 0)).replace(":target", fmt(tg.calories, 0));
+    }
+  }
+
+  function paintRange(box, day, tg) {
+    let all = true;
+    MACROS.forEach((m) => {
+      const row = box.querySelector(`[data-range="${m}"]`);
+      const st = state(day[m], tg[m], m);
+      const max = 1.3; // the bar shows up to 130% of the target
+      const r = NB.range[m];
+      row.classList.remove("is-under", "is-ok", "is-over");
+      if (st) row.classList.add("is-" + st);
+      row.style.setProperty("--fill", (tg[m] > 0 ? Math.min(day[m] / tg[m], max) / max * 100 : 0) + "%");
+      row.style.setProperty("--zone-a", ((1 - r) / max) * 100 + "%");
+      row.style.setProperty("--zone-b", ((1 + r) / max) * 100 + "%");
+      row.querySelector(`[data-v="${m}"]`).textContent = fmt(day[m], m === "calories" ? 0 : 1);
+      row.querySelector("[data-of]").textContent = tg[m] > 0 ? ` / ${fmt(tg[m], 0)} ${unitOf(m)}` : ` ${unitOf(m)}`;
+      const gap = Math.abs(tg[m] - day[m]);
+      row.querySelector("[data-left]").textContent =
+        st === "under" ? t.left.replace(":n", `${fmt(gap, 0)} ${unitOf(m)}`)
+        : st === "over" ? t.over.replace(":n", `${fmt(gap, 0)} ${unitOf(m)}`)
+        : st === "ok" ? "✓" : "";
+      if (st !== "ok") all = false;
+    });
+    box.classList.toggle("no-targets", !(tg.calories > 0));
+    return all && tg.calories > 0;
+  }
+
   // ---------- totals ----------
   function sumItems(items) {
     const s = { calories: 0, protein: 0, carbs: 0, fat: 0 };
@@ -80,7 +144,10 @@
   }
 
   function refresh() {
+    const tg = targets();
+    refreshTargets(tg);
     const week = [];
+    const offDays = [];
     days.forEach((dayBox) => {
       const meals = dayBox.querySelectorAll(".nb-meal");
       dayBox.classList.toggle("has-rows", meals.length > 0);
@@ -93,19 +160,29 @@
       const day = sumItems(dayBox.querySelectorAll("[data-item]"));
       if (meals.length) week.push(day);
 
+      // with targets the bars show even on an empty day: they are what's left to fill
       const total = dayBox.querySelector("[data-day-total]");
-      total.hidden = meals.length === 0;
-      MACROS.forEach((m) => (total.querySelector(`[data-v="${m}"]`).textContent = fmt(day[m], m === "calories" ? 0 : 1)));
-      const kcalFrom = { protein: day.protein * 4, carbs: day.carbs * 4, fat: day.fat * 9 };
-      const all = kcalFrom.protein + kcalFrom.carbs + kcalFrom.fat;
-      Object.entries(kcalFrom).forEach(([m, v]) => (total.querySelector(`[data-bar="${m}"]`).style.width = (all ? Math.round((v / all) * 100) : 0) + "%"));
+      total.hidden = meals.length === 0 && !(tg.calories > 0);
+      const onTarget = paintRange(total, day, tg);
+      if (meals.length && tg.calories > 0 && !onTarget) offDays.push(dayBox.dataset.dayLabel);
 
       const tab = form.querySelector(`[data-tab="${dayBox.dataset.day}"]`);
       tab.querySelector("[data-tab-count]").textContent = meals.length ? fmt(day.calories, 0) : "–";
       tab.classList.toggle("has", meals.length > 0);
+      tab.classList.toggle("on-target", meals.length > 0 && onTarget);
+      tab.classList.toggle("off-target", meals.length > 0 && tg.calories > 0 && !onTarget);
       const row = form.querySelector(`[data-summary-day="${dayBox.dataset.day}"]`);
-      if (row) MACROS.forEach((m) => (row.querySelector(`[data-v="${m}"]`).textContent = fmt(day[m], m === "calories" ? 0 : 1)));
+      if (row) {
+        MACROS.forEach((m) => {
+          const cell = row.querySelector(`[data-v="${m}"]`);
+          cell.textContent = fmt(day[m], m === "calories" ? 0 : 1);
+          cell.className = meals.length ? "is-" + (state(day[m], tg[m], m) || "none") : "";
+        });
+      }
     });
+    form.dataset.offDays = offDays.join(document.documentElement.lang === "ar" ? "، " : ", ");
+    const targetRow = form.querySelector("[data-summary-target]");
+    MACROS.forEach((m) => (targetRow.querySelector(`[data-v="${m}"]`).textContent = tg[m] > 0 ? fmt(tg[m], 0) : "–"));
 
     const avgRow = form.querySelector("[data-summary-avg]");
     MACROS.forEach((m) => {
@@ -116,7 +193,8 @@
     const current = dayEl(activeDay);
     const mealsNow = current.querySelectorAll(".nb-meal").length;
     const dayNow = sumItems(current.querySelectorAll("[data-item]"));
-    form.querySelector("[data-dock-day]").textContent = `${current.dataset.dayLabel}: ${mealsNow ? fmt(dayNow.calories, 0) + " " + t.kcal : t.noMeals}`;
+    const ofTarget = tg.calories > 0 ? ` / ${fmt(tg.calories, 0)}` : "";
+    form.querySelector("[data-dock-day]").textContent = `${current.dataset.dayLabel}: ${mealsNow ? fmt(dayNow.calories, 0) + ofTarget + " " + t.kcal : t.noMeals}`;
     form.querySelector("[data-dock-sub]").textContent = mealsNow
       ? `${t.meals.replace(":count", mealsNow)} · ${t.p} ${fmt(dayNow.protein, 0)} · ${t.c} ${fmt(dayNow.carbs, 0)} · ${t.f} ${fmt(dayNow.fat, 0)}`
       : "";
@@ -307,6 +385,20 @@
     }
   });
 
+  // carbs take whatever calories protein and fat leave
+  targetsBox.querySelector("[data-fill-carbs]").addEventListener("click", () => {
+    const tg = targets();
+    const carbs = Math.max(0, (tg.calories - tg.protein * 4 - tg.fat * 9) / 4);
+    targetsBox.querySelector('[data-target="carbs"]').value = fmt(carbs, 0);
+    refresh();
+  });
+
+  // sending a plan with days off target asks first
+  form.addEventListener("submit", (e) => {
+    refresh();
+    if (form.dataset.offDays && !confirm(t.offTarget.replace(":days", form.dataset.offDays))) e.preventDefault();
+  });
+
   form.addEventListener("click", (e) => {
     const tab = e.target.closest("[data-tab]");
     if (tab) return showDay(tab.dataset.tab);
@@ -331,4 +423,7 @@
   // ---------- start ----------
   form.querySelectorAll("[data-item]").forEach(syncItem);
   showDay(activeDay);
+  // a new plan starts at the targets (not on phones: the keyboard would cover the page)
+  const firstEmpty = targetsBox.querySelector("[data-target]:invalid");
+  if (firstEmpty && !form.querySelector(".nb-meal") && window.matchMedia("(hover: hover)").matches) firstEmpty.focus();
 })();

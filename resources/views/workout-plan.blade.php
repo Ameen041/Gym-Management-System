@@ -64,4 +64,5 @@
 @else
   <div class="panel empty"><i class="fas fa-triangle-exclamation"></i><p>{{ __('No valid workout plan data available.') }}</p></div>
 @endif
+@include('plans._disclaimer')
 @endsection

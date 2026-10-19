@@ -16,7 +16,34 @@ class Subscription extends Model
     ];
 
     // How many days the coach has to deliver the plan after activation
-    public const PLAN_DUE_DAYS = 3;
+    public const PLAN_DUE_DAYS = 7;
+
+    // Asked before subscribing (based on the PAR-Q+ and two questions for nutrition).
+    // A "yes" means: check with a doctor first, and the coach is warned.
+    public const HEALTH_QUESTIONS = [
+        'heart'      => 'Has a doctor ever told you that you have a heart condition or high blood pressure?',
+        'chest_pain' => 'Do you feel pain in your chest at rest, during daily activities or when you exercise?',
+        'dizziness'  => 'In the last 12 months, have you lost your balance because of dizziness, or fainted?',
+        'chronic'    => 'Do you have another long-term condition, such as diabetes, asthma, or a kidney, liver or thyroid disease?',
+        'medication' => 'Do you take medicine for a long-term condition?',
+        'joints'     => 'Do you have a bone, joint or muscle problem (back, knee, shoulder…) that exercise could make worse?',
+        'supervised' => 'Has a doctor told you to exercise only under medical supervision?',
+        'pregnancy'  => 'For women: are you pregnant, or did you give birth in the last 6 months?',
+        'eating'     => 'Have you ever had an eating disorder (such as anorexia or bulimia)?',
+    ];
+
+    // The same, short, for the coach
+    public const HEALTH_LABELS = [
+        'heart'      => 'Heart condition or high blood pressure',
+        'chest_pain' => 'Chest pain',
+        'dizziness'  => 'Dizziness or fainting',
+        'chronic'    => 'Long-term condition',
+        'medication' => 'Takes medicine for a long-term condition',
+        'joints'     => 'Bone, joint or muscle problem',
+        'supervised' => 'Doctor asked for supervised exercise only',
+        'pregnancy'  => 'Pregnant or gave birth recently',
+        'eating'     => 'Eating disorder (now or before)',
+    ];
 
     // Body photos and payment receipts are private: kept outside public/ and
     // only shown through SubscriptionFileController to the people involved.
@@ -26,8 +53,30 @@ class Subscription extends Model
         'trainee_id', 'coach_id', 'package_id', 'package_title', 'includes_workout', 'includes_nutrition',
         'duration_days', 'price', 'commission_rate', 'commission_amount', 'coach_amount', 'status',
         'intake', 'body_photos', 'payment_method', 'payment_reference', 'payment_proof', 'admin_note',
-        'payment_submitted_at', 'confirmed_at', 'confirmed_by', 'starts_at', 'ends_at',
+        'payment_submitted_at', 'confirmed_at', 'confirmed_by', 'starts_at', 'ends_at', 'source',
     ];
+
+    // Where the client came from: found the coach on Himma, or signed up from the coach's invite link
+    public const SOURCE_HIMMA = 'himma';
+    public const SOURCE_COACH_LINK = 'coach_link';
+
+    protected static function booted(): void
+    {
+        // a client who signed up from this coach's link is the coach's own client, renewals included
+        static::creating(function (self $subscription) {
+            if (!$subscription->source || $subscription->source === self::SOURCE_HIMMA) {
+                $invitedBy = User::whereKey($subscription->trainee_id)->value('invited_by');
+                $subscription->source = $invitedBy && (int) $invitedBy === (int) $subscription->coach_id
+                    ? self::SOURCE_COACH_LINK : self::SOURCE_HIMMA;
+            }
+        });
+    }
+
+    /** Himma's commission for this subscription, in %: lower on the coach's own clients. */
+    public function commissionRateNow(): float
+    {
+        return $this->source === self::SOURCE_COACH_LINK ? Setting::inviteCommissionRate() : Setting::commissionRate();
+    }
 
     protected $casts = [
         'intake'               => 'array',
@@ -106,6 +155,26 @@ class Subscription extends Model
         return is_numeric($weight) && $first->starts_at
             ? ['date' => $first->starts_at, 'weight' => (float) $weight]
             : null;
+    }
+
+    /**
+     * A Sham Cash transaction number in one spelling, so the same number can't be used twice:
+     * Western digits, capital letters, no spaces, dashes or other marks ("١٢٣ 45-ab" -> "12345AB").
+     */
+    public static function normalizeReference(?string $reference): string
+    {
+        $reference = strtr((string) $reference, [
+            '٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4', '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9',
+            '۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4', '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9',
+        ]);
+
+        return strtoupper(preg_replace('/[^A-Za-z0-9]+/', '', $reference));
+    }
+
+    /** Health questions the client answered "yes" to (keys of HEALTH_QUESTIONS). */
+    public function healthFlags(): array
+    {
+        return array_keys(array_filter((array) ($this->intake['health'] ?? []), fn ($yes) => (bool) $yes));
     }
 
     /** Link to the payment receipt (admin and the trainee only). */

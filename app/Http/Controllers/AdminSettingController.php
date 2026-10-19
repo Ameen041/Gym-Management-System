@@ -20,6 +20,7 @@ class AdminSettingController extends Controller
     {
         $data = $request->validate([
             'commission_rate'      => ['required', 'numeric', 'min:0', 'max:50'],
+            'invite_commission_rate' => ['required', 'numeric', 'min:0', 'max:50'],
             'payout_hold_days'     => ['required', 'integer', 'min:0', 'max:60'],
             'shamcash_name'        => ['nullable', 'string', 'max:255'],
             'shamcash_account'     => ['nullable', 'string', 'max:255'],
@@ -29,7 +30,7 @@ class AdminSettingController extends Controller
             'remove_qr'            => ['nullable', 'boolean'],
         ]);
 
-        foreach (['commission_rate', 'payout_hold_days', 'shamcash_name', 'shamcash_account', 'payment_instructions', 'support_whatsapp'] as $key) {
+        foreach (['commission_rate', 'invite_commission_rate', 'payout_hold_days', 'shamcash_name', 'shamcash_account', 'payment_instructions', 'support_whatsapp'] as $key) {
             Setting::put($key, $data[$key] ?? '');
         }
 

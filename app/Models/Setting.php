@@ -11,6 +11,7 @@ class Setting extends Model
 {
     public const DEFAULTS = [
         'commission_rate'      => '15',
+        'invite_commission_rate' => '5',   // on clients a coach brings with their invite link
         'payout_hold_days'     => '7',
         'shamcash_name'        => '',
         'shamcash_account'     => '',
@@ -46,5 +47,11 @@ class Setting extends Model
     public static function commissionRate(): float
     {
         return (float) self::get('commission_rate');
+    }
+
+    /** Commission on a coach's own clients (signed up from the coach's invite link). */
+    public static function inviteCommissionRate(): float
+    {
+        return (float) self::get('invite_commission_rate');
     }
 }

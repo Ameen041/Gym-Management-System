@@ -15,6 +15,9 @@
 @include('partials.navbar')
 
 <main>
+  @if(session('goodbye'))
+    <div class="wrap site-flash"><div class="alert alert-success" role="status"><i class="fas fa-circle-check"></i><div>{{ session('goodbye') }}</div></div></div>
+  @endif
   @yield('content')
 </main>
 

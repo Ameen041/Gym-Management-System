@@ -75,3 +75,34 @@
     if (img.complete && img.naturalWidth === 0) fallback(img);
   });
 })();
+
+/* Subscribe form: a "yes" to a health question asks for details and a check with a doctor. */
+(function () {
+  "use strict";
+  var box = document.querySelector("[data-health]");
+  if (!box) return;
+  var form = box.closest("form");
+  function sync() {
+    var yes = !!box.querySelector('input[value="1"]:checked');
+    var doctor = form.querySelector("[data-health-doctor]");
+    form.querySelector("[data-health-yes]").hidden = !yes;
+    doctor.hidden = !yes;
+    doctor.querySelector("input").required = yes;
+    form.querySelector("[data-health-notes]").required = yes;
+    form.querySelector("[data-health-optional]").hidden = yes;
+  }
+  box.addEventListener("change", sync);
+  sync();
+})();
+
+/* Share buttons: [data-share] opens the phone's share sheet, where there is one. */
+(function () {
+  "use strict";
+  if (!navigator.share) return;
+  document.querySelectorAll("[data-share]").forEach(function (btn) {
+    btn.hidden = false;
+    btn.addEventListener("click", function () {
+      navigator.share({ text: btn.getAttribute("data-share-text") }).catch(function () {});
+    });
+  });
+})();

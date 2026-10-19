@@ -85,7 +85,8 @@ return [
     |
     */
 
-    'locale' => 'en',
+    // Arabic first (the site is for Syria); people can switch to English, and English stays the fallback
+    'locale' => 'ar',
 
     /*
     |--------------------------------------------------------------------------

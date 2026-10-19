@@ -110,6 +110,7 @@
           <li><i class="fas fa-check"></i> {{ __('Ready exercise and food library: add with one tap.') }}</li>
           <li><i class="fas fa-check"></i> {{ __('Your own packages and prices.') }}</li>
           <li><i class="fas fa-check"></i> {{ __('We collect payments and send your earnings on Sham Cash.') }}</li>
+          <li><i class="fas fa-check"></i> {{ __('Bring your own clients with your invite link: Himma takes only :rate% on them.', ['rate' => \App\Models\Setting::inviteCommissionRate() + 0]) }}</li>
         </ul>
       </div>
       <div class="coach-band-cta">

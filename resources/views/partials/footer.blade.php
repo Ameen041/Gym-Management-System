@@ -9,6 +9,8 @@
       <a href="{{ route('home') }}#how">{{ __('How it works') }}</a>
       <a href="{{ route('home') }}#for-coaches">{{ __('For coaches') }}</a>
       <a href="{{ route('home') }}#contact">{{ __('Contact Us') }}</a>
+      <a href="{{ route('terms') }}">{{ __('Terms & Conditions') }}</a>
+      <a href="{{ route('privacy') }}">{{ __('Privacy Policy') }}</a>
     </nav>
     <button type="button" class="btn btn-sm" data-install-app hidden><i class="fas fa-download"></i> {{ __('Install App') }}</button>
   </div>
