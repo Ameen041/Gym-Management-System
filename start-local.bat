@@ -31,7 +31,7 @@ if not defined PHP goto :nophp
 if not exist "%PHP%" goto :nophp
 for %%P in ("%PHP%") do set "PHPDIR=%%~dpP"
 echo  [1/5] PHP found: %PHP%
-"%PHP%" -r "exit(version_compare(PHP_VERSION, '8.2.0', '<') ? 1 : 0);" || goto :oldphp
+"%PHP%" -r "exit(version_compare(PHP_VERSION, '8.3.0', '<') ? 1 : 0);" || goto :oldphp
 
 rem Enable any required PHP extension that is not already loaded
 set "MISSING="
@@ -128,9 +128,9 @@ goto :end
 
 :oldphp
 for /f "delims=" %%V in ('call "%PHP%" -r "echo PHP_VERSION;"') do set "PHPVER=%%V"
-echo  This project needs PHP 8.2 or newer, but found PHP %PHPVER%.
-echo  In Laragon: right-click the tray icon, PHP, Version, and pick 8.2 or newer
-echo  (or download PHP 8.2+ from https://windows.php.net/download and add it to PATH).
+echo  This project needs PHP 8.3 or newer, but found PHP %PHPVER%.
+echo  In Laragon: right-click the tray icon, PHP, Version, and pick 8.3 or newer
+echo  (or download PHP 8.3+ from https://windows.php.net/download and add it to PATH).
 goto :end
 
 :nophp

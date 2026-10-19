@@ -51,3 +51,58 @@
   if (location.hash === "#login") openModal("login");
   if (location.hash === "#signup") openModal("signup");
 })();
+
+/* Home page motion: things appear as they scroll into view, numbers count up, one hero line at a time.
+   Only with html.motion (set in the layout unless the visitor asked for reduced motion). */
+(function () {
+  "use strict";
+  var root = document.documentElement;
+  if (!root.classList.contains("motion")) return;
+
+  // count up from 0 when seen
+  function countUp(el) {
+    var to = parseFloat(el.getAttribute("data-count"));
+    if (!isFinite(to) || el.dataset.counted) return;
+    el.dataset.counted = "1";
+    var start = performance.now(), duration = 1400;
+    (function step(now) {
+      var t = Math.min(1, (now - start) / duration);
+      var eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = Math.round(to * eased).toLocaleString("en-US");
+      if (t < 1) requestAnimationFrame(step);
+    })(start);
+  }
+
+  var watched = document.querySelectorAll("[data-reveal], [data-count]");
+  if (!("IntersectionObserver" in window)) {
+    watched.forEach(function (el) { el.classList.add("in"); if (el.hasAttribute("data-count")) countUp(el); });
+  } else {
+    var seen = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("in");
+        if (entry.target.hasAttribute("data-count")) countUp(entry.target);
+        entry.target.querySelectorAll("[data-count]").forEach(countUp);
+        seen.unobserve(entry.target);
+      });
+    }, { threshold: 0.18, rootMargin: "0px 0px -40px 0px" });
+    watched.forEach(function (el) { seen.observe(el); });
+  }
+
+  // the hero line changes every few seconds
+  document.querySelectorAll("[data-rotator]").forEach(function (box) {
+    var lines = box.querySelectorAll("span");
+    if (lines.length < 2) return;
+    var i = 0;
+    setInterval(function () {
+      if (document.hidden) return;
+      var current = lines[i];
+      i = (i + 1) % lines.length;
+      current.classList.remove("on");
+      current.classList.add("out");
+      lines[i].classList.remove("out");
+      lines[i].classList.add("on");
+      setTimeout(function () { current.classList.remove("out"); }, 600);
+    }, 2800);
+  });
+})();

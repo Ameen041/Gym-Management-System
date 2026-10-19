@@ -28,7 +28,7 @@ class AuthController extends Controller
             'exercisesCount'   => Exercise::active()->count(),
             // featured first, then best rated
             'featuredTrainers' => $listed->sortByDesc(fn ($c) => [(int) $c->coachProfile->is_featured, $c->coachProfile->rating_avg])->take(3)->values(),
-            'latestReviews'    => Review::with(['trainee:id,name', 'coach:id,name'])
+            'latestReviews'    => Review::with(['trainee:id,name,deleted_at', 'coach:id,name'])
                 ->whereNotNull('comment')->where('rating', '>=', 4)->latest()->take(3)->get(),
         ]);
     }

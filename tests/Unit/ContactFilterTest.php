@@ -3,17 +3,18 @@
 namespace Tests\Unit;
 
 use App\Support\ContactFilter;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class ContactFilterTest extends TestCase
 {
-    /** @dataProvider blocked */
+    #[DataProvider('blocked')]
     public function test_contact_details_are_found(string $text, string $reason): void
     {
         $this->assertSame($reason, ContactFilter::check($text), $text);
     }
 
-    public function blocked(): array
+    public static function blocked(): array
     {
         return [
             'phone with spaces'       => ['0933 123 456', 'number'],
@@ -40,13 +41,13 @@ class ContactFilterTest extends TestCase
         ];
     }
 
-    /** @dataProvider allowed */
+    #[DataProvider('allowed')]
     public function test_training_talk_is_fine(string $text): void
     {
         $this->assertNull(ContactFilter::check($text), $text);
     }
 
-    public function allowed(): array
+    public static function allowed(): array
     {
         return array_map(fn ($t) => [$t], [
             '4 sets of 12', '3x10 بوزن 60 كغ', '12, 10, 8, 6', 'الأوزان: 60، 70، 80، 90', 'وزني صار 72.5 الحمد لله',
