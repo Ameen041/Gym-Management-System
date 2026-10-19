@@ -18,7 +18,8 @@ rem ==================================================================
 
 set "APP_ENV=local"
 set "PORT=8000"
-set "TOOLS=%LOCALAPPDATA%\Himma"
+rem The short (8.3) form of the folder keeps PHP happy with user names in any language
+for %%I in ("%LOCALAPPDATA%") do set "TOOLS=%%~sI\Himma"
 set "PHP_ZIP=php-8.3-nts-Win32-vs16-x64-latest.zip"
 
 echo.
@@ -48,9 +49,11 @@ if defined MISSING set PHPX=-d extension_dir="%PHPDIR%ext"%MISSING%
 
 rem ---- 2) PHP dependencies (vendor folder) ----------------------------
 rem Installed again whenever composer.lock changed since the last install
-"%PHP%" -r "exit(is_file('vendor/autoload.php') && is_file('vendor/.installed-lock') && file_get_contents('composer.lock') === file_get_contents('vendor/.installed-lock') ? 0 : 1);"
+"%PHP%" scripts\start-local.php deps-current
 if not errorlevel 1 goto :deps_ok
 echo  [2/5] Installing dependencies (first run or after an update, may take a few minutes)...
+"%PHP%" scripts\start-local.php drop-git
+if errorlevel 1 goto :fail
 call :getcomposer
 if not defined COMPOSER_PHAR goto :nocomposer
 "%PHP%" %PHPX% "%COMPOSER_PHAR%" install --no-interaction --prefer-dist
@@ -177,8 +180,8 @@ if not exist "%TOOLS%\php.zip" exit /b 1
 call :unzip "%TOOLS%\php.zip" "%TOOLS%\php"
 del "%TOOLS%\php.zip" >nul 2>nul
 if not exist "%TOOLS%\php\php.exe" exit /b 1
-rem PHP writes its own php.ini, so a folder name in any language works
-"%TOOLS%\php\php.exe" -n -r "$d = dirname(PHP_BINARY); $q = chr(34); $ini = ['extension_dir = ' . $q . $d . '\ext' . $q]; foreach (['curl', 'fileinfo', 'mbstring', 'openssl', 'pdo_sqlite', 'sqlite3', 'zip'] as $x) { $ini[] = 'extension = ' . $x; } $ini[] = 'upload_max_filesize = 8M'; $ini[] = 'post_max_size = 40M'; file_put_contents($d . '\php.ini', implode(PHP_EOL, $ini) . PHP_EOL);"
+rem PHP writes its own php.ini with the extensions Himma needs
+"%TOOLS%\php\php.exe" -n scripts\start-local.php php-ini
 call :tryphp "%TOOLS%\php\php.exe"
 exit /b 0
 
