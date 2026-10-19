@@ -118,6 +118,7 @@ Each user can also turn on **phone notifications**: every notification and every
 
 ## 🧠 Technical Architecture
 
+- Laravel 13 on PHP 8.3+ (tests on PHPUnit 12; CI checks PHP 8.3 and 8.4)
 - Laravel MVC Architecture
 - Role-Based Authorization using Middleware
 - JSON-based weekly plan storage
@@ -129,7 +130,7 @@ Each user can also turn on **phone notifications**: every notification and every
 
 ## 📦 System Requirements
 
-- PHP 8.2+ (extensions: pdo_sqlite or pdo_mysql / pdo_pgsql, mbstring, gd, fileinfo)
+- PHP 8.3+ (extensions: pdo_sqlite or pdo_mysql / pdo_pgsql, mbstring, gd, fileinfo)
 - Composer
 - A database: SQLite (local), MySQL or PostgreSQL (server)
 - Apache or Nginx with the document root on `public/` (the Dockerfile sets this up)
@@ -145,7 +146,7 @@ exercises, starts the server and opens the browser at `http://127.0.0.1:8000`.
 - No MySQL or Laragon services need to be running.
 - Local settings are stored in `.env.local` and `database/database.sqlite` (your `.env` is not touched).
 - Keep the window open while using the system; close it to stop the server.
-- Requires PHP 8 (Laragon's PHP works) and, only for the first run without a `vendor` folder, Composer.
+- Requires PHP 8.3+ (Laragon's PHP works) and, only for the first run without a `vendor` folder, Composer.
 
 To get a newer version later, double-click **`update.bat`**: it pulls the latest `master` from GitHub
 (using git from your PATH, Laragon or GitHub Desktop) and then starts the system. Your local database
