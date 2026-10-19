@@ -109,7 +109,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 .brand-mark svg{width:74%;height:74%;display:block}
 .brand-name{font-family:var(--font-display);font-weight:900;font-size:1.15rem;line-height:1.1}
 .brand-name small{display:block;font-family:var(--font-body);font-weight:600;font-size:.72rem;color:var(--muted);margin-top:3px}
-.side-nav{display:flex;flex-direction:column;gap:2px}
+/* the links scroll when there are many; language and logout stay at the bottom */
+.side-nav{display:flex;flex-direction:column;gap:2px;flex:1 1 auto;min-height:0;overflow-y:auto;scrollbar-width:thin;margin-inline-end:-6px;padding-inline-end:6px}
 .side-link{
   display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:12px;
   font-weight:600;color:var(--muted);transition:background .15s,color .15s;
@@ -124,7 +125,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .side-legal{padding:2px 12px 4px;font-size:.74rem;color:var(--faint)}
 .side-legal a{color:var(--muted)}
 .side-legal a:hover{color:var(--text)}
-.side-foot{margin-top:auto;display:flex;flex-direction:column;gap:6px;padding-top:12px;border-top:1px solid var(--line)}
+.side-foot{flex-shrink:0;margin-top:auto;display:flex;flex-direction:column;gap:6px;padding-top:12px;border-top:1px solid var(--line)}
 .side-foot form{display:block}
 .side-foot .side-link{width:100%;background:none;border:0;text-align:start}
 

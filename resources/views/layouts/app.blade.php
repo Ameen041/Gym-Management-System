@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>@yield('title')</title>
   @include('partials.theme-init')
+  {{-- the home page moves only with JS on and "reduce motion" off --}}
+  <script>if (!window.matchMedia || !matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('motion');</script>
   @include('partials.head')
   <link rel="stylesheet" href="{{ asset('vendor/fontawesome/css/all.min.css') }}">
   <link rel="stylesheet" href="{{ \App\Support\Asset::url('css/app.css') }}">
