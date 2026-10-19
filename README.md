@@ -139,14 +139,15 @@ Each user can also turn on **phone notifications**: every notification and every
 
 ## ▶️ Quick Start on Windows (one click)
 
-Double-click **`start-local.bat`** in the project folder. It finds PHP (from your PATH or Laragon),
-installs dependencies on the first run, creates a local SQLite database with the demo accounts and
+Double-click **`start-local.bat`** in the project folder. It finds PHP 8.3+ (from your PATH, Laragon
+or `C:\php`), installs dependencies, creates a local SQLite database with the demo accounts and
 exercises, starts the server and opens the browser at `http://127.0.0.1:8000`.
 
-- No MySQL or Laragon services need to be running.
+- Nothing else needs to be installed: if there is no PHP 8.3+, it downloads the official PHP 8.3 for
+  Windows (and Composer) once to `%LOCALAPPDATA%\Himma`. Laragon is not needed.
+- Dependencies are installed again by themselves whenever `composer.lock` changes (after an update).
 - Local settings are stored in `.env.local` and `database/database.sqlite` (your `.env` is not touched).
 - Keep the window open while using the system; close it to stop the server.
-- Requires PHP 8.3+ (Laragon's PHP works) and, only for the first run without a `vendor` folder, Composer.
 
 To get a newer version later, double-click **`update.bat`**: it pulls the latest `master` from GitHub
 (using git from your PATH, Laragon or GitHub Desktop) and then starts the system. Your local database

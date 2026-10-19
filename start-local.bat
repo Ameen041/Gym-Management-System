@@ -10,12 +10,16 @@ rem  Double-click this file: it prepares everything and opens the
 rem  system in your browser. Keep this window open while you use it;
 rem  close it to stop the server.
 rem
+rem  - PHP 8.3+: from PATH, Laragon or C:\php. If there is none, PHP
+rem    and Composer are downloaded once to %LOCALAPPDATA%\Himma
 rem  - Database: database\database.sqlite (created automatically)
 rem  - Settings: .env.local (your normal .env is NOT touched)
 rem ==================================================================
 
 set "APP_ENV=local"
 set "PORT=8000"
+set "TOOLS=%LOCALAPPDATA%\Himma"
+set "PHP_ZIP=php-8.3-nts-Win32-vs16-x64-latest.zip"
 
 echo.
 echo  ===============================================
@@ -23,39 +27,36 @@ echo             Himma - Local Server
 echo  ===============================================
 echo.
 
-rem ---- 1) Find PHP: PATH first, then Laragon --------------------------
+rem ---- 1) Find PHP 8.3+: PATH, Laragon, C:\php, then our own copy ---
 set "PHP="
-for /f "delims=" %%P in ('where php.exe 2^>nul') do if not defined PHP set "PHP=%%P"
-if not defined PHP for /d %%D in ("C:\laragon\bin\php\php-8*") do set "PHP=%%~D\php.exe"
+for /f "delims=" %%P in ('where php.exe 2^>nul') do call :tryphp "%%P"
+for /d %%D in (C:\laragon\bin\php\php-8*) do call :tryphp "%%~D\php.exe"
+call :tryphp "C:\php\php.exe"
+call :tryphp "%TOOLS%\php\php.exe"
+if not defined PHP call :getphp
 if not defined PHP goto :nophp
-if not exist "%PHP%" goto :nophp
 for %%P in ("%PHP%") do set "PHPDIR=%%~dpP"
 echo  [1/5] PHP found: %PHP%
-"%PHP%" -r "exit(version_compare(PHP_VERSION, '8.3.0', '<') ? 1 : 0);" || goto :oldphp
 
 rem Enable any required PHP extension that is not already loaded
 set "MISSING="
-for %%X in (pdo_sqlite sqlite3 mbstring openssl fileinfo) do (
+for %%X in (pdo_sqlite sqlite3 mbstring openssl fileinfo zip) do (
   "%PHP%" -m 2>nul | findstr /i /b /c:"%%X" >nul || call set "MISSING=%%MISSING%% -d extension=%%X"
 )
 set "PHPX="
 if defined MISSING set PHPX=-d extension_dir="%PHPDIR%ext"%MISSING%
 
 rem ---- 2) PHP dependencies (vendor folder) ----------------------------
-if exist "vendor\autoload.php" goto :deps_ok
-echo  [2/5] Installing dependencies (first run only, may take a few minutes)...
-where composer >nul 2>nul
-if not errorlevel 1 (
-  call composer install --no-interaction --prefer-dist
-  goto :deps_check
-)
-if exist "C:\laragon\bin\composer\composer.phar" (
-  "%PHP%" %PHPX% "C:\laragon\bin\composer\composer.phar" install --no-interaction --prefer-dist
-  goto :deps_check
-)
-goto :nocomposer
-:deps_check
+rem Installed again whenever composer.lock changed since the last install
+"%PHP%" -r "exit(is_file('vendor/autoload.php') && is_file('vendor/.installed-lock') && file_get_contents('composer.lock') === file_get_contents('vendor/.installed-lock') ? 0 : 1);"
+if not errorlevel 1 goto :deps_ok
+echo  [2/5] Installing dependencies (first run or after an update, may take a few minutes)...
+call :getcomposer
+if not defined COMPOSER_PHAR goto :nocomposer
+"%PHP%" %PHPX% "%COMPOSER_PHAR%" install --no-interaction --prefer-dist
+if errorlevel 1 goto :fail
 if not exist "vendor\autoload.php" goto :fail
+copy /y "composer.lock" "vendor\.installed-lock" >nul
 :deps_ok
 echo  [2/5] Dependencies OK
 
@@ -126,21 +127,21 @@ pushd public
 popd
 goto :end
 
-:oldphp
-for /f "delims=" %%V in ('call "%PHP%" -r "echo PHP_VERSION;"') do set "PHPVER=%%V"
-echo  This project needs PHP 8.3 or newer, but found PHP %PHPVER%.
-echo  In Laragon: right-click the tray icon, PHP, Version, and pick 8.3 or newer
-echo  (or download PHP 8.3+ from https://windows.php.net/download and add it to PATH).
-goto :end
-
 :nophp
-echo  PHP was not found.
-echo  Install PHP 8 (or Laragon), or add php.exe to your PATH, then run this file again.
+echo.
+echo  PHP 8.3 or newer was not found, and downloading it did not work.
+echo  Check the internet connection and run this file again. Or download PHP 8.3
+echo  ("VS16 x64 Non Thread Safe" zip) from https://windows.php.net/download
+echo  and unzip it to C:\php - this file finds it there.
+echo  If PHP is there but does not start, install the Visual C++ runtime:
+echo  https://aka.ms/vs/17/release/vc_redist.x64.exe
 goto :end
 
 :nocomposer
-echo  Composer was not found, and the "vendor" folder is missing.
-echo  Install Composer from https://getcomposer.org then run this file again.
+echo.
+echo  Composer was not found and could not be downloaded, and the "vendor" folder needs it.
+echo  Check the internet connection and run this file again,
+echo  or install Composer from https://getcomposer.org
 goto :end
 
 :fail
@@ -150,3 +151,68 @@ echo  Something went wrong - see the message above.
 :end
 echo.
 pause
+exit /b
+
+
+rem ==================================================================
+rem  Helpers (called with "call :name")
+rem ==================================================================
+
+rem Use %1 as PHP when it exists, runs, and is 8.3 or newer
+:tryphp
+if defined PHP exit /b 0
+if not exist "%~1" exit /b 0
+"%~1" -r "exit(version_compare(PHP_VERSION, '8.3.0', '<') ? 1 : 0);" >nul 2>nul
+if not errorlevel 1 set "PHP=%~1"
+exit /b 0
+
+rem Download PHP 8.3 (official Windows build) to %TOOLS%\php
+:getphp
+echo  [1/5] PHP 8.3 was not found on this computer - downloading it (about 32 MB, first time only)...
+if not exist "%TOOLS%" mkdir "%TOOLS%"
+if exist "%TOOLS%\php" rmdir /s /q "%TOOLS%\php"
+mkdir "%TOOLS%\php"
+call :download "%TOOLS%\php.zip" "https://windows.php.net/downloads/releases/latest/%PHP_ZIP%" "https://www.php.net/~windows/releases/latest/%PHP_ZIP%"
+if not exist "%TOOLS%\php.zip" exit /b 1
+call :unzip "%TOOLS%\php.zip" "%TOOLS%\php"
+del "%TOOLS%\php.zip" >nul 2>nul
+if not exist "%TOOLS%\php\php.exe" exit /b 1
+rem PHP writes its own php.ini, so a folder name in any language works
+"%TOOLS%\php\php.exe" -n -r "$d = dirname(PHP_BINARY); $q = chr(34); $ini = ['extension_dir = ' . $q . $d . '\ext' . $q]; foreach (['curl', 'fileinfo', 'mbstring', 'openssl', 'pdo_sqlite', 'sqlite3', 'zip'] as $x) { $ini[] = 'extension = ' . $x; } $ini[] = 'upload_max_filesize = 8M'; $ini[] = 'post_max_size = 40M'; file_put_contents($d . '\php.ini', implode(PHP_EOL, $ini) . PHP_EOL);"
+call :tryphp "%TOOLS%\php\php.exe"
+exit /b 0
+
+rem Find composer.phar (ours, Composer-Setup's, Laragon's) or download it
+:getcomposer
+set "COMPOSER_PHAR="
+if exist "%TOOLS%\composer.phar" set "COMPOSER_PHAR=%TOOLS%\composer.phar"
+if not defined COMPOSER_PHAR for /f "delims=" %%C in ('where composer 2^>nul') do if not defined COMPOSER_PHAR if exist "%%~dpCcomposer.phar" set "COMPOSER_PHAR=%%~dpCcomposer.phar"
+if not defined COMPOSER_PHAR if exist "C:\laragon\bin\composer\composer.phar" set "COMPOSER_PHAR=C:\laragon\bin\composer\composer.phar"
+if defined COMPOSER_PHAR exit /b 0
+echo  Downloading Composer (first time only)...
+if not exist "%TOOLS%" mkdir "%TOOLS%"
+call :download "%TOOLS%\composer.phar" "https://getcomposer.org/download/latest-stable/composer.phar" "https://getcomposer.org/composer-stable.phar"
+if exist "%TOOLS%\composer.phar" set "COMPOSER_PHAR=%TOOLS%\composer.phar"
+exit /b 0
+
+rem Save the first address that works (%2, then %3) to the file %1 (no file when both fail)
+:download
+if exist "%~1" del "%~1"
+for %%U in (%2 %3) do (
+  if not exist "%~1" if exist "%SystemRoot%\System32\curl.exe" (
+    "%SystemRoot%\System32\curl.exe" -fL -# --retry 2 -o "%~1" %%U
+    if errorlevel 1 if exist "%~1" del "%~1"
+  )
+  if not exist "%~1" (
+    powershell -NoProfile -ExecutionPolicy Bypass -Command "$ProgressPreference = 'SilentlyContinue'; [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -UseBasicParsing -Uri '%%~U' -OutFile '%~1'" 2>nul
+    if errorlevel 1 if exist "%~1" del "%~1"
+  )
+)
+exit /b 0
+
+rem Unzip %1 into the folder %2 (Windows tar, or PowerShell on older Windows)
+:unzip
+"%SystemRoot%\System32\tar.exe" -xf "%~1" -C "%~2" 2>nul
+if not errorlevel 1 exit /b 0
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Expand-Archive -LiteralPath '%~1' -DestinationPath '%~2' -Force"
+exit /b 0
