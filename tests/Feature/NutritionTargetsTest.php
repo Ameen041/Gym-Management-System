@@ -40,6 +40,29 @@ class NutritionTargetsTest extends TestCase
         ]);
     }
 
+    public function test_a_full_week_of_meals_is_saved_whole(): void
+    {
+        // 7 days x 6 meals x 8 foods: more than the 64 KB a MySQL TEXT column holds
+        $meals = [];
+        foreach (['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'] as $day) {
+            foreach (range(1, 6) as $number) {
+                $items = [];
+                foreach (range(1, 8) as $i) {
+                    $items["i$i"] = ['name' => "صدر دجاج مشوي مع أرز بسمتي وخضار مشكلة رقم $i", 'calories' => 300, 'protein' => 30, 'carbs' => 25, 'fat' => 8];
+                }
+                $meals["$day-$number"] = ['day' => $day, 'number' => $number, 'note' => 'وجبة متوازنة بعد التمرين بساعة', 'items' => $items];
+            }
+        }
+
+        $this->actingAs($this->coach)->post(route('coach.plans.save', [$this->sub, 'nutrition']), [
+            'title' => 'Full week', 'targets' => ['calories' => 2200, 'protein' => 160, 'carbs' => 230, 'fat' => 70], 'meals' => $meals,
+        ])->assertRedirect(route('coach.clients.show', $this->sub));
+
+        $stored = NutritionPlan::sole()->plan_details;
+        $this->assertGreaterThan(65535, strlen($stored));
+        $this->assertCount(7 * 6 * 8, collect(json_decode($stored, true))->flatten(1)->pluck('items')->flatten(1));
+    }
+
     public function test_the_builder_starts_with_the_daily_targets(): void
     {
         $this->actingAs($this->coach)->get(route('coach.plans.edit', [$this->sub, 'nutrition']))
@@ -52,7 +75,10 @@ class NutritionTargetsTest extends TestCase
         $this->send(['calories' => 2200, 'protein' => 160, 'carbs' => 230, 'fat' => 70])
             ->assertRedirect(route('coach.clients.show', $this->sub));
 
-        $this->assertSame(['calories' => 2200, 'protein' => 160, 'carbs' => 230, 'fat' => 70], NutritionPlan::sole()->targets);
+        // MySQL keeps JSON keys in its own order, so compare them sorted
+        $targets = NutritionPlan::sole()->targets;
+        ksort($targets);
+        $this->assertSame(['calories' => 2200, 'carbs' => 230, 'fat' => 70, 'protein' => 160], $targets);
 
         $this->actingAs($this->trainee)->get(route('trainee.diet', ['subscription' => $this->sub->id]))
             ->assertOk()->assertSee(__('Your daily target'))->assertSee('2200');
