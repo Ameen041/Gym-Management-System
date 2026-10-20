@@ -212,6 +212,10 @@ button{font:inherit;color:inherit;cursor:pointer}
 .btn-lg{height:50px;padding:0 22px;font-size:1rem}
 .btn-block{width:100%}
 .btn[disabled]{opacity:.5;pointer-events:none}
+
+/* page links under a long list (partials/pager) */
+.pager{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:16px}
+.pager-info{color:var(--muted);font-size:.85rem}
 [data-install-app][hidden]{display:none !important}
 
 /* ---------- Stats ---------- */

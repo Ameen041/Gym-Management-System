@@ -89,7 +89,7 @@
         </tbody>
       </table>
     </div>
-    <div style="margin-top:16px">{{ $subscriptions->links('pagination::simple-default') }}</div>
+    {{ $subscriptions->links('partials.pager') }}
   @endif
 </div>
 @endsection

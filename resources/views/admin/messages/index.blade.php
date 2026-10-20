@@ -61,7 +61,7 @@
         </tbody>
       </table>
     </div>
-    <div style="margin-top: 16px;">{{ $messages->links('pagination::simple-default') }}</div>
+    {{ $messages->links('partials.pager') }}
   @endif
 </div>
 @endsection

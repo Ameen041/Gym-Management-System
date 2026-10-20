@@ -51,7 +51,7 @@
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
     <div>
       <h2 style="color: var(--dark); margin: 0;">{{ __('All Users') }}</h2>
-      <p style="color: var(--gray-700); margin-top: 4px;">{{ __('Total: :count users', ['count' => $users->count()]) }}</p>
+      <p style="color: var(--gray-700); margin-top: 4px;">{{ __('Total: :count users', ['count' => $users->total()]) }}</p>
     </div>
 
     <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
@@ -180,6 +180,7 @@
         </tbody>
       </table>
     </div>
+    {{ $users->links('partials.pager') }}
   @endif
 </div>
 @endsection
