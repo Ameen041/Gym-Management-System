@@ -106,3 +106,31 @@ jobs:
           DB_USERNAME: root
           DB_PASSWORD: root
         run: vendor/bin/phpunit
+
+  # The server kit (deploy/) end to end on a clean Ubuntu machine: the same setup.sh a new
+  # server runs, the real image build, MySQL and Caddy, then the site over HTTPS.
+  server:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run setup.sh as on a new server
+        run: |
+          # a CI machine has no use for the firewall step
+          sudo mv /usr/sbin/ufw /usr/sbin/ufw.off || true
+          sudo DOMAIN=localhost ADMIN_EMAIL=admin@example.com ADMIN_PASSWORD='Test-password-123' bash deploy/setup.sh
+
+      - name: The site answers over HTTPS
+        run: |
+          curl -fsSk https://localhost/ | grep -q 'Himma\|همّة'
+          curl -fsSk -o /dev/null https://localhost/coaches
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost/)" = 308
+
+      - name: himma backup works
+        run: sudo himma backup && sudo ls /root/himma-backups | grep -q json.gz
+
+      - name: Logs
+        if: failure()
+        run: sudo docker compose --project-directory deploy -f deploy/compose.yml logs --tail=200
