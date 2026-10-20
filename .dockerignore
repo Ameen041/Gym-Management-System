@@ -24,3 +24,6 @@ bootstrap/cache/*.php
 public/storage
 *.bat
 .phpunit.result.cache
+
+# server settings with passwords (deploy/.env) and the rest of the server kit
+deploy

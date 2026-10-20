@@ -1,0 +1,89 @@
+# Himma on one server: the app, its MySQL database and Caddy (HTTPS in front).
+# Settings come from deploy/.env, written by setup.sh. Day to day, use the "himma" command.
+name: himma
+
+services:
+  app:
+    build: ..
+    image: himma-app
+    restart: unless-stopped
+    environment:
+      APP_NAME: Himma
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_KEY: ${APP_KEY}
+      APP_URL: https://${DOMAIN}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: himma
+      DB_USERNAME: himma
+      DB_PASSWORD: ${DB_PASSWORD}
+      MAIL_MAILER: ${MAIL_MAILER:-log}
+      MAIL_HOST: ${MAIL_HOST:-}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-}
+      MAIL_FROM_NAME: Himma
+      LOG_CHANNEL: stack
+      LOG_LEVEL: warning
+      SESSION_DRIVER: file
+      CACHE_DRIVER: file
+      QUEUE_CONNECTION: sync
+    volumes:
+      # uploads (receipts, photos), nightly backups, sessions and logs survive updates
+      - storage:/var/www/html/storage
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    environment:
+      MYSQL_DATABASE: himma
+      MYSQL_USER: himma
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - db:/var/lib/mysql
+    healthcheck:
+      # over TCP: the temporary server MySQL runs while it sets itself up the first time has no network
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  caddy:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN}
+      ACME_EMAIL: ${ADMIN_EMAIL}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - app
+
+volumes:
+  storage:
+  db:
+  caddy-data:
+  caddy-config:
