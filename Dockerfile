@@ -2,7 +2,8 @@ FROM php:8.3-apache
 
 # Enable Apache rewrite + set DocumentRoot to /public
 RUN a2enmod rewrite \
- && sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
+ && sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf \
+ && echo 'ServerName localhost' > /etc/apache2/conf-available/servername.conf && a2enconf servername
 
 # System deps + PHP extensions (MySQL + PostgreSQL)
 RUN apt-get update && apt-get install -y \
@@ -19,7 +20,12 @@ RUN { \
       echo 'upload_max_filesize=100M'; \
       echo 'post_max_size=110M'; \
       echo 'memory_limit=256M'; \
-    } > /usr/local/etc/php/conf.d/uploads.ini
+    } > /usr/local/etc/php/conf.d/uploads.ini \
+ && { \
+      echo '; OPcache (on in the PHP image) keeps compiled code in memory: room for all of it'; \
+      echo 'opcache.memory_consumption=128'; \
+      echo 'opcache.max_accelerated_files=20000'; \
+    } > /usr/local/etc/php/conf.d/opcache-himma.ini
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer

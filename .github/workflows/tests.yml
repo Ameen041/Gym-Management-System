@@ -57,3 +57,80 @@ jobs:
 
       - name: Run the tests
         run: vendor/bin/phpunit
+
+  # The live server runs MySQL, which is stricter than SQLite (column sizes, JSON key order),
+  # so the tests run on it too.
+  mysql:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: himma_test
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot --silent"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_mysql, gd, fileinfo, zip
+          coverage: none
+
+      - name: Find the Composer cache
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-8.3-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-8.3-
+
+      - name: Install PHP packages
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Run the tests on MySQL
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: himma_test
+          DB_USERNAME: root
+          DB_PASSWORD: root
+        run: vendor/bin/phpunit
+
+  # The server kit (deploy/) end to end on a clean Ubuntu machine: the same setup.sh a new
+  # server runs, the real image build, MySQL and Caddy, then the site over HTTPS.
+  server:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run setup.sh as on a new server
+        run: |
+          # a CI machine has no use for the firewall step
+          sudo mv /usr/sbin/ufw /usr/sbin/ufw.off || true
+          sudo DOMAIN=localhost ADMIN_EMAIL=admin@example.com ADMIN_PASSWORD='Test-password-123' bash deploy/setup.sh
+
+      - name: The site answers over HTTPS
+        run: |
+          curl -fsSk https://localhost/ | grep -q 'Himma\|همّة'
+          curl -fsSk -o /dev/null https://localhost/coaches
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost/)" = 308
+
+      - name: himma backup works
+        run: sudo himma backup && sudo ls /root/himma-backups | grep -q json.gz
+
+      - name: Logs
+        if: failure()
+        run: sudo docker compose --project-directory deploy -f deploy/compose.yml logs --tail=200
