@@ -30,15 +30,28 @@
 /* ---------- Workout rows ---------- */
 .wb-list{display:grid;gap:8px}
 .wb-row{
-  display:grid;grid-template-columns:24px 46px minmax(0,1fr) auto auto;gap:12px;align-items:center;
+  display:grid;grid-template-columns:28px 46px minmax(0,1fr) auto auto;gap:12px;align-items:center;
   padding:10px 12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
   animation:row-in .25s var(--ease);
 }
 @keyframes row-in{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}
-.wb-order{
-  width:24px;height:24px;border-radius:8px;display:grid;place-items:center;background:var(--surface-3);
-  color:var(--muted);font-size:.74rem;font-weight:800;font-variant-numeric:tabular-nums;
+/* drag handle with the exercise's number: the browser must not scroll when it is touched */
+.wb-handle{
+  align-self:stretch;width:28px;min-height:44px;padding:4px 0;border:0;border-radius:9px;background:var(--surface-3);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  color:var(--faint);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
 }
+.wb-handle i{font-size:.8rem}
+.wb-handle:hover,.wb-handle:focus-visible{color:var(--accent-text);background:var(--accent-soft)}
+.wb-order{color:var(--muted);font-size:.74rem;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.wb-row:only-child .wb-handle{cursor:default}
+.wb-row:only-child .wb-handle i{visibility:hidden}
+.wb-row.dragging{
+  position:relative;z-index:5;border-color:var(--accent);box-shadow:var(--shadow);animation:none;
+}
+.wb-row.dragging .wb-handle{cursor:grabbing;color:var(--accent-text);background:var(--accent-soft)}
+.wb-list.sorting{user-select:none;-webkit-user-select:none}
+.wb-list.sorting .wb-row:not(.dragging){opacity:.85}
 .wb-info{display:flex;flex-direction:column;gap:2px;min-width:0}
 .wb-name{font-weight:700;font-size:.95rem;line-height:1.35}
 .wb-meta{font-size:.76rem;color:var(--muted)}
@@ -49,7 +62,7 @@
 .wb-sr label{display:flex;flex-direction:column;gap:2px;font-size:.66rem;font-weight:700;color:var(--muted);text-align:center}
 .content .wb-sr input{width:64px;text-align:center;font-weight:800;font-variant-numeric:tabular-nums;padding:7px 4px}
 .wb-x{padding-bottom:9px;color:var(--faint);font-weight:800}
-.wb-actions{display:flex;gap:4px}
+.wb-actions,.wb-moves{display:flex;gap:4px}
 .wb-act{
   width:32px;height:32px;border-radius:9px;display:grid;place-items:center;border:1px solid var(--line);
   background:transparent;color:var(--muted);font-size:.8rem;
@@ -58,16 +71,18 @@
 .wb-act.danger:hover{color:var(--danger);border-color:var(--danger)}
 .wb-row:first-child [data-move="-1"],.wb-row:last-child [data-move="1"]{visibility:hidden}
 
+/* phones: handle, photo, name and ✕ on the first line; sets × reps and the arrows on the second */
 @media (max-width:760px){
-  .wb-row{grid-template-columns:24px 42px minmax(0,1fr) auto;row-gap:10px}
+  .wb-row{grid-template-columns:28px 42px minmax(0,1fr) auto;column-gap:10px;row-gap:10px}
   .wb-row .pick-icon{width:42px;height:42px}
+  .wb-handle{grid-row:1 / 3}
   .wb-info{grid-column:3 / 4}
-  .wb-actions{grid-column:4 / 5;grid-row:1}
-  .wb-sr{grid-column:1 / -1;justify-content:flex-start;padding-inline-start:36px}
+  .wb-actions{display:contents}
+  .wb-act[data-remove]{grid-column:4 / 5;grid-row:1;justify-self:end}
+  .wb-sr{grid-column:2 / 4;grid-row:2;justify-content:flex-start}
+  .wb-moves{grid-column:4 / 5;grid-row:2;align-self:end;gap:6px}
+  .wb-moves .wb-act{width:36px;height:36px}
   .wb-row.is-custom .wb-info{grid-template-columns:1fr}
-}
-@media (max-width:420px){
-  .wb-act[data-move]{display:none}
 }
 
 /* ---------- Picker list extras ---------- */

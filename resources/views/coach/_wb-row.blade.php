@@ -7,7 +7,10 @@
 <div class="wb-row {{ $ex ? '' : 'is-custom' }}" data-row>
   <input type="hidden" name="day[]" value="{{ $day }}" data-day-input>
   <input type="hidden" name="exercise_id[]" value="{{ $ex?->id }}" data-ex-id>
-  <span class="wb-order" data-order></span>
+  {{-- drag it (finger or mouse) to change the order; arrow keys work too when it has focus --}}
+  <button type="button" class="wb-handle" data-grip title="{{ __('Drag to change the order') }}" aria-label="{{ __('Drag to change the order') }}">
+    <i class="fas fa-grip-vertical"></i><span class="wb-order" data-order></span>
+  </button>
   <span class="pick-icon">
     @if($ex?->thumbnail)<img src="{{ $ex->thumbnail }}" alt="" loading="lazy">@else<i class="fas fa-dumbbell"></i>@endif
   </span>
@@ -33,8 +36,10 @@
     <label><span>{{ __('Reps') }}</span><input type="text" name="reps[]" value="{{ $row['reps'] ?? '' }}" maxlength="20"></label>
   </div>
   <div class="wb-actions">
-    <button type="button" class="wb-act" data-move="-1" title="{{ __('Move up') }}" aria-label="{{ __('Move up') }}"><i class="fas fa-arrow-up"></i></button>
-    <button type="button" class="wb-act" data-move="1" title="{{ __('Move down') }}" aria-label="{{ __('Move down') }}"><i class="fas fa-arrow-down"></i></button>
+    <span class="wb-moves">
+      <button type="button" class="wb-act" data-move="-1" title="{{ __('Move up') }}" aria-label="{{ __('Move up') }}"><i class="fas fa-arrow-up"></i></button>
+      <button type="button" class="wb-act" data-move="1" title="{{ __('Move down') }}" aria-label="{{ __('Move down') }}"><i class="fas fa-arrow-down"></i></button>
+    </span>
     <button type="button" class="wb-act danger" data-remove title="{{ __('Remove') }}" aria-label="{{ __('Remove') }}"><i class="fas fa-xmark"></i></button>
   </div>
 </div>
