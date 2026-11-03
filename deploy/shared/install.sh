@@ -160,7 +160,10 @@ if [ -f vendor/autoload.php ]; then artisan down --retry=30 >/dev/null 2>&1 || t
 trap 'if [ "$was_up" -eq 1 ]; then artisan up >/dev/null 2>&1 || true; fi' EXIT
 
 say "Installing PHP packages (the first time takes a few minutes)"
-"$PHP" -d memory_limit=-1 "$(composer_phar)" install --no-dev --optimize-autoloader --no-interaction --no-progress
+# Composer starts its scripts with proc_open, which shared hosting turns off: run them here instead
+"$PHP" -d memory_limit=-1 "$(composer_phar)" install --no-dev --optimize-autoloader --no-interaction --no-progress --no-scripts
+rm -f bootstrap/cache/packages.php bootstrap/cache/services.php
+artisan package:discover
 
 # ---- 3) App: key, database, files, caches --------------------------------------
 grep -q '^APP_KEY=base64:' "$ENV_FILE" || artisan key:generate --force
@@ -169,7 +172,8 @@ say "Database"
 artisan migrate --force
 artisan db:seed --force
 
-[ -L public/storage ] || artisan storage:link
+# photos people upload are served from storage/app/public
+[ -L public/storage ] || ln -s ../storage/app/public public/storage
 artisan optimize:clear >/dev/null
 artisan config:cache
 artisan route:cache

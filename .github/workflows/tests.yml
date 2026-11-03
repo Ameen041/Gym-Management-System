@@ -161,11 +161,13 @@ jobs:
           extensions: mbstring, pdo_mysql, fileinfo, zip
           coverage: none
 
-      - name: Run install.sh (with /proc hidden, like Hostinger's shell, which has no /dev/fd)
+      # Like Hostinger's shell: no /dev/fd (/proc hidden) and PHP without proc_open and friends
+      - name: Run install.sh as on Hostinger
         run: |
-          mkdir -p ~/domains/himma.test/public_html
+          mkdir -p ~/domains/himma.test/public_html ~/hostinger-ini
           echo 'old page' > ~/domains/himma.test/public_html/index.html
-          sudo unshare -m sh -c "mount -t tmpfs none /proc && exec runuser -u $USER -- env HOME=$HOME PATH=$PATH \
+          echo 'disable_functions = proc_open,popen,exec,shell_exec,system,passthru' > ~/hostinger-ini/hostinger.ini
+          sudo unshare -m sh -c "mount -t tmpfs none /proc && exec runuser -u $USER -- env HOME=$HOME PATH=$PATH PHP_INI_SCAN_DIR=:$HOME/hostinger-ini \
             DOMAIN=himma.test DB_HOST=127.0.0.1 DB_PORT=3306 DB_DATABASE=himma DB_USERNAME=root DB_PASSWORD=root \
             ADMIN_EMAIL=admin@example.com ADMIN_PASSWORD='Test-pa\$\$word1' bash deploy/shared/install.sh"
 
@@ -181,8 +183,15 @@ jobs:
             --data-urlencode 'password=Test-pa$$word1' http://localhost:8000/login
           test "$(curl -s -b jar -o /dev/null -w '%{http_code}' http://localhost:8000/admin/system)" = 200
 
+      - name: The nightly tasks run without proc_open
+        run: |
+          for task in app:backup app:check-in-reminders app:subscription-reminders; do
+            PHP_INI_SCAN_DIR=":$HOME/hostinger-ini" php artisan schedule:test --name="$task" | grep -q DONE
+          done
+          ls storage/app/backups | grep -q json.gz
+
       - name: Running it again updates and keeps one scheduled task
         run: |
-          bash deploy/shared/install.sh
+          PHP_INI_SCAN_DIR=":$HOME/hostinger-ini" bash deploy/shared/install.sh
           if command -v crontab >/dev/null; then test "$(crontab -l | grep -c 'artisan schedule:run')" = 1; fi
           test ! -f storage/framework/down
