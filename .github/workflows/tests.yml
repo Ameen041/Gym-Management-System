@@ -134,3 +134,54 @@ jobs:
       - name: Logs
         if: failure()
         run: sudo docker compose --project-directory deploy -f deploy/compose.yml logs --tail=200
+
+  # The shared-hosting install (deploy/shared/) as on Hostinger: a normal user, MariaDB,
+  # ~/domains/<domain>/public_html, then the site and the admin login, then an update.
+  shared:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: himma
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s --health-timeout=5s --health-retries=20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_mysql, fileinfo, zip
+          coverage: none
+
+      - name: Run install.sh
+        run: |
+          mkdir -p ~/domains/himma.test/public_html
+          echo 'old page' > ~/domains/himma.test/public_html/index.html
+          DOMAIN=himma.test DB_HOST=127.0.0.1 DB_PORT=3306 DB_DATABASE=himma DB_USERNAME=root DB_PASSWORD=root \
+            ADMIN_EMAIL=admin@example.com ADMIN_PASSWORD='Test-pa$$word"1' bash deploy/shared/install.sh
+
+      - name: The site answers from public_html, and the admin can log in
+        run: |
+          test "$(readlink -f ~/domains/himma.test/public_html)" = "$PWD/public"
+          test -f ~/domains/himma.test/public_html.before-himma/index.html
+          (cd ~/domains/himma.test/public_html && php -S 127.0.0.1:8000 "$GITHUB_WORKSPACE/vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php" >/dev/null 2>&1 &)
+          sleep 2
+          for p in / /coaches /terms; do test "$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:8000$p")" = 200; done
+          token="$(curl -s -c jar -b jar http://localhost:8000/ | grep -oE 'name="_token" value="[^"]+"' | head -1 | sed 's/.*value="//; s/"$//')"
+          curl -s -c jar -b jar -o /dev/null --data-urlencode "_token=$token" --data-urlencode email=admin@example.com \
+            --data-urlencode 'password=Test-pa$$word"1' http://localhost:8000/login
+          test "$(curl -s -b jar -o /dev/null -w '%{http_code}' http://localhost:8000/admin/system)" = 200
+
+      - name: Running it again updates and keeps one scheduled task
+        run: |
+          bash deploy/shared/install.sh
+          if command -v crontab >/dev/null; then test "$(crontab -l | grep -c 'artisan schedule:run')" = 1; fi
+          test ! -f storage/framework/down
