@@ -1099,12 +1099,17 @@
     "Install": "تثبيت",
     "Not now": "ليس الآن",
     "Install Himma": "تثبيت همّة",
-    "Tap the menu :icon at the top of the browser.": "اضغط على القائمة :icon في أعلى المتصفح.",
     "Choose \"Install app\" or \"Add to Home screen\", then confirm.": "اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية»، ثم أكّد.",
     "Open the site in Safari and tap Share :icon at the bottom.": "افتح الموقع في Safari واضغط زر المشاركة :icon في الأسفل.",
     "Choose \"Add to Home Screen\", then \"Add\".": "اختر «إضافة إلى الشاشة الرئيسية»، ثم «إضافة».",
     "Open the site in Chrome or Edge.": "افتح الموقع في Chrome أو Edge.",
     "Click the install icon at the end of the address bar (or the menu), then \"Install\".": "اضغط أيقونة التثبيت في آخر شريط العنوان (أو من القائمة)، ثم «تثبيت».",
     "Then Himma opens from its icon like any app, and its notifications reach you.": "بعدها تفتح همّة من أيقونتها مثل أي تطبيق، وتصلك إشعاراتها.",
-    "Got it": "تمام"
+    "Got it": "تمام",
+    "Your browser is ready: install Himma with one tap.": "متصفحك جاهز: ثبّت همّة بضغطة واحدة.",
+    "Install now": "ثبّت الآن",
+    "This page is open inside another app (Instagram, Facebook…), which cannot install apps.": "هذه الصفحة مفتوحة داخل تطبيق آخر (إنستغرام، فيسبوك…)، ولا يمكنه تثبيت التطبيقات.",
+    "Tap its menu :icon and choose \"Open in browser\".": "اضغط على قائمته :icon واختر «فتح في المتصفح».",
+    "In the browser, tap \"Install App\" again.": "في المتصفح، اضغط «تثبيت التطبيق» من جديد.",
+    "Tap the menu :icon at the top of Chrome (in Samsung Internet, :icon2 at the bottom).": "اضغط على القائمة :icon في أعلى Chrome (وفي متصفح سامسونج :icon2 في الأسفل)."
 }

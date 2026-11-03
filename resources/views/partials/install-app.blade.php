@@ -12,8 +12,18 @@
 <dialog class="install-help" data-install-help aria-labelledby="install-help-title">
   <form method="dialog">
     <h2 id="install-help-title"><img src="{{ asset('icons/icon-192.png') }}" alt="" width="36" height="36"> {{ __('Install Himma') }}</h2>
+    {{-- shown as soon as the browser offers its own install (it can take half a minute on the site) --}}
+    <div class="install-ready" data-install-ready hidden>
+      <p>{{ __('Your browser is ready: install Himma with one tap.') }}</p>
+      <button type="button" class="btn btn-primary btn-block" data-install-now><i class="fas fa-download"></i> {{ __('Install now') }}</button>
+    </div>
+    <ol data-platform="inapp" hidden>
+      <li>{{ __('This page is open inside another app (Instagram, Facebook…), which cannot install apps.') }}</li>
+      <li>{!! __('Tap its menu :icon and choose "Open in browser".', ['icon' => '<i class="fas fa-ellipsis"></i>']) !!}</li>
+      <li>{{ __('In the browser, tap "Install App" again.') }}</li>
+    </ol>
     <ol data-platform="android">
-      <li>{!! __('Tap the menu :icon at the top of the browser.', ['icon' => '<i class="fas fa-ellipsis-vertical"></i>']) !!}</li>
+      <li>{!! __('Tap the menu :icon at the top of Chrome (in Samsung Internet, :icon2 at the bottom).', ['icon' => '<i class="fas fa-ellipsis-vertical"></i>', 'icon2' => '<i class="fas fa-bars"></i>']) !!}</li>
       <li>{{ __('Choose "Install app" or "Add to Home screen", then confirm.') }}</li>
     </ol>
     <ol data-platform="ios" hidden>
@@ -25,6 +35,6 @@
       <li>{{ __('Click the install icon at the end of the address bar (or the menu), then "Install".') }}</li>
     </ol>
     <p class="muted small">{{ __('Then Himma opens from its icon like any app, and its notifications reach you.') }}</p>
-    <button class="btn btn-primary btn-block">{{ __('Got it') }}</button>
+    <button class="btn btn-block">{{ __('Got it') }}</button>
   </form>
 </dialog>
