@@ -120,3 +120,14 @@
     });
   });
 })();
+
+// The side menu (language, logout…) slides in from the ☰ button on small screens
+(function () {
+  if (!document.querySelector('.side')) return;
+  var setOpen = function (open) { document.body.classList.toggle('side-open', open); };
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('[data-side-toggle]')) setOpen(!document.body.classList.contains('side-open'));
+    else if (e.target.closest('[data-side-close]')) setOpen(false);
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
+})();

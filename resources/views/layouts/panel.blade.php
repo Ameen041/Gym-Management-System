@@ -43,7 +43,7 @@
   $chatUnread = in_array($role, ['trainee', 'trainer'], true) ? \App\Models\Conversation::unreadCountFor($me) : null;
 @endphp
 <div class="app">
-  <aside class="side">
+  <aside class="side" id="panel-side">
     <a href="{{ route('home') }}" class="brand">
       <span class="brand-mark">@include('partials.logo-mark')</span>
       <span class="brand-name">{{ __('Himma') }}<small>{{ $role === 'trainer' ? __('Coach area') : ($role === 'trainee' ? __('Trainee area') : __('Online coaching')) }}</small></span>
@@ -76,9 +76,11 @@
       @endauth
     </div>
   </aside>
+  <div class="side-backdrop" data-side-close></div>
 
   <div class="main">
     <header class="topbar">
+      <button type="button" class="icon-btn side-menu" data-side-toggle aria-controls="panel-side" aria-label="{{ __('Menu') }}"><i class="fas fa-bars"></i></button>
       <a href="{{ route('home') }}" class="brand" aria-label="{{ __('Himma') }}">
         <span class="brand-mark">@include('partials.logo-mark')</span>
       </a>

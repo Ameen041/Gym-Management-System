@@ -8,15 +8,8 @@
   --primary:var(--accent);
 }
 
-/* menu: always visible on desktop, slides in on small screens */
-.admin-menu{display:none}
-.side-backdrop{display:none}
+/* the menu slides in on small screens (app.css); no tab bar here, so less room below */
 @media (max-width:1023px){
-  .admin .side{display:flex;transform:translateX(-105%);transition:transform .25s var(--ease);box-shadow:var(--shadow-lg)}
-  html[dir="rtl"] .admin .side{transform:translateX(105%)}
-  .admin.side-open .side,html[dir="rtl"] .admin.side-open .side{transform:none}
-  .admin.side-open .side-backdrop{display:block;position:fixed;inset:0;z-index:35;background:var(--backdrop)}
-  .admin-menu{display:inline-grid}
   .admin .content{padding-bottom:40px}
 }
 

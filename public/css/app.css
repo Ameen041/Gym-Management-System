@@ -159,8 +159,17 @@ button{font:inherit;color:inherit;cursor:pointer}
 }
 .tabbar{display:none}
 
+/* the menu button and the dark layer behind the open menu exist only on small screens */
+.side-menu{display:none}
+.side-backdrop{display:none}
+
 @media (max-width:1023px){
-  .side{display:none}
+  /* the side menu (with language and logout) slides in from the ☰ button */
+  .side{z-index:70;transform:translateX(-105%);transition:transform .25s var(--ease);box-shadow:var(--shadow-lg);width:min(var(--side-w), 86vw)}
+  html[dir="rtl"] .side{transform:translateX(105%)}
+  .side-open .side,html[dir="rtl"] .side-open .side{transform:none}
+  .side-open .side-backdrop{display:block;position:fixed;inset:0;z-index:65;background:var(--backdrop)}
+  .side-menu{display:inline-grid}
   .main{margin-inline-start:0}
   .topbar{padding-left:max(14px, env(safe-area-inset-left, 0px));padding-right:max(14px, env(safe-area-inset-right, 0px))}
   .content{padding-bottom:calc(var(--tabbar-h) + 28px + env(safe-area-inset-bottom, 0px));padding-left:max(14px, env(safe-area-inset-left, 0px));padding-right:max(14px, env(safe-area-inset-right, 0px))}

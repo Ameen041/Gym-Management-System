@@ -1,5 +1,5 @@
 /* Himma service worker: makes the site installable, keeps static assets fast/offline and shows phone notifications. */
-const VERSION = 'v6';
+const VERSION = 'v7';
 const STATIC_CACHE = `himma-static-${VERSION}`;
 const OFFLINE_URL = '/offline.html';
 
