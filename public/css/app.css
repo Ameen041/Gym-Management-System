@@ -758,3 +758,6 @@ html.has-install-bar body{padding-bottom:84px}
   .table-wrapper .table td[data-label=""] > *{grid-column:1}
   .table-wrapper .table td.cell-empty{display:none}
 }
+.install-ready{margin-bottom:14px;padding:12px;border-radius:14px;background:var(--accent-soft)}
+.install-ready p{margin:0 0 10px;font-weight:700}
+.install-ready[hidden]{display:none}
