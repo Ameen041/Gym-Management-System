@@ -13,6 +13,8 @@ services:
       APP_DEBUG: "false"
       APP_KEY: ${APP_KEY}
       APP_URL: https://${DOMAIN}
+      # Caddy (below) sets the visitor's address itself, so the app can believe it
+      TRUSTED_PROXIES: "*"
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
       DB_CONNECTION: mysql
