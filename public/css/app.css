@@ -703,3 +703,58 @@ html[dir="rtl"] .chat-send i{transform:scaleX(-1)}
 .invite-stats div{display:grid;justify-items:center;gap:2px;padding:10px 6px;border-radius:12px;background:var(--surface-2)}
 .invite-stats b{font-family:var(--font-display);font-size:1.25rem;font-weight:900;font-variant-numeric:tabular-nums}
 .invite-stats span{color:var(--muted);font-size:.74rem;font-weight:700}
+
+/* ---------- Install the app (partials/install-app, js/app-install.js) ---------- */
+.install-btn{gap:7px}
+.install-bar{
+  position:fixed;inset-inline:12px;bottom:calc(12px + env(safe-area-inset-bottom, 0px));z-index:60;
+  display:flex;align-items:center;gap:10px;padding-block:10px;padding-inline:12px 10px;border-radius:16px;
+  background:var(--surface);border:1px solid var(--line-strong);box-shadow:0 12px 32px rgb(0 0 0 / .35);
+  animation:install-bar-in .35s ease-out both;
+}
+.install-bar[hidden]{display:none}
+.install-bar-icon{width:40px;height:40px;border-radius:10px;flex:0 0 auto}
+.install-bar-text{display:grid;gap:1px;min-width:0;flex:1}
+.install-bar-text strong{font-size:.9rem}
+.install-bar-text span{color:var(--muted);font-size:.76rem;line-height:1.35}
+.install-bar-close{width:32px;height:32px;border:0;border-radius:50%;background:transparent;display:grid;place-items:center;color:var(--muted);flex:0 0 auto;cursor:pointer}
+.install-bar-close:hover{background:var(--surface-2);color:var(--text)}
+html.has-install-bar body{padding-bottom:84px}
+@media (max-width:1023px){
+  /* above the tab bar of the coach and trainee pages */
+  body:has(.tabbar) .install-bar{bottom:calc(var(--tabbar-h) + 10px + env(safe-area-inset-bottom, 0px))}
+}
+@keyframes install-bar-in{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.install-bar{animation:none}}
+
+.install-help{
+  width:min(420px, calc(100vw - 32px));margin:auto;padding:22px;border:1px solid var(--line-strong);border-radius:20px;
+  background:var(--surface);color:var(--text);box-shadow:0 24px 60px rgb(0 0 0 / .45);
+}
+.install-help::backdrop{background:rgb(0 0 0 / .55)}
+.install-help h2{display:flex;align-items:center;gap:10px;margin:0 0 14px;font-size:1.15rem}
+.install-help h2 img{border-radius:9px}
+.install-help ol{margin:0 0 12px;padding-inline-start:20px;display:grid;gap:10px;line-height:1.6}
+.install-help ol i{display:inline-grid;place-items:center;width:26px;height:26px;margin:0 2px;border-radius:7px;background:var(--surface-2);color:var(--accent-text);font-size:.8rem;vertical-align:middle}
+.install-help .btn{margin-top:6px}
+
+/* ---------- Admin tables on phones: each row is a card, each value has its column's name ----------
+   (js/app.js copies the column names from <thead> into data-label) */
+@media (max-width:640px){
+  .table-wrapper{border:0;border-radius:0;overflow:visible}
+  .table-wrapper .table,.table-wrapper .table tbody,.table-wrapper .table tr,.table-wrapper .table td{display:block;width:100%}
+  .table-wrapper .table thead{display:none}
+  .table-wrapper .table tr{margin-bottom:10px;padding:4px 14px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+  /* the column name on one side, the cell's lines stacked on the other */
+  .table-wrapper .table td{
+    display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:14px;align-items:start;justify-items:end;
+    padding:9px 0;border-bottom:1px solid var(--line);text-align:end;overflow-wrap:anywhere;background:none !important;
+  }
+  .table-wrapper .table tr td:last-child{border-bottom:0}
+  .table-wrapper .table td::before{content:attr(data-label);grid-column:1;grid-row:1 / span 9;justify-self:start;max-width:40vw;text-align:start;color:var(--muted);font-size:.76rem;font-weight:700;padding-top:2px}
+  .table-wrapper .table td > *{grid-column:2;max-width:100%}
+  .table-wrapper .table td[data-label=""]{grid-template-columns:minmax(0,1fr)}
+  .table-wrapper .table td[data-label=""]::before{content:none}
+  .table-wrapper .table td[data-label=""] > *{grid-column:1}
+  .table-wrapper .table td.cell-empty{display:none}
+}

@@ -452,7 +452,6 @@
     "Tips & common mistakes": "نصائح وأخطاء شائعة",
     "Tips & common mistakes (one per line)": "نصائح وأخطاء شائعة (واحدة في كل سطر)",
     "Title": "العنوان",
-    "To install Himma: tap the Share button, then \"Add to Home Screen\".": "لتثبيت همّة: اضغط زر المشاركة ثم \"إضافة إلى الشاشة الرئيسية\".",
     "Top rated": "الأعلى تقييماً",
     "Total": "المجموع",
     "Total earned (after commission)": "مجموع الأرباح (بعد العمولة)",
@@ -1094,5 +1093,18 @@
     "Your coach sets your daily calories and macros, then fills every day until it is on target.": "يحدد مدربك سعراتك وماكروزك اليومية، ثم يملأ كل يوم حتى يصل إلى الهدف.",
     "days at most for your plan": "أيام كحد أقصى لتصلك الخطة",
     "Pages": "الصفحات",
-    "Page :page of :pages": "صفحة :page من :pages"
+    "Page :page of :pages": "صفحة :page من :pages",
+    "Install Himma on your phone": "ثبّت همّة على جوالك",
+    "It opens like an app, and notifications reach you.": "تفتح مثل أي تطبيق، وتصلك الإشعارات.",
+    "Install": "تثبيت",
+    "Not now": "ليس الآن",
+    "Install Himma": "تثبيت همّة",
+    "Tap the menu :icon at the top of the browser.": "اضغط على القائمة :icon في أعلى المتصفح.",
+    "Choose \"Install app\" or \"Add to Home screen\", then confirm.": "اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية»، ثم أكّد.",
+    "Open the site in Safari and tap Share :icon at the bottom.": "افتح الموقع في Safari واضغط زر المشاركة :icon في الأسفل.",
+    "Choose \"Add to Home Screen\", then \"Add\".": "اختر «إضافة إلى الشاشة الرئيسية»، ثم «إضافة».",
+    "Open the site in Chrome or Edge.": "افتح الموقع في Chrome أو Edge.",
+    "Click the install icon at the end of the address bar (or the menu), then \"Install\".": "اضغط أيقونة التثبيت في آخر شريط العنوان (أو من القائمة)، ثم «تثبيت».",
+    "Then Himma opens from its icon like any app, and its notifications reach you.": "بعدها تفتح همّة من أيقونتها مثل أي تطبيق، وتصلك إشعاراتها.",
+    "Got it": "تمام"
 }

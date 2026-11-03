@@ -9,7 +9,6 @@
       'field_required'   => __('This field is required'),
       'min_exercise_row' => __('This day must contain at least one exercise row.'),
       'min_meal_row'     => __('This day must contain at least one meal row.'),
-      'install_ios'      => __('To install Himma: tap the Share button, then "Add to Home Screen".'),
       'chat_failed'      => __('The message was not sent. Check your connection and try again.'),
   ];
 @endphp

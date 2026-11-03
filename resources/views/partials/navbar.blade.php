@@ -14,6 +14,7 @@
     </nav>
 
     <div class="site-actions">
+      <button type="button" class="btn btn-sm install-btn" data-install-app hidden><i class="fas fa-download"></i><span>{{ __('Install App') }}</span></button>
       <button type="button" class="icon-btn" data-theme-toggle title="{{ __('Day / night') }}" aria-label="{{ __('Day / night') }}">
         <i class="fas fa-moon theme-light-icon"></i><i class="fas fa-sun theme-dark-icon"></i>
       </button>

@@ -84,6 +84,7 @@
       </a>
       <div class="topbar-title">@yield('title')</div>
       <div class="topbar-actions">
+        <button type="button" class="icon-btn" data-install-app hidden title="{{ __('Install App') }}" aria-label="{{ __('Install App') }}"><i class="fas fa-download"></i></button>
         @include('partials.notification-bell')
         <button type="button" class="icon-btn" data-theme-toggle title="{{ __('Day / night') }}" aria-label="{{ __('Day / night') }}">
           <i class="fas fa-moon theme-light-icon"></i><i class="fas fa-sun theme-dark-icon"></i>
@@ -137,6 +138,7 @@
   </nav>
 </div>
 
+@include('partials.install-app')
 <script src="{{ \App\Support\Asset::url('js/app.js') }}" defer></script>
 @auth<script src="{{ \App\Support\Asset::url('js/push.js') }}" defer></script>@endauth
 @stack('scripts')
