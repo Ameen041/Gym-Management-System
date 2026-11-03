@@ -3,7 +3,10 @@
    - one tab per day, exercises listed as rows (sets × reps)
    - "Add exercise" opens a picker: search (Arabic / English),
      filter by muscle and equipment, tap to add
+   - the order of a day: drag a row by its handle (finger or mouse), the arrows,
+     or the arrow keys on the handle
    - form fields stay day[] / exercise_id[] / exercise[] / muscle[] / sets[] / reps[]
+     and are sent in the order the rows are shown
    ========================================================= */
 (function () {
   "use strict";
@@ -32,6 +35,7 @@
   let activeDay = form.dataset.firstDay || days[0].dataset.day;
 
   const templateRow = el(document.getElementById("wb-row-template").innerHTML);
+  const HANDLE_HTML = templateRow.querySelector(".wb-handle").outerHTML;
   const SR_HTML = templateRow.querySelector(".wb-sr").outerHTML;
   const ACTIONS_HTML = templateRow.querySelector(".wb-actions").outerHTML;
 
@@ -47,7 +51,7 @@
     const row = el(`<div class="wb-row" data-row>
       <input type="hidden" name="day[]" value="${esc(day)}" data-day-input>
       <input type="hidden" name="exercise_id[]" value="${ex.id}" data-ex-id>
-      <span class="wb-order" data-order></span>
+      ${HANDLE_HTML}
       <span class="pick-icon">${ex.t ? `<img src="${esc(ex.t)}" alt="" loading="lazy">` : '<i class="fas fa-dumbbell"></i>'}</span>
       <div class="wb-info">
         <input type="hidden" name="exercise[]" value="${esc(ex.n)}">
@@ -196,6 +200,124 @@
   document.querySelectorAll("[data-close-picker]").forEach((b) => b.addEventListener("click", closePicker));
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && picker.classList.contains("open")) closePicker(); });
 
+  // ---------- order ----------
+  // Rows that change place glide there instead of jumping (FLIP). A row still gliding from an
+  // earlier move starts from where it is shown now.
+  const shownShift = (r) => new DOMMatrix(getComputedStyle(r).transform).m42;
+  function glide(rows, change) {
+    const before = new Map(rows.map((r) => [r, r.getBoundingClientRect().top]));
+    change();
+    rows.forEach((r) => {
+      const dy = before.get(r) - r.getBoundingClientRect().top + shownShift(r);
+      if (!dy || r === drag?.row) return;
+      r.style.transition = "none";
+      r.style.transform = `translateY(${dy}px)`;
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        r.style.transition = "transform .18s ease";
+        r.style.transform = "";
+      }));
+    });
+  }
+
+  // one step up (-1) or down (1); keeps the focus on the button or handle that was used
+  function moveRow(row, step, focus) {
+    const sibling = step < 0 ? row.previousElementSibling : row.nextElementSibling;
+    if (!sibling) return;
+    glide([row, sibling], () => (step < 0 ? sibling.before(row) : sibling.after(row)));
+    refresh();
+    if (focus) focus.focus({ preventScroll: true });
+    row.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+
+  // Dragging: the row follows the finger, and passes a neighbour once it is over its middle
+  let drag = null;
+  const pageY = (clientY) => clientY + window.scrollY;
+
+  form.addEventListener("pointerdown", (e) => {
+    const grip = e.target.closest("[data-grip]");
+    if (!grip || drag || (e.pointerType === "mouse" && e.button !== 0)) return;
+    const row = grip.closest("[data-row]");
+    if (!row.parentElement.querySelector("[data-row] + [data-row]")) return; // a single exercise
+    e.preventDefault();
+    grip.setPointerCapture(e.pointerId);
+    drag = { row, list: row.parentElement, id: e.pointerId, startY: pageY(e.clientY), fromY: e.clientY, clientY: e.clientY, moved: false, raf: 0 };
+    row.style.transition = "none";
+    row.classList.add("dragging");
+    drag.list.classList.add("sorting");
+    drag.raf = requestAnimationFrame(autoScroll);
+  });
+
+  function follow() {
+    const { row } = drag;
+    row.style.transform = `translateY(${pageY(drag.clientY) - drag.startY}px)`;
+    const box = row.getBoundingClientRect();
+    const mid = box.top + box.height / 2;
+    const prev = row.previousElementSibling;
+    const next = row.nextElementSibling;
+    let target = null, after = false;
+    if (next && mid > next.getBoundingClientRect().top + next.getBoundingClientRect().height / 2) { target = next; after = true; }
+    else if (prev && mid < prev.getBoundingClientRect().top + prev.getBoundingClientRect().height / 2) target = prev;
+    if (!target) return;
+    // the row's place in the list changes with the move: the offset makes up for it, so it stays under the finger
+    const shift = pageY(drag.clientY) - drag.startY;
+    const top = box.top - shift;
+    glide([target], () => (after ? target.after(row) : target.before(row)));
+    drag.startY += row.getBoundingClientRect().top - shift - top;
+    row.style.transform = `translateY(${pageY(drag.clientY) - drag.startY}px)`;
+    refresh();
+  }
+
+  // near the top or bottom of the screen the page scrolls, so a long day can be sorted on a phone
+  const topbar = document.querySelector(".topbar");
+  const dock = form.querySelector(".dock");
+  function autoScroll() {
+    if (!drag) return;
+    if (!drag.moved) { drag.raf = requestAnimationFrame(autoScroll); return; } // a touch on the handle alone does not scroll
+    const edge = 70;
+    const top = (topbar ? topbar.getBoundingClientRect().bottom : 0) + edge;
+    const bottom = Math.min(window.innerHeight, dock ? dock.getBoundingClientRect().top : Infinity) - edge;
+    const speed = drag.clientY < top ? (drag.clientY - top) / 3 : drag.clientY > bottom ? (drag.clientY - bottom) / 3 : 0;
+    if (speed) {
+      const before = window.scrollY;
+      window.scrollBy(0, Math.max(-18, Math.min(18, speed)));
+      if (window.scrollY !== before) follow();
+    }
+    drag.raf = requestAnimationFrame(autoScroll);
+  }
+
+  form.addEventListener("pointermove", (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    drag.clientY = e.clientY;
+    if (Math.abs(e.clientY - drag.fromY) > 6) drag.moved = true;
+    follow();
+  });
+
+  function endDrag(e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    const { row, list, raf } = drag;
+    cancelAnimationFrame(raf);
+    drag = null;
+    list.classList.remove("sorting");
+    // it settles into its new place
+    row.style.transition = "transform .15s ease";
+    row.style.transform = "";
+    setTimeout(() => {
+      if (drag && drag.row === row) return;
+      row.classList.remove("dragging");
+      row.style.transition = "";
+    }, 170);
+    refresh();
+  }
+  form.addEventListener("pointerup", endDrag);
+  form.addEventListener("pointercancel", endDrag);
+
+  form.addEventListener("keydown", (e) => {
+    const grip = e.target.closest("[data-grip]");
+    if (!grip || (e.key !== "ArrowUp" && e.key !== "ArrowDown")) return;
+    e.preventDefault();
+    moveRow(grip.closest("[data-row]"), e.key === "ArrowUp" ? -1 : 1, grip);
+  });
+
   // ---------- form events ----------
   form.addEventListener("click", (e) => {
     const tab = e.target.closest("[data-tab]");
@@ -203,12 +325,7 @@
     const remove = e.target.closest("[data-remove]");
     if (tab) return showDay(tab.dataset.tab);
     if (e.target.closest("[data-open-picker]")) return openPicker();
-    if (move) {
-      const row = move.closest("[data-row]");
-      const sibling = move.dataset.move === "-1" ? row.previousElementSibling : row.nextElementSibling;
-      if (sibling) move.dataset.move === "-1" ? sibling.before(row) : sibling.after(row);
-      return refresh();
-    }
+    if (move) return moveRow(move.closest("[data-row]"), Number(move.dataset.move), move);
     if (remove) { remove.closest("[data-row]").remove(); refresh(); }
   });
 
