@@ -239,7 +239,8 @@ The admin account is created once and never overwritten, so a changed password i
 
 **On your own server (VPS):** [`deploy/`](deploy/README.md) sets up everything on a fresh Ubuntu server with one
 command: the app, MySQL, free HTTPS (Caddy), the firewall and nightly backups, plus a `himma` command for updates,
-logs and backups. The guide there is in Arabic. The steps below are for other hosts (e.g. Render).
+logs and backups. On shared hosting (e.g. Hostinger Premium, hPanel + SSH) use [`deploy/shared/`](deploy/shared/README.md)
+instead. Both guides are in Arabic. The steps below are for other hosts (e.g. Render).
 
 1. **Settings:** copy `.env.production.example` into the host's environment settings and fill it in
    (`APP_KEY`, `APP_URL` with https, database, `ADMIN_EMAIL` / `ADMIN_PASSWORD`, mail).

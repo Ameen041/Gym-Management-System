@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# Everyday commands for Himma on shared hosting (install.sh adds the "himma" alias).
+set -euo pipefail
+# shellcheck source=deploy/shared/lib.sh
+. "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/lib.sh"
+
+case "${1:-help}" in
+  update)
+    # newest version from GitHub, then the same steps as the install (settings and data are kept)
+    git -C "$APP" pull --ff-only
+    bash "$APP/deploy/shared/install.sh"
+    ;;
+  backup)
+    artisan app:backup
+    # shellcheck disable=SC2012 # backup names are plain (himma-date-time.json.gz)
+    latest="$(ls -t "$APP/storage/app/backups" | head -1)"
+    echo
+    # this SSH session's server address and port
+    read -r _ _ ssh_ip ssh_port <<<"${SSH_CONNECTION:-- - SERVER-IP 65002}"
+    echo "To copy it to your computer, run this in PowerShell on the computer:"
+    echo "  scp -P $ssh_port $USER@$ssh_ip:$APP/storage/app/backups/$latest ."
+    echo "(or download it from Admin -> System on the site)"
+    ;;
+  logs)
+    if [ -f "$APP/storage/logs/laravel.log" ]; then tail -n 60 "$APP/storage/logs/laravel.log"; else echo "No errors logged."; fi
+    ;;
+  status)
+    url="$(env_value APP_URL)"
+    code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "$url/" || true)"
+    if [ "$code" = 200 ]; then echo "Site $url: OK"; else echo "Site $url: no answer (${code:-none})"; fi
+    [ -f "$APP/storage/framework/down" ] && echo "Maintenance mode is on (himma artisan up to end it)."
+    artisan schedule:list
+    ;;
+  artisan)
+    shift
+    artisan "$@"
+    ;;
+  *)
+    cat <<'EOF'
+himma update    get the newest version from GitHub (settings and data are kept)
+himma backup    make a backup now and show how to download it
+himma logs      the latest errors, if any
+himma status    is the site answering, which tasks run when
+himma artisan   run a Laravel command, e.g. himma artisan about
+EOF
+    ;;
+esac
