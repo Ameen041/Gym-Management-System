@@ -225,7 +225,8 @@ EOF
 fi
 cat <<EOF
 
-  In hPanel -> Security -> SSL, make sure the certificate is on, and turn on "Force HTTPS".
+  In hPanel -> Security -> SSL, make sure the certificate is on (http:// goes to https:// by itself;
+  leave hPanel's "Force HTTPS" off, it can change files the updates bring).
   Then open Admin -> System: every line should be green.
 
   Everyday (open a new SSH session first, or run: source ~/.bashrc):
