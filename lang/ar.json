@@ -1111,5 +1111,7 @@
     "This page is open inside another app (Instagram, Facebook…), which cannot install apps.": "هذه الصفحة مفتوحة داخل تطبيق آخر (إنستغرام، فيسبوك…)، ولا يمكنه تثبيت التطبيقات.",
     "Tap its menu :icon and choose \"Open in browser\".": "اضغط على قائمته :icon واختر «فتح في المتصفح».",
     "In the browser, tap \"Install App\" again.": "في المتصفح، اضغط «تثبيت التطبيق» من جديد.",
-    "Tap the menu :icon at the top of Chrome (in Samsung Internet, :icon2 at the bottom).": "اضغط على القائمة :icon في أعلى Chrome (وفي متصفح سامسونج :icon2 في الأسفل)."
+    "Tap the menu :icon at the top of Chrome (in Samsung Internet, :icon2 at the bottom).": "اضغط على القائمة :icon في أعلى Chrome (وفي متصفح سامسونج :icon2 في الأسفل).",
+    "Your coach profile was approved. To appear on the coaches page, complete: :missing": "تمت الموافقة على ملفك كمدرب. لتظهر في صفحة المدربين أكمل: :missing",
+    "Coach approved. They will appear on the coaches page once they complete: :missing": "تمت الموافقة على المدرب. سيظهر في صفحة المدربين بعد أن يكمل: :missing"
 }

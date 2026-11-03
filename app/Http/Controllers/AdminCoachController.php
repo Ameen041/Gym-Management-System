@@ -50,7 +50,21 @@ class AdminCoachController extends Controller
     public function approve(User $coach)
     {
         abort_unless($coach->role === 'trainer', 404);
-        $coach->ensureCoachProfile()->update(['status' => 'approved', 'rejection_reason' => null]);
+        $profile = $coach->ensureCoachProfile();
+        $profile->update(['status' => 'approved', 'rejection_reason' => null]);
+
+        // The coaches page lists approved coaches with at least one active package:
+        // say plainly what is still missing instead of "you are visible now"
+        $missing = $profile->missingSteps();
+        if ($missing) {
+            Notify::user($coach, 'Your coach profile was approved. To appear on the coaches page, complete: :missing', [
+                'missing' => implode('، ', $missing),
+            ], Notify::link('trainer.dashboard'), 'fa-check-circle');
+
+            return back()->with('status', __('Coach approved. They will appear on the coaches page once they complete: :missing', [
+                'missing' => implode('، ', $missing),
+            ]));
+        }
 
         Notify::user($coach, 'Your coach profile was approved. Trainees can now find you and subscribe.', [],
             Notify::link('coaches.show', $coach), 'fa-check-circle');
