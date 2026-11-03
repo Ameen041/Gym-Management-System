@@ -326,3 +326,6 @@ html[dir="rtl"].motion .rm-fill{transform-origin:right}
   .motion *,.motion *::before,.motion *::after{animation:none !important;transition:none !important}
   .motion [data-reveal]{opacity:1;transform:none}
 }
+
+/* the header's install button keeps only its icon on small phones (the bar at the bottom explains) */
+@media (max-width:480px){ .install-btn span{display:none} .install-btn{padding:0 12px} }

@@ -106,3 +106,17 @@
     });
   });
 })();
+
+// Admin tables on phones become cards (app.css): each cell gets its column's name to show beside the value
+(function () {
+  document.querySelectorAll('.table-wrapper .table').forEach(function (table) {
+    var names = Array.prototype.map.call(table.querySelectorAll('thead th'), function (th) { return th.textContent.trim(); });
+    table.querySelectorAll('tbody tr').forEach(function (row) {
+      Array.prototype.forEach.call(row.children, function (cell, i) {
+        if (!cell.hasAttribute('data-label')) cell.setAttribute('data-label', names[i] || '');
+        // nothing to show (e.g. no actions for this row): the phone card skips the line
+        if (!cell.textContent.trim() && !cell.querySelector('img, a, button, input, select, form')) cell.classList.add('cell-empty');
+      });
+    });
+  });
+})();
