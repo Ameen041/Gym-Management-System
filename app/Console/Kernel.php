@@ -4,6 +4,7 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 
 class Kernel extends ConsoleKernel
@@ -19,14 +20,18 @@ class Kernel extends ConsoleKernel
         // Lets the admin System page see that the scheduler is running
         $schedule->call(fn () => Cache::forever('scheduler:heartbeat', now()->timestamp))->everyMinute();
 
+        // The commands run inside the scheduler's own PHP process: shared hosting (Hostinger)
+        // turns off proc_open, which $schedule->command() needs to start a new one.
+        $run = fn (string $command) => $schedule->call(fn () => Artisan::call($command))->name($command);
+
         // Weekly check-in reminders at 10:00 Damascus time (07:00 UTC)
-        $schedule->command('app:check-in-reminders')->dailyAt('07:00')->withoutOverlapping();
+        $run('app:check-in-reminders')->dailyAt('07:00')->withoutOverlapping();
 
         // Renewal, payment and plan reminders at 10:05 Damascus time
-        $schedule->command('app:subscription-reminders')->dailyAt('07:05')->withoutOverlapping();
+        $run('app:subscription-reminders')->dailyAt('07:05')->withoutOverlapping();
 
         // Daily database backup at 03:30 Damascus time (00:30 UTC)
-        $schedule->command('app:backup')->dailyAt('00:30')->withoutOverlapping();
+        $run('app:backup')->dailyAt('00:30')->withoutOverlapping();
     }
 
     /**
