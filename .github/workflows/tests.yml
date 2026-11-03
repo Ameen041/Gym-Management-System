@@ -161,12 +161,13 @@ jobs:
           extensions: mbstring, pdo_mysql, fileinfo, zip
           coverage: none
 
-      - name: Run install.sh
+      - name: Run install.sh (with /proc hidden, like Hostinger's shell, which has no /dev/fd)
         run: |
           mkdir -p ~/domains/himma.test/public_html
           echo 'old page' > ~/domains/himma.test/public_html/index.html
-          DOMAIN=himma.test DB_HOST=127.0.0.1 DB_PORT=3306 DB_DATABASE=himma DB_USERNAME=root DB_PASSWORD=root \
-            ADMIN_EMAIL=admin@example.com ADMIN_PASSWORD='Test-pa$$word"1' bash deploy/shared/install.sh
+          sudo unshare -m sh -c "mount -t tmpfs none /proc && exec runuser -u $USER -- env HOME=$HOME PATH=$PATH \
+            DOMAIN=himma.test DB_HOST=127.0.0.1 DB_PORT=3306 DB_DATABASE=himma DB_USERNAME=root DB_PASSWORD=root \
+            ADMIN_EMAIL=admin@example.com ADMIN_PASSWORD='Test-pa\$\$word1' bash deploy/shared/install.sh"
 
       - name: The site answers from public_html, and the admin can log in
         run: |
@@ -177,7 +178,7 @@ jobs:
           for p in / /coaches /terms; do test "$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:8000$p")" = 200; done
           token="$(curl -s -c jar -b jar http://localhost:8000/ | grep -oE 'name="_token" value="[^"]+"' | head -1 | sed 's/.*value="//; s/"$//')"
           curl -s -c jar -b jar -o /dev/null --data-urlencode "_token=$token" --data-urlencode email=admin@example.com \
-            --data-urlencode 'password=Test-pa$$word"1' http://localhost:8000/login
+            --data-urlencode 'password=Test-pa$$word1' http://localhost:8000/login
           test "$(curl -s -b jar -o /dev/null -w '%{http_code}' http://localhost:8000/admin/system)" = 200
 
       - name: Running it again updates and keeps one scheduled task

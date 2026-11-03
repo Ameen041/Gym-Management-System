@@ -13,18 +13,19 @@ set -euo pipefail
 . "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/lib.sh"
 
 ENV_FILE="$APP/.env"
-has_tty() { { : </dev/tty; } 2>/dev/null; }
+# Hostinger's shell has no /dev/fd and maybe no /dev/tty: questions use the terminal itself then
+tty_ok() { { : </dev/tty; } 2>/dev/null; }
+has_tty() { tty_ok || [ -t 0 ]; }
 
 # Ask on the terminal unless the answer was given as a variable
 ask() {
   local var="$1" prompt="$2" default="${3:-}" secret="${4:-}" reply=""
+  local opts=(-p "$prompt${default:+ [$default]}: ")
   if [ -n "${!var:-}" ]; then return; fi
   has_tty || die "No terminal to ask \"$prompt\": give $var=... before the command."
-  if [ -n "$secret" ]; then
-    read -r -s -p "$prompt: " reply </dev/tty; echo >/dev/tty
-  else
-    read -r -p "$prompt${default:+ [$default]}: " reply </dev/tty
-  fi
+  [ -n "$secret" ] && opts=(-s -p "$prompt: ")
+  if tty_ok; then read -r "${opts[@]}" reply </dev/tty; else read -r "${opts[@]}" reply; fi
+  if [ -n "$secret" ]; then echo >&2; fi
   printf -v "$var" '%s' "${reply:-$default}"
 }
 
@@ -43,7 +44,9 @@ if [ ! -f "$ENV_FILE" ]; then
   say "A few questions (Enter keeps the value in brackets)"
 
   domains=()
-  [ -d "$HOME/domains" ] && mapfile -t domains < <(find "$HOME/domains" -mindepth 1 -maxdepth 1 -type d -printf '%f\n')
+  for d in "$HOME"/domains/*/; do
+    if [ -d "$d" ]; then domains+=("$(basename "$d")"); fi
+  done
   ask DOMAIN "Domain of the site, without www" "$([ "${#domains[@]}" -eq 1 ] && echo "${domains[0]}")"
   DOMAIN="${DOMAIN#http://}"; DOMAIN="${DOMAIN#https://}"; DOMAIN="${DOMAIN#www.}"; DOMAIN="${DOMAIN%%/*}"
   DOMAIN="$(printf '%s' "$DOMAIN" | tr '[:upper:]' '[:lower:]')"

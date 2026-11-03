@@ -16,7 +16,8 @@ case "${1:-help}" in
     latest="$(ls -t "$APP/storage/app/backups" | head -1)"
     echo
     # this SSH session's server address and port
-    read -r _ _ ssh_ip ssh_port <<<"${SSH_CONNECTION:-- - SERVER-IP 65002}"
+    ssh_ip="$(echo "${SSH_CONNECTION:-- - SERVER-IP 65002}" | awk '{ print $3 }')"
+    ssh_port="$(echo "${SSH_CONNECTION:-- - SERVER-IP 65002}" | awk '{ print $4 }')"
     echo "To copy it to your computer, run this in PowerShell on the computer:"
     echo "  scp -P $ssh_port $USER@$ssh_ip:$APP/storage/app/backups/$latest ."
     echo "(or download it from Admin -> System on the site)"
