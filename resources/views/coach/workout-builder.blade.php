@@ -10,15 +10,16 @@
   use App\Models\Exercise;
   $byId = $library->keyBy('id');
 
-  // Rows per day: from the form after a validation error, otherwise from the saved plan
-  if (is_array(old('day'))) {
+  // Rows per day: from the form after a validation error, else from the draft the coach left, else from the saved plan
+  $input = session()->hasOldInput() ? session()->getOldInput() : ($restored?->data ?? null);
+  if (is_array($input['day'] ?? null)) {
       $details = [];
-      foreach (old('day') as $i => $oldDay) {
+      foreach ($input['day'] as $i => $inputDay) {
           $row = [];
           foreach (['muscle', 'exercise', 'exercise_id', 'sets', 'reps'] as $field) {
-              $row[$field] = old($field)[$i] ?? '';
+              $row[$field] = $input[$field][$i] ?? '';
           }
-          $details[$oldDay][] = $row;
+          $details[$inputDay][] = $row;
       }
   }
 
@@ -32,21 +33,18 @@
   $firstDay = collect($weekDays)->first(fn ($d) => !empty($details[$d])) ?? $weekDays[0];
 @endphp
 
-<form method="POST" action="{{ route('coach.plans.save', [$subscription, 'workout']) }}" id="workout-form" class="builder" data-first-day="{{ $firstDay }}">
+<form method="POST" action="{{ route('coach.plans.save', [$subscription, 'workout']) }}" id="workout-form" class="builder" data-first-day="{{ $firstDay }}"
+      data-autosave="{{ route('coach.plans.draft', [$subscription, 'workout']) }}" data-now="{{ now()->getTimestampMs() }}"
+      data-saved-at="{{ collect([$restored?->updated_at, $plan?->updated_at])->filter()->max()?->getTimestampMs() ?? 0 }}">
   @csrf
 
-  @if($draftFrom)
-    <div class="alert" role="status">
-      <i class="fas fa-copy"></i>
-      <div>{{ __('Started from the last plan (:date). Change what you need, then send.', ['date' => $draftFrom->updated_at->translatedFormat('j M')]) }}</div>
-    </div>
-  @endif
+  @include('coach._draft-banner')
 
   <div class="builder-top">
     <div class="builder-who">
       <img src="{{ $subscription->trainee->photo_url }}" alt="" class="avatar-sm">
       <div class="grow">
-        <input type="text" name="title" required maxlength="255" class="builder-title" value="{{ old('title', $plan->title ?? $draftFrom->title ?? '') }}"
+        <input type="text" name="title" required maxlength="255" class="builder-title" value="{{ $input['title'] ?? $plan->title ?? $draftFrom->title ?? '' }}"
                placeholder="{{ __('Plan name, e.g. Strength - Week 1') }}" aria-label="{{ __('Plan Title') }}">
         <span class="muted small">{{ $subscription->trainee->name }} · {{ $subscription->package_title }}</span>
       </div>
@@ -93,9 +91,13 @@
   @endforeach
 
   <div class="dock">
-    <div class="dock-info"><b data-dock-day></b><span data-dock-week></span></div>
+    <div class="dock-info"><b data-dock-day></b><span data-dock-week></span>@include('coach._draft-status')</div>
     <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-paper-plane"></i> {{ $plan ? __('Save') : __('Send') }}</button>
   </div>
+</form>
+<form id="discard-draft" method="POST" action="{{ route('coach.plans.draft.discard', [$subscription, 'workout']) }}" onsubmit="return confirm(@js(__('Discard the changes you did not send?')))">
+  @csrf
+  @method('DELETE')
 </form>
 
 {{-- Exercise picker --}}
@@ -157,4 +159,5 @@
   };
 </script>
 <script src="{{ \App\Support\Asset::url('js/workout-builder.js') }}"></script>
+<script src="{{ \App\Support\Asset::url('js/plan-autosave.js') }}"></script>
 @endpush

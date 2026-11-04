@@ -184,3 +184,8 @@
 .nb-week td.is-over{color:var(--danger)}
 .nb-week [data-summary-target] th{color:var(--muted)}
 @media (max-width:520px){ .range-row{grid-template-columns:54px minmax(0,1fr) 118px;gap:8px} .range-v b{font-size:.88rem} }
+
+/* ---------- Draft saved as the coach works (js/plan-autosave.js) ---------- */
+.autosave{display:block;margin-top:2px;font-size:.72rem;font-family:var(--font-body,inherit);color:var(--muted)}
+.autosave.is-saved::before{content:"✓ ";color:var(--accent-text);font-weight:800}
+.autosave.is-failed{color:var(--danger)}

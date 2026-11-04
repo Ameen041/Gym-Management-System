@@ -88,6 +88,10 @@ Route::middleware(['auth', 'active', 'role:trainer'])->group(function () {
             ->whereIn('type', ['workout', 'nutrition'])->name('plans.edit');
         Route::post('/clients/{subscription}/plan/{type}', [CoachPlanController::class, 'save'])
             ->whereIn('type', ['workout', 'nutrition'])->name('plans.save');
+        Route::post('/clients/{subscription}/plan/{type}/draft', [CoachPlanController::class, 'saveDraft'])
+            ->whereIn('type', ['workout', 'nutrition'])->name('plans.draft');
+        Route::delete('/clients/{subscription}/plan/{type}/draft', [CoachPlanController::class, 'discardDraft'])
+            ->whereIn('type', ['workout', 'nutrition'])->name('plans.draft.discard');
         Route::post('/clients/{subscription}/plan/{type}/repeat', [CoachPlanController::class, 'repeat'])
             ->whereIn('type', ['workout', 'nutrition'])->name('plans.repeat');
 
