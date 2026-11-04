@@ -60,9 +60,16 @@
 </div>
 
 <div class="card">
-  <h3 style="margin-bottom:12px">{{ __('Packages') }}</h3>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px">
+    <h3>{{ __('Packages') }}</h3>
+    @if($packages->isNotEmpty())
+      <a href="{{ route('admin.packages.index', ['coach' => $coach->id]) }}" class="btn btn-sm btn-light"><i class="fas fa-pen"></i> {{ __('Edit prices') }}</a>
+    @endif
+  </div>
   @forelse($packages as $package)
-    <p>{{ $package->title }} — <strong>{{ Money::format($package->price) }}</strong> / {{ __(':days days', ['days' => $package->duration_days]) }} · {{ $package->includes_label }} @unless($package->is_active)<span class="badge badge-warning">{{ __('Hidden') }}</span>@endunless</p>
+    <p>{{ $package->title }} — <strong>{{ Money::format($package->price) }}</strong> / {{ __(':days days', ['days' => $package->duration_days]) }} · {{ $package->includes_label }} @unless($package->is_active)<span class="badge badge-warning">{{ __('Hidden') }}</span>@endunless
+      @if($package->price_locked)<span class="badge badge-secondary"><i class="fas fa-lock"></i> {{ __('Locked') }}</span>@endif
+      @unless($package->in_range)<span class="badge badge-warning"><i class="fas fa-triangle-exclamation"></i> {{ __('Outside the range') }}</span>@endunless</p>
   @empty
     <p style="color:var(--gray-700)">{{ __('No packages yet.') }}</p>
   @endforelse

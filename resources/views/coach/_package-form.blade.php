@@ -1,5 +1,9 @@
-{{-- Package fields: $package (CoachPackage or null) --}}
-@php($durations = \App\Http\Controllers\Coach\PackageController::DURATIONS)
+{{-- Package fields: $package (CoachPackage or null). A price the admin locked can't be changed here. --}}
+@php
+  $durations = \App\Http\Controllers\Coach\PackageController::DURATIONS;
+  $locked = $package?->price_locked ?? false;
+  [$min30, $max30] = \App\Models\Setting::packagePriceRange(30);
+@endphp
 <div class="form-row">
   <div class="form-group">
     <label>{{ __('Package name') }}</label>
@@ -7,17 +11,22 @@
   </div>
   <div class="form-group">
     <label>{{ __('Price (USD)') }}</label>
-    <input type="number" name="price" min="5" max="1000" step="0.5" value="{{ $package->price ?? '' }}" required>
+    <input type="number" name="price" min="0.5" step="0.5" value="{{ $package->price ?? '' }}" required @disabled($locked)>
   </div>
   <div class="form-group">
     <label>{{ __('Duration') }}</label>
-    <select name="duration_days">
+    <select name="duration_days" @disabled($locked)>
       @foreach($durations as $days)
         <option value="{{ $days }}" @selected(($package->duration_days ?? 30) == $days)>{{ __(':days days', ['days' => $days]) }}</option>
       @endforeach
     </select>
   </div>
 </div>
+@if($locked)
+  <p class="muted small" style="margin-top:-6px"><i class="fas fa-lock"></i> {{ __('The admin set the price and duration of this package. You can still change the rest.') }}</p>
+@else
+  <p class="muted small" style="margin-top:-6px">{{ __('Allowed price: :min to :max for 30 days (twice that for 60 days, three times for 90).', ['min' => \App\Support\Money::format($min30), 'max' => \App\Support\Money::format($max30)]) }}</p>
+@endif
 <div class="form-group">
   <label>{{ __('What is included') }}</label>
   <div class="check-grid">
