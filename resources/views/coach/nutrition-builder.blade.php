@@ -9,9 +9,10 @@
 @php
   use App\Models\Food;
   use App\Support\NutritionMath;
-  // After a validation error, show what the coach typed instead of losing it
-  if (is_array(old('meals'))) {
-      $days = NutritionMath::builderDaysFromInput(old('meals'), $weekDays);
+  // After a validation error, or when the coach comes back to a draft, show what they typed instead of losing it
+  $input = session()->hasOldInput() ? session()->getOldInput() : ($restored?->data ?? null);
+  if (is_array($input['meals'] ?? null)) {
+      $days = NutritionMath::builderDaysFromInput($input['meals'], $weekDays);
   }
   $foodData = $foods->map(fn ($f) => [
       'id' => $f->id, 'n' => $f->display_name, 'en' => $f->name, 'ar' => $f->name_ar, 'cat' => $f->category,
@@ -20,27 +21,24 @@
   ])->values();
   $categoryCounts = $foods->countBy('category');
   $mealIndex = 0;
-  $targets = (array) old('targets', $targets);
+  $targets = (array) ($input['targets'] ?? $targets);
   $goal = \App\Http\Controllers\SubscriptionController::GOALS[$subscription->intake['goal'] ?? ''] ?? null;
   $macroLabels = ['calories' => __('Calories'), 'protein' => __('Protein'), 'carbs' => __('Carbs'), 'fat' => __('Fat')];
   $firstDay = collect($weekDays)->first(fn ($d) => !empty($days[$d])) ?? $weekDays[0];
 @endphp
 
-<form method="POST" action="{{ route('coach.plans.save', [$subscription, 'nutrition']) }}" id="nutrition-form" class="builder" data-first-day="{{ $firstDay }}">
+<form method="POST" action="{{ route('coach.plans.save', [$subscription, 'nutrition']) }}" id="nutrition-form" class="builder" data-first-day="{{ $firstDay }}"
+      data-autosave="{{ route('coach.plans.draft', [$subscription, 'nutrition']) }}" data-now="{{ now()->getTimestampMs() }}"
+      data-saved-at="{{ collect([$restored?->updated_at, $plan?->updated_at])->filter()->max()?->getTimestampMs() ?? 0 }}">
   @csrf
 
-  @if($draftFrom)
-    <div class="alert" role="status">
-      <i class="fas fa-copy"></i>
-      <div>{{ __('Started from the last plan (:date). Change what you need, then send.', ['date' => $draftFrom->updated_at->translatedFormat('j M')]) }}</div>
-    </div>
-  @endif
+  @include('coach._draft-banner')
 
   <div class="builder-top">
     <div class="builder-who">
       <img src="{{ $subscription->trainee->photo_url }}" alt="" class="avatar-sm">
       <div class="grow">
-        <input type="text" name="title" required maxlength="255" class="builder-title" value="{{ old('title', $plan->title ?? $draftFrom->title ?? '') }}"
+        <input type="text" name="title" required maxlength="255" class="builder-title" value="{{ $input['title'] ?? $plan->title ?? $draftFrom->title ?? '' }}"
                placeholder="{{ __('Plan name, e.g. Cutting - Week 1') }}" aria-label="{{ __('Plan Title') }}">
         <span class="muted small">{{ $subscription->trainee->name }} · {{ $subscription->package_title }}</span>
       </div>
@@ -147,9 +145,13 @@
   </details>
 
   <div class="dock">
-    <div class="dock-info"><b data-dock-day></b><span data-dock-sub></span></div>
+    <div class="dock-info"><b data-dock-day></b><span data-dock-sub></span>@include('coach._draft-status')</div>
     <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-paper-plane"></i> {{ $plan ? __('Save') : __('Send') }}</button>
   </div>
+</form>
+<form id="discard-draft" method="POST" action="{{ route('coach.plans.draft.discard', [$subscription, 'nutrition']) }}" onsubmit="return confirm(@js(__('Discard the changes you did not send?')))">
+  @csrf
+  @method('DELETE')
 </form>
 
 {{-- Food picker --}}
@@ -214,4 +216,5 @@
   };
 </script>
 <script src="{{ \App\Support\Asset::url('js/nutrition-builder.js') }}"></script>
+<script src="{{ \App\Support\Asset::url('js/plan-autosave.js') }}"></script>
 @endpush

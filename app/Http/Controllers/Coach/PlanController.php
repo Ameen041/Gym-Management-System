@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Exercise;
 use App\Models\Food;
 use App\Models\NutritionPlan;
+use App\Models\PlanDraft;
 use App\Models\PlanTemplate;
 use App\Models\Subscription;
 use App\Models\WorkoutPlan;
@@ -32,6 +33,9 @@ class PlanController extends Controller
         // a renewal starts from the last plan, so the coach only changes what is needed
         $draftFrom = $plan ? null : $this->lastPlan($subscription, $type);
         $source = $plan ?? $draftFrom;
+        // what the coach was doing before leaving the page comes back (unless the form was just sent back with errors)
+        $draft = PlanDraft::where('subscription_id', $subscription->id)->where('type', $type)->first();
+        $restored = $draft && !session()->hasOldInput() ? $draft : null;
 
         if ($type === 'nutrition') {
             return view('coach.nutrition-builder', [
@@ -45,6 +49,7 @@ class PlanController extends Controller
                 'templates'    => PlanTemplate::where('type', 'nutrition')->where('is_active', true)->orderBy('title')->get(),
                 'foods'        => Food::active()->get()->sortBy(fn ($f) => $f->display_name)->values(),
                 'weekDays'     => self::WEEK_DAYS,
+                'restored'     => $restored,
             ]);
         }
 
@@ -56,7 +61,32 @@ class PlanController extends Controller
             'templates'    => PlanTemplate::where('type', 'workout')->where('is_active', true)->orderBy('title')->get(),
             'library'      => Exercise::active()->get()->sortBy(fn ($e) => $e->display_name)->values(),
             'weekDays'     => self::WEEK_DAYS,
+            'restored'     => $restored,
         ]);
+    }
+
+    /** Saves the builder form as it is, a few seconds after each change and when the coach leaves the page. */
+    public function saveDraft(Request $request, Subscription $subscription, string $type)
+    {
+        $this->authorizePlan($subscription, $type);
+
+        $data = $request->only(PlanDraft::FIELDS[$type]);
+        // no rows is a choice too (all removed), not "nothing saved"
+        $data[$type === 'workout' ? 'day' : 'meals'] = (array) $request->input($type === 'workout' ? 'day' : 'meals', []);
+        abort_if(strlen(json_encode($data)) > 1_000_000, 413);
+
+        PlanDraft::updateOrCreate(['subscription_id' => $subscription->id, 'type' => $type], ['data' => $data]);
+
+        return response()->json(['saved' => true]);
+    }
+
+    /** Back to the plan as it was sent (or to an empty builder). */
+    public function discardDraft(Subscription $subscription, string $type)
+    {
+        $this->authorizePlan($subscription, $type);
+        PlanDraft::where('subscription_id', $subscription->id)->where('type', $type)->delete();
+
+        return redirect()->route('coach.plans.edit', [$subscription, $type]);
     }
 
     public function save(Request $request, Subscription $subscription, string $type)
@@ -149,6 +179,7 @@ class PlanController extends Controller
     {
         $model = $type === 'workout' ? WorkoutPlan::class : NutritionPlan::class;
         $isUpdate = $model::where('subscription_id', $subscription->id)->exists();
+        PlanDraft::where('subscription_id', $subscription->id)->where('type', $type)->delete();
         $model::updateOrCreate(
             ['subscription_id' => $subscription->id],
             [

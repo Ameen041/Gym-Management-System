@@ -1139,5 +1139,13 @@
     "Lowest price for 30 days (USD)": "أقل سعر لكل 30 يوماً (دولار)",
     "Highest price for 30 days (USD)": "أعلى سعر لكل 30 يوماً (دولار)",
     "Coaches choose their price inside this range: twice it for 60-day packages, three times for 90. To set one package's price yourself, open Packages.": "يختار المدربون أسعارهم ضمن هذا المجال: الضعف لباقات 60 يوماً، وثلاثة أضعاف لباقات 90 يوماً. لتحديد سعر باقة بعينها بنفسك، افتح صفحة الباقات.",
-    "Edit prices": "تعديل الأسعار"
+    "Edit prices": "تعديل الأسعار",
+    "Your changes that were not sent yet are back (:time). Send the plan when it is ready.": "رجعت تعديلاتك التي لم تُرسل بعد (:time). أرسل الخطة عندما تصبح جاهزة.",
+    "Back to the sent plan": "الرجوع للخطة المرسلة",
+    "Start over": "البدء من جديد",
+    "Saving…": "جارٍ الحفظ…",
+    "Draft saved": "تم حفظ المسودة",
+    "Not saved yet, check the internet": "لم تُحفظ بعد، تحقق من الإنترنت",
+    "Saved as a draft as you go": "يُحفظ كمسودة تلقائياً",
+    "Discard the changes you did not send?": "تجاهل التعديلات التي لم تُرسلها؟"
 }
