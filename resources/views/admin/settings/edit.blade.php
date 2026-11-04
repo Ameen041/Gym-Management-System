@@ -28,6 +28,20 @@
     <small style="color:var(--gray-700)">{{ __('A payment becomes payable to the coach after the coach sends the plan and this many days pass since you confirmed it. This leaves time to refund a trainee if something goes wrong. 0 = right after the plan is sent.') }}</small>
   </div>
 
+  <h3 id="package-prices" style="margin:24px 0 16px"><i class="fas fa-tags"></i> {{ __('Package prices') }}</h3>
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label">{{ __('Lowest price for 30 days (USD)') }}</label>
+      <input type="number" name="package_min_monthly" step="0.5" min="1" max="10000" class="form-control" style="max-width:200px" value="{{ old('package_min_monthly', $settings['package_min_monthly']) }}" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label">{{ __('Highest price for 30 days (USD)') }}</label>
+      <input type="number" name="package_max_monthly" step="0.5" min="1" max="10000" class="form-control" style="max-width:200px" value="{{ old('package_max_monthly', $settings['package_max_monthly']) }}" required>
+    </div>
+  </div>
+  <small style="color:var(--gray-700);display:block;margin-top:-8px">{{ __('Coaches choose their price inside this range: twice it for 60-day packages, three times for 90. To set one package\'s price yourself, open Packages.') }}
+    <a href="{{ route('admin.packages.index') }}">{{ __('Packages') }}</a></small>
+
   <h3 style="margin:24px 0 16px"><i class="fas fa-wallet"></i> {{ __('Sham Cash account (shown to trainees when they pay)') }}</h3>
   <div class="form-group">
     <label class="form-label">{{ __('Account name') }}</label>

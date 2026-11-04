@@ -268,6 +268,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 .content input[type=file]{padding:8px}
 .content input[type=checkbox],.content input[type=radio]{accent-color:var(--accent);width:18px;height:18px}
 .form-row{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr))}
+/* a field the user cannot change here (e.g. a package price the admin locked) */
+input:disabled,select:disabled,textarea:disabled{opacity:.55;cursor:not-allowed}
 .check-grid{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(min(100%,180px),1fr))}
 .check{display:flex;align-items:center;gap:9px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;cursor:pointer;font-weight:600;font-size:.9rem;background:var(--surface)}
 .check:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}

@@ -16,12 +16,14 @@
 @php
   $paymentsToReview = \App\Models\Subscription::where('status', 'payment_review')->count();
   $coachesPending   = \App\Models\CoachProfile::where('status', 'pending')->count();
+  $packagesOutOfRange = \App\Models\CoachPackage::outOfRange()->where('is_active', true)->count();
   $unreadMessages   = \App\Models\ContactMessage::where('is_read', false)->count();
   $openChatReports  = \App\Models\ChatReport::open()->count();
   $adminLinks = [
       ['admin.dashboard',           'admin.dashboard',       'fa-gauge-high',        __('Dashboard'),     0],
       ['admin.subscriptions.index', 'admin.subscriptions.*', 'fa-receipt',           __('Payments'),      $paymentsToReview],
       ['admin.coaches.index',       'admin.coaches.*',       'fa-user-tie',          __('Coaches'),       $coachesPending],
+      ['admin.packages.index',      'admin.packages.*',      'fa-tags',              __('Packages'),      $packagesOutOfRange],
       ['admin.payouts.index',       'admin.payouts.*',       'fa-hand-holding-dollar', __('Coach payouts'), 0],
       ['admin.users.index',         'admin.users.*',         'fa-users',             __('Users'),         0],
       ['admin.exercises.index',     'admin.exercises.*',     'fa-dumbbell',          __('Exercises'),     0],

@@ -21,6 +21,7 @@
             <div class="grow">
               <strong>{{ $package->title }}</strong>
               @unless($package->is_active)<span class="badge badge-muted">{{ __('Hidden') }}</span>@endunless
+              @if($package->price_locked)<span class="badge badge-muted"><i class="fas fa-lock"></i> {{ __('Price set by the admin') }}</span>@endif
               <div class="muted small">{{ $package->includes_label }}</div>
             </div>
             <div style="text-align:end">

@@ -13,6 +13,7 @@ use App\Http\Controllers\AdminSubscriptionController;
 use App\Http\Controllers\AdminPayoutController;
 use App\Http\Controllers\AdminSettingController;
 use App\Http\Controllers\AdminMessageController;
+use App\Http\Controllers\AdminPackageController;
 use App\Http\Controllers\AdminSystemController;
 use App\Http\Controllers\ExerciseController;
 use App\Http\Controllers\LocaleController;
@@ -176,6 +177,10 @@ Route::middleware(['auth','active','role:admin'])
         Route::post('/coaches/{coach}/approve', [AdminCoachController::class, 'approve'])->name('coaches.approve');
         Route::post('/coaches/{coach}/reject',  [AdminCoachController::class, 'reject'])->name('coaches.reject');
         Route::post('/coaches/{coach}/feature', [AdminCoachController::class, 'toggleFeatured'])->name('coaches.feature');
+
+        // Every coach's packages: prices, visibility, price lock
+        Route::get('/packages', [AdminPackageController::class, 'index'])->name('packages.index');
+        Route::put('/packages/{package}', [AdminPackageController::class, 'update'])->name('packages.update');
 
         // Subscriptions & Sham Cash payments
         Route::get('/subscriptions', [AdminSubscriptionController::class, 'index'])->name('subscriptions.index');

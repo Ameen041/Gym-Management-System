@@ -13,6 +13,8 @@ class Setting extends Model
         'commission_rate'      => '15',
         'invite_commission_rate' => '5',   // on clients a coach brings with their invite link
         'payout_hold_days'     => '7',
+        'package_min_monthly'  => '5',     // the price range coaches can choose, per 30 days
+        'package_max_monthly'  => '500',
         'shamcash_name'        => '',
         'shamcash_account'     => '',
         'shamcash_qr'          => '',
@@ -47,6 +49,20 @@ class Setting extends Model
     public static function commissionRate(): float
     {
         return (float) self::get('commission_rate');
+    }
+
+    /**
+     * Lowest and highest price a coach may set for a package of $days days: the monthly range
+     * set by the admin, times the number of months (a 90-day package may cost three times more).
+     */
+    public static function packagePriceRange(int $days): array
+    {
+        $months = max(1, $days) / 30;
+
+        return [
+            round((float) self::get('package_min_monthly') * $months * 2) / 2,
+            round((float) self::get('package_max_monthly') * $months * 2) / 2,
+        ];
     }
 
     /** Commission on a coach's own clients (signed up from the coach's invite link). */
