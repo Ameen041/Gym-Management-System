@@ -6,26 +6,43 @@
 
 <div class="ex-detail">
   <div class="ex-main">
-    <div class="ex-video">
-      @if($exercise->embed_url)
-        <iframe src="{{ $exercise->embed_url }}" title="{{ $exercise->display_name }}"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen loading="lazy"></iframe>
-      @elseif($exercise->video_src)
+    @php($frames = $exercise->frame_urls)
+    @if($exercise->video_src)
+      <div class="ex-video">
         <video src="{{ $exercise->video_src }}" controls playsinline preload="metadata" @if($exercise->thumbnail) poster="{{ $exercise->thumbnail }}" @endif></video>
-      @else
-        <div class="ex-novideo">
-          <i class="fas fa-video"></i>
-          <p>{{ __('No video yet') }}</p>
-          <div class="form-actions" style="justify-content:center">
-            @if(app()->isLocale('ar') && $exercise->youtube_search_url_ar)
-              <a href="{{ $exercise->youtube_search_url_ar }}" target="_blank" rel="noopener" class="btn btn-sm btn-youtube"><i class="fab fa-youtube"></i> {{ __('Arabic videos') }}</a>
-            @endif
-            <a href="{{ $exercise->youtube_search_url }}" target="_blank" rel="noopener" class="btn btn-sm btn-youtube"><i class="fab fa-youtube"></i> {{ __('YouTube') }}</a>
-          </div>
+      </div>
+    @elseif($frames)
+      {{-- the drawings of the start and end position take turns, so the movement shows like a short clip --}}
+      <figure class="ex-demo {{ $exercise->is_drawing ? 'is-drawing' : '' }}" data-demo>
+        <div class="ex-demo-stage">
+          @foreach($frames as $i => $src)
+            <img src="{{ $src }}" alt="{{ $exercise->display_name }}{{ count($frames) > 1 ? ' – ' . ($i === 0 ? __('Start') : ($i === count($frames) - 1 ? __('End') : __('Middle'))) : '' }}" class="{{ $i === 0 ? 'on' : '' }}" @if($i) loading="lazy" @endif>
+          @endforeach
         </div>
-      @endif
-    </div>
+        @if(count($frames) > 1)
+          <div class="ex-demo-bar">
+            <button type="button" class="ex-demo-btn" data-demo-play aria-pressed="true" data-play-text="{{ __('Play') }}">
+              <i class="fas fa-pause"></i><span>{{ __('Pause') }}</span>
+            </button>
+            <div class="ex-demo-steps">
+              @foreach($frames as $i => $src)
+                <button type="button" data-demo-step="{{ $i }}" class="{{ $i === 0 ? 'on' : '' }}">{{ $i === 0 ? __('Start') : ($i === count($frames) - 1 ? __('End') : __('Middle')) }}</button>
+              @endforeach
+            </div>
+          </div>
+        @endif
+        @if($exercise->is_drawing)
+          <figcaption class="ex-credit">{{ __('Drawing') }}: <a href="https://github.com/everkinetic/data" target="_blank" rel="noopener">Everkinetic</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a></figcaption>
+        @endif
+      </figure>
+    @else
+      <div class="ex-video">
+        <div class="ex-novideo">
+          <i class="fas fa-person-running"></i>
+          <p>{{ __('The video for this exercise is coming soon. Follow the steps below.') }}</p>
+        </div>
+      </div>
+    @endif
 
     <div class="ex-title">
       <h1>{{ $exercise->display_name }}</h1>
@@ -37,6 +54,11 @@
       </div>
       @if($exercise->display_description)<p class="muted" style="margin-top:10px">{{ $exercise->display_description }}</p>@endif
     </div>
+
+    <section class="panel">
+      <div class="panel-head"><h2><i class="fas fa-child-reaching"></i> {{ __('Muscles worked') }}</h2></div>
+      @include('partials.muscle-map', ['muscles' => $exercise->muscles, 'id' => $exercise->id])
+    </section>
 
     @if(count($exercise->steps))
       <section class="panel">
@@ -64,7 +86,7 @@
         <div class="stack">
           @foreach($related as $item)
             <a href="{{ route('exercises.show', $item) }}" class="pick">
-              <span class="pick-icon">@if($item->thumbnail)<img src="{{ $item->thumbnail }}" alt="" loading="lazy">@else<i class="fas fa-dumbbell"></i>@endif</span>
+              <span class="pick-icon {{ $item->is_drawing ? 'is-drawing' : '' }}">@if($item->thumbnail)<img src="{{ $item->thumbnail }}" alt="" loading="lazy">@else<i class="fas fa-dumbbell"></i>@endif</span>
               <span><span class="pick-name">{{ $item->display_name }}</span><span class="pick-meta">{{ $item->display_equipment ?: __('Bodyweight') }}</span></span>
               <i class="fas fa-chevron-left muted flip-ltr"></i>
             </a>

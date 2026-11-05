@@ -30,7 +30,7 @@
     @foreach($exercises as $exercise)
       <a href="{{ route('exercises.show', $exercise) }}" class="lib-card" data-item data-m="{{ $exercise->muscle_group }}" data-e="{{ $exercise->equipment_type }}"
          data-text="{{ $exercise->name }} {{ $exercise->name_ar }} {{ $exercise->equipment }} {{ $exercise->equipment_ar }}">
-        <span class="lib-thumb">
+        <span class="lib-thumb {{ $exercise->is_drawing ? 'is-drawing' : '' }}">
           @if($exercise->thumbnail)<img src="{{ $exercise->thumbnail }}" alt="" loading="lazy">@else<i class="fas fa-dumbbell"></i>@endif
           @if($exercise->has_video)<span class="lib-play"><i class="fas fa-play"></i></span>@endif
         </span>

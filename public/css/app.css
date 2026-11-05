@@ -527,7 +527,44 @@ html[dir="ltr"] .back-link i{transform:scaleX(-1)}
 .ex-video iframe,.ex-video video{width:100%;height:100%;border:0;display:block}
 .ex-novideo{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#c9ced6;background:linear-gradient(135deg,#111418,#1d232b);text-align:center;padding:16px}
 .ex-novideo > i{font-size:2rem;opacity:.5}
-.btn-youtube{background:#ff0033;border-color:#ff0033;color:#fff}
+
+/* ---------- Exercise drawings and muscle map ---------- */
+/* the drawings are black lines on white: on dark screens they are turned into light lines on dark */
+:root{--drawing-bg:#ffffff;--drawing-filter:none;--mm-skin:#eceef1;--mm-base:#d9dde3;--mm-on:#e11d48;--mm-soft:#fda4af;--mm-gap:#ffffff}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--drawing-bg:#121212;--drawing-filter:invert(.93);--mm-skin:#1d2228;--mm-base:#2c333b;--mm-on:#fb3b62;--mm-soft:#8a3446;--mm-gap:#121519}
+}
+:root[data-theme="dark"]{--drawing-bg:#121212;--drawing-filter:invert(.93);--mm-skin:#1d2228;--mm-base:#2c333b;--mm-on:#fb3b62;--mm-soft:#8a3446;--mm-gap:#121519}
+.is-drawing img,img.is-drawing{filter:var(--drawing-filter)}
+.lib-thumb.is-drawing,.pick-icon.is-drawing,.wb-thumb.is-drawing{background:var(--drawing-bg)}
+.lib-thumb.is-drawing img,.pick-icon.is-drawing img{object-fit:contain;padding:3px}
+
+.ex-demo{margin:0;border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--line);background:var(--surface)}
+.ex-demo-stage{position:relative;aspect-ratio:4/3;background:var(--drawing-bg)}
+.ex-demo:not(.is-drawing) .ex-demo-stage{background:#000}
+.ex-demo-stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:14px;opacity:0;transition:opacity .45s var(--ease)}
+.ex-demo-stage img.on{opacity:1}
+.ex-demo-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-top:1px solid var(--line)}
+.ex-demo-btn{display:inline-flex;align-items:center;gap:8px;border:0;background:var(--surface-2);color:var(--text);border-radius:99px;padding:7px 14px;font:inherit;font-weight:700;font-size:.85rem;cursor:pointer}
+.ex-demo-steps{display:flex;gap:6px}
+.ex-demo-steps button{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:99px;padding:5px 12px;font:inherit;font-size:.8rem;font-weight:700;cursor:pointer}
+.ex-demo-steps button.on{background:var(--accent-soft);border-color:transparent;color:var(--accent-text)}
+.ex-credit{padding:0 12px 10px;font-size:.72rem;color:var(--faint)}
+.ex-credit a{color:inherit;text-decoration:underline}
+
+.muscle-map{margin:0;display:grid;gap:10px}
+.muscle-map svg{width:100%;max-width:360px;height:auto;margin-inline:auto;display:block}
+.mm-skin{fill:var(--mm-skin)}
+.mm-part{fill:var(--mm-base);stroke:var(--mm-gap);stroke-width:1.2;stroke-linejoin:round;transition:fill .2s}
+.mm-part.mm-soft{fill:var(--mm-soft)}
+.mm-part.mm-on{fill:var(--mm-on)}
+.mm-line{fill:none;stroke:var(--mm-gap);stroke-width:1.2}
+.mm-label{font:700 11px var(--font-body);fill:var(--muted);text-anchor:middle}
+.mm-legend{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;font-size:.85rem;color:var(--muted);text-align:center}
+.mm-legend strong{color:var(--text)}
+.mm-dot{display:inline-block;width:10px;height:10px;border-radius:3px;vertical-align:-1px;margin-inline-end:2px}
+.mm-dot.mm-on{background:var(--mm-on)}
+.mm-dot.mm-soft{background:var(--mm-soft)}
 .ex-title h1{font-size:clamp(1.3rem,2.6vw,1.7rem);font-weight:900}
 .tip-list{list-style:none;display:grid;gap:10px}
 .tip-list li{display:flex;gap:10px;align-items:flex-start}
@@ -790,3 +827,9 @@ html.has-install-bar body{padding-bottom:84px}
   color:rgba(255,255,255,.85);font-size:.85rem;font-variant-numeric:tabular-nums}
 .zoom-count[hidden]{display:none}
 html.zoom-open,html.zoom-open body{overflow:hidden}
+
+/* ---------- Upload progress (app.js: form[data-upload]) ---------- */
+.upload-progress{position:relative;height:22px;border-radius:99px;background:var(--surface-3, #e8eaee);overflow:hidden;margin:8px 0}
+.upload-progress > span{position:absolute;inset-block:0;inset-inline-start:0;width:0;background:var(--accent, #119c4b);transition:width .2s}
+.upload-progress::after{content:attr(data-label);position:absolute;inset:0;display:grid;place-items:center;font-size:.75rem;font-weight:700;color:var(--text, #0c0f13)}
+.upload-error{color:var(--danger, #dc2626);font-size:.85rem;font-weight:600;margin:6px 0}

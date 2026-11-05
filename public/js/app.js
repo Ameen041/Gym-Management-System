@@ -359,3 +359,97 @@
     else if (e.key === "ArrowLeft" && group.length > 1) show(index + (rtl ? 1 : -1));
   });
 })();
+
+/* Exercise page: the drawings of the start and end position take turns, like a short looping clip.
+ * [data-demo] holds the pictures; Pause stops it, and Start / End show one position.
+ * With "reduce motion" turned on in the phone, it starts paused. */
+(function () {
+  "use strict";
+  document.querySelectorAll("[data-demo]").forEach(function (demo) {
+    var pics = demo.querySelectorAll(".ex-demo-stage img");
+    var steps = demo.querySelectorAll("[data-demo-step]");
+    var play = demo.querySelector("[data-demo-play]");
+    if (pics.length < 2 || !play) return;
+    var index = 0, timer = null;
+    var label = play.querySelector("span"), icon = play.querySelector("i");
+    var pauseText = label.textContent, playText = play.getAttribute("data-play-text") || "▶";
+
+    function show(i) {
+      index = (i + pics.length) % pics.length;
+      pics.forEach(function (p, n) { p.classList.toggle("on", n === index); });
+      steps.forEach(function (b, n) { b.classList.toggle("on", n === index); });
+    }
+    function run(on) {
+      clearInterval(timer);
+      timer = on ? setInterval(function () { show(index + 1); }, 1300) : null;
+      play.setAttribute("aria-pressed", on ? "true" : "false");
+      icon.className = on ? "fas fa-pause" : "fas fa-play";
+      label.textContent = on ? pauseText : playText;
+    }
+
+    play.addEventListener("click", function () { run(!timer); });
+    steps.forEach(function (b) {
+      b.addEventListener("click", function () { run(false); show(Number(b.getAttribute("data-demo-step"))); });
+    });
+    // the next picture is loaded before its turn
+    pics.forEach(function (p) { p.loading = "eager"; });
+    run(!window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  });
+})();
+
+/* Big uploads (exercise videos): form[data-upload] is sent in the background with a progress bar,
+ * so the admin sees it moving on a slow connection. The server answers JSON: {redirect} when it is
+ * saved, or the errors to show in [data-upload-error]. */
+(function () {
+  "use strict";
+  if (!window.FormData || !window.XMLHttpRequest) return;
+  var ar = document.documentElement.lang === "ar";
+
+  document.addEventListener("submit", function (e) {
+    var form = e.target;
+    if (!form.matches || !form.matches("form[data-upload]") || e.defaultPrevented) return;
+    e.preventDefault();
+
+    var bar = form.querySelector("[data-upload-progress]");
+    var fill = bar && bar.querySelector("span");
+    var box = form.querySelector("[data-upload-error]");
+    var buttons = form.querySelectorAll('button[type="submit"], button:not([type])');
+    function busy(on) { buttons.forEach(function (b) { b.disabled = on; }); }
+    function error(text) {
+      busy(false);
+      if (bar) bar.hidden = true;
+      if (box) { box.hidden = false; box.textContent = text; } else { alert(text); }
+    }
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", form.action);
+    xhr.setRequestHeader("Accept", "application/json");
+    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+    xhr.upload.onprogress = function (ev) {
+      if (!bar || !ev.lengthComputable) return;
+      var pct = Math.round(ev.loaded / ev.total * 100);
+      bar.hidden = false;
+      fill.style.width = pct + "%";
+      bar.setAttribute("data-label", pct < 100 ? pct + "%" : (ar ? "جارٍ الحفظ…" : "Saving…"));
+    };
+    xhr.onload = function () {
+      var data = {};
+      try { data = JSON.parse(xhr.responseText); } catch (err) {}
+      if (xhr.status >= 200 && xhr.status < 300 && data.redirect) {
+        window.location.href = data.redirect;
+      } else if (xhr.status === 422 && data.errors) {
+        error(Object.keys(data.errors).map(function (k) { return data.errors[k][0]; }).join("\n"));
+      } else if (xhr.status === 413) {
+        error(ar ? "الملف أكبر مما يقبله السيرفر. صوّر فيديو أقصر أو بجودة أقل (720p)." : "The file is bigger than the server accepts. Film a shorter video, or at a lower quality (720p).");
+      } else {
+        error((ar ? "لم يُحفظ. حاول مرة أخرى." : "It was not saved. Please try again.") + " (" + xhr.status + ")");
+      }
+    };
+    xhr.onerror = function () { error(ar ? "انقطع الاتصال. حاول مرة أخرى." : "The connection dropped. Please try again."); };
+
+    if (box) box.hidden = true;
+    if (bar) { bar.hidden = false; fill.style.width = "0"; bar.setAttribute("data-label", "0%"); }
+    busy(true);
+    xhr.send(new FormData(form));
+  });
+})();

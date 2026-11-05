@@ -7,7 +7,7 @@
 Himma (همّة) is an online coaching marketplace for Syria, built with Laravel.
 Coaches publish their profile and packages, trainees choose a coach and pay with
 **Sham Cash**, and the platform keeps a commission. Coaches build workout and
-nutrition plans from a ready exercise library with videos, and follow up with
+nutrition plans from a ready exercise library with drawings and videos, and follow up with
 their clients in the built-in chat (phone numbers stay private).
 
 ---
@@ -18,7 +18,7 @@ their clients in the built-in chat (phone numbers stay private).
 3. A trainee filters coaches (specialty, city, gender, price), picks a package and answers the intake questions.
 4. The trainee transfers the amount with Sham Cash and uploads the receipt.
 5. The admin checks the transfer and confirms it: the subscription starts (30/60/90 days) and the commission is calculated (default 15%, set in Admin → Settings).
-6. The coach sees the new client, builds the plan (exercises picked from the library get a video link) and both sides talk in the chat.
+6. The coach sees the new client, builds the plan (exercises picked from the library link to their drawing and video) and both sides talk in the chat.
 7. The trainee reviews the coach; the admin records payouts to coaches from Admin → Coach payouts.
 
 **Coach payouts:** all payments arrive in the platform's Sham Cash account. A client's money becomes *ready to pay*
@@ -64,7 +64,7 @@ Each user can also turn on **phone notifications**: every notification and every
 
 ### 🛠 Admin
 - Approve coaches, confirm or reject Sham Cash receipts, record weekly payouts to coaches
-- Users, exercises (video links or uploads), foods, workout & nutrition templates, contact messages
+- Users, exercises (video uploads, pictures, muscles), foods, workout & nutrition templates, contact messages
 - Settings: commission, payout hold period, the platform's Sham Cash account
 - System page: launch checklist and database backups
 
@@ -72,12 +72,15 @@ Each user can also turn on **phone notifications**: every notification and every
 
 ### 🎥 Exercise Library
 - Weight-training exercises grouped by muscle (chest, back, shoulders, arms, legs, abs...)
-- Each exercise has a video explanation (YouTube / Vimeo link or uploaded MP4), step-by-step instructions and tips
+- Each exercise shows its movement: drawings of the start and end position that take turns like a short clip
+  (about 105 exercises), or a video the admin uploads; plus step-by-step instructions and tips
+- A muscle map (front and back) colors the main muscles in strong red and the helping muscles in light red
 - Search and filter by muscle group, available to trainees and trainers at `/exercises`
 - Managed by the admin at `/admin/exercises`; about 140 exercises (including cardio) are seeded automatically,
   with English and Arabic steps and tips written for this project
-- Videos: the admin pastes a YouTube link per exercise (embedding is allowed by YouTube); until then the page offers a
-  YouTube search in Arabic and English. Exercise videos/images from other apps or sites are copyrighted and are not copied.
+- Videos are Himma's own: the admin uploads them from the phone (MP4, or MOV from an iPhone, up to 200 MB) in
+  Admin → Exercises, with a progress bar. Nothing comes from YouTube. Filters show the exercises without a video or
+  without a picture. Exercise videos/images from other apps, sites or printed gym sheets are copyrighted and are not copied.
 
 ### 🥗 Nutrition Calculator
 - Coaches build each meal from foods (eggs, chicken, rice, bulgur, hummus, pita bread...) and enter the amount in grams
@@ -353,6 +356,10 @@ This structure allows flexible weekly scheduling and clean UI rendering.
 ## 📜 License
 
 MIT License
+
+The exercise drawings in `public/images/exercises` are from [Everkinetic](https://github.com/everkinetic/data) by
+Greg Priday, cropped and resized for Himma, and are shared under
+[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) (credited under each drawing on the exercise page).
 
 ---
 

@@ -20,6 +20,10 @@
           <input type="checkbox" name="missing_video" value="1" @checked($missingVideo) onchange="this.form.submit()">
           {{ __('Without video (:count)', ['count' => $withoutVideo]) }}
         </label>
+        <label style="display:flex;gap:6px;align-items:center;white-space:nowrap;font-size:.9rem">
+          <input type="checkbox" name="missing_picture" value="1" @checked($missingPicture) onchange="this.form.submit()">
+          {{ __('Without picture (:count)', ['count' => $withoutPicture]) }}
+        </label>
         <select name="muscle" class="form-control" onchange="this.form.submit()">
           <option value="">{{ __('All muscles') }}</option>
           @foreach(\App\Models\Exercise::MUSCLE_GROUPS as $key => $group)
@@ -62,6 +66,11 @@
           @foreach($exercises as $exercise)
             <tr>
               <td>
+                <div style="display:flex;gap:10px;align-items:center">
+                <span class="pick-icon {{ $exercise->is_drawing ? 'is-drawing' : '' }}" style="flex:none">
+                  @if($exercise->thumbnail)<img src="{{ $exercise->thumbnail }}" alt="" loading="lazy">@else<i class="fas fa-image" title="{{ __('No picture yet') }}"></i>@endif
+                </span>
+                <div>
                 <strong>{{ $exercise->display_name }}</strong>
                 @if($exercise->display_equipment)
                   <p style="color: var(--gray-700); margin-top: 4px; font-size: 0.9rem;">{{ $exercise->display_equipment }}</p>
@@ -69,6 +78,8 @@
                 @if(!$exercise->name_ar)
                   <span class="badge badge-warning" style="margin-top:4px;">{{ __('No Arabic text') }}</span>
                 @endif
+                </div>
+                </div>
               </td>
               <td><span class="badge badge-primary">{{ $exercise->muscle_label }}</span></td>
               <td>{{ $exercise->difficulty_label }}</td>
@@ -77,13 +88,16 @@
                   <span class="badge badge-success"><i class="fas fa-video"></i> {{ __('Yes') }}</span>
                 @else
                   <span class="badge badge-warning">{{ __('Missing') }}</span>
-                  <a href="{{ $exercise->youtube_search_url }}" target="_blank" rel="noopener" style="font-size:.8rem;margin-inline-start:6px">{{ __('Find on YouTube') }}</a>
                 @endif
-                <form method="POST" action="{{ route('admin.exercises.video', $exercise->id) }}" style="display:flex;gap:4px;margin-top:6px">
+                {{-- sent with a progress bar (app.js), the page reloads when it is saved --}}
+                <form method="POST" action="{{ route('admin.exercises.video', $exercise->id) }}" enctype="multipart/form-data" data-upload style="display:grid;gap:6px;margin-top:6px">
                   @csrf
-                  <input type="url" name="video_url" value="{{ $exercise->video_url }}" class="form-control" dir="ltr"
-                         placeholder="https://youtu.be/..." style="padding:6px 8px;font-size:.8rem;min-width:150px">
-                  <button class="btn btn-sm btn-secondary" title="{{ __('Save') }}"><i class="fas fa-save"></i></button>
+                  <div style="display:flex;gap:4px">
+                    <input type="file" name="video_file" accept="video/mp4,video/webm,video/quicktime" required class="form-control" style="padding:6px 8px;font-size:.8rem;min-width:150px">
+                    <button class="btn btn-sm btn-secondary" title="{{ $exercise->has_video ? __('Replace video') : __('Upload video') }}"><i class="fas fa-upload"></i></button>
+                  </div>
+                  <div class="upload-progress" data-upload-progress hidden><span></span></div>
+                  <div class="upload-error" data-upload-error hidden></div>
                 </form>
               </td>
               <td>

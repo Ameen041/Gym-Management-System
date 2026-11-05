@@ -13,37 +13,40 @@ class AdminExerciseController extends Controller
 {
     private const UPLOAD_DIR = 'uploads/exercises';
 
+    // phone videos: MP4 (Android) or MOV (iPhone), up to 200 MB
+    private const VIDEO_RULES = ['required', 'file', 'mimetypes:video/mp4,video/webm,video/quicktime', 'max:204800'];
+
     public function index(Request $request)
     {
         $muscle = $request->query('muscle');
         $missingVideo = $request->boolean('missing_video');
+        $missingPicture = $request->boolean('missing_picture');
 
         $exercises = Exercise::query()
             ->when($muscle, fn ($q) => $q->where('muscle_group', $muscle))
-            ->when($missingVideo, fn ($q) => $q->where(fn ($q) => $q->whereNull('video_url')->orWhere('video_url', ''))->whereNull('video_path'))
+            ->when($missingVideo, fn ($q) => $q->whereNull('video_path'))
+            ->when($missingPicture, fn ($q) => $q->whereNull('image_path')->whereNull('frames'))
             ->orderBy('name')
             ->get()
             ->sortBy(fn ($e) => array_search($e->muscle_group, array_keys(Exercise::MUSCLE_GROUPS)))
             ->values();
 
-        $withoutVideo = Exercise::where(fn ($q) => $q->whereNull('video_url')->orWhere('video_url', ''))->whereNull('video_path')->count();
+        $withoutVideo = Exercise::whereNull('video_path')->count();
+        $withoutPicture = Exercise::whereNull('image_path')->whereNull('frames')->count();
 
-        return view('admin.exercises.index', compact('exercises', 'muscle', 'missingVideo', 'withoutVideo'));
+        return view('admin.exercises.index', compact('exercises', 'muscle', 'missingVideo', 'missingPicture', 'withoutVideo', 'withoutPicture'));
     }
 
-    /** Quick add / change of the YouTube (or Vimeo / mp4) link from the list. */
+    /** Upload (or replace) an exercise's video from the list. */
     public function updateVideo(Request $request, $id)
     {
         $exercise = Exercise::findOrFail($id);
-        $data = $request->validate(['video_url' => ['nullable', 'url', 'max:255']]);
+        $request->validate(['video_file' => self::VIDEO_RULES], self::videoMessages(), ['video_file' => __('Video')]);
 
-        $exercise->update(['video_url' => $data['video_url'] ?? null]);
+        $this->deleteFile($exercise->video_path);
+        $exercise->update(['video_path' => $this->upload($request->file('video_file')), 'video_url' => null]);
 
-        if ($exercise->video_url && !$exercise->has_video) {
-            return back()->with('error', __('This link is not a YouTube, Vimeo or direct video link.'));
-        }
-
-        return back()->with('status', __('Video saved for ":name".', ['name' => $exercise->display_name]));
+        return $this->done($request, back()->getTargetUrl(), __('Video saved for ":name".', ['name' => $exercise->display_name]));
     }
 
     public function create()
@@ -58,7 +61,7 @@ class AdminExerciseController extends Controller
 
         Exercise::create($data);
 
-        return redirect()->route('admin.exercises.index')->with('status', __('Exercise created successfully.'));
+        return $this->done($request, route('admin.exercises.index'), __('Exercise created successfully.'));
     }
 
     public function edit($id)
@@ -73,7 +76,7 @@ class AdminExerciseController extends Controller
 
         $exercise->update($this->validated($request, $exercise));
 
-        return redirect()->route('admin.exercises.index')->with('status', __('Exercise updated successfully.'));
+        return $this->done($request, route('admin.exercises.index'), __('Exercise updated successfully.'));
     }
 
     public function destroy($id)
@@ -85,6 +88,15 @@ class AdminExerciseController extends Controller
         $exercise->delete();
 
         return redirect()->route('admin.exercises.index')->with('status', __('Exercise deleted.'));
+    }
+
+    private static function videoMessages(): array
+    {
+        return [
+            'video_file.mimetypes' => __('Choose a video file: MP4, or MOV from an iPhone.'),
+            'video_file.max'       => __('The video is bigger than 200 MB. Film a shorter video, or at a lower quality (720p).'),
+            'video_file.uploaded'  => __('The video could not be uploaded. Film a shorter video, or at a lower quality (720p).'),
+        ];
     }
 
     private function validated(Request $request, ?Exercise $exercise = null): array
@@ -102,14 +114,19 @@ class AdminExerciseController extends Controller
             'instructions_ar' => ['nullable', 'string'],
             'tips'         => ['nullable', 'string'],
             'tips_ar'      => ['nullable', 'string'],
-            'video_url'    => ['nullable', 'url', 'max:255'],
-            'video_file'   => ['nullable', 'file', 'mimetypes:video/mp4,video/webm,video/ogg,video/quicktime', 'max:102400'],
+            'video_file'   => array_merge(['nullable'], array_slice(self::VIDEO_RULES, 1)),
             'image_file'   => ['nullable', 'image', 'max:4096'],
+            'primary_muscles'     => ['nullable', 'array'],
+            'primary_muscles.*'   => [Rule::in(array_keys(Exercise::MUSCLES))],
+            'secondary_muscles'   => ['nullable', 'array'],
+            'secondary_muscles.*' => [Rule::in(array_keys(Exercise::MUSCLES))],
             'remove_video' => ['nullable', 'boolean'],
             'remove_image' => ['nullable', 'boolean'],
-        ]);
+        ], self::videoMessages());
 
         $data['is_active'] = $request->has('is_active');
+        $data['primary_muscles'] = array_values($data['primary_muscles'] ?? []) ?: null;
+        $data['secondary_muscles'] = array_values(array_diff($data['secondary_muscles'] ?? [], $data['primary_muscles'] ?? [])) ?: null;
 
         $videoPath = $exercise?->video_path;
         if ($request->boolean('remove_video') || $request->hasFile('video_file')) {
@@ -118,6 +135,7 @@ class AdminExerciseController extends Controller
         }
         if ($request->hasFile('video_file')) {
             $videoPath = $this->upload($request->file('video_file'));
+            $data['video_url'] = null;
         }
 
         $imagePath = $exercise?->image_path;
@@ -135,6 +153,21 @@ class AdminExerciseController extends Controller
         unset($data['video_file'], $data['image_file'], $data['remove_video'], $data['remove_image']);
 
         return $data;
+    }
+
+    /**
+     * Forms with big videos are sent by app.js with a progress bar and get JSON back;
+     * the message is kept for the page it goes to next.
+     */
+    private function done(Request $request, string $to, string $message)
+    {
+        if ($request->expectsJson()) {
+            session()->flash('status', $message);
+
+            return response()->json(['redirect' => $to]);
+        }
+
+        return redirect($to)->with('status', $message);
     }
 
     private function upload(UploadedFile $file): string
