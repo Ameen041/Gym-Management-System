@@ -95,6 +95,122 @@
   sync();
 })();
 
+/* Photo uploads from phones.
+ * - input[type=file][data-shrink]: camera photos are 5–15 MB each. They are made smaller in the browser
+ *   (longest side 1600px, or the number in data-shrink) before they are sent, so they pass the size limit
+ *   and reach the server fast on a slow connection. If the browser can't read a photo it is sent as it is.
+ * - form[data-busy]: once sent, the button shows the data-busy text and can't be pressed twice. */
+(function () {
+  "use strict";
+
+  var canShrink = false;
+  try { canShrink = !!(window.File && window.URL && new window.DataTransfer() && HTMLCanvasElement.prototype.toBlob); } catch (e) {}
+  var KEEP = /^image\/(jpeg|png|webp)$/i;   // types the server takes as they are
+
+  function shrink(file, maxSide) {
+    if (!/^image\//i.test(file.type) && !/\.(hei[cf])$/i.test(file.name)) return Promise.resolve(file);
+    return new Promise(function (resolve) {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onerror = function () { URL.revokeObjectURL(url); resolve(file); };
+      img.onload = function () {
+        var w = img.naturalWidth, h = img.naturalHeight;
+        var scale = Math.min(1, maxSide / Math.max(w, h));
+        if (!w || !h || (scale === 1 && file.size <= 800 * 1024 && KEEP.test(file.type))) {
+          URL.revokeObjectURL(url);
+          return resolve(file);
+        }
+        var canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(w * scale));
+        canvas.height = Math.max(1, Math.round(h * scale));
+        var ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#fff";   // transparent parts of a PNG would turn black in a JPEG
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(url);
+        canvas.toBlob(function (blob) {
+          if (!blob || (blob.size >= file.size && KEEP.test(file.type))) return resolve(file);
+          var name = (file.name || "photo").replace(/\.[^.]*$/, "") + ".jpg";
+          resolve(new File([blob], name, { type: "image/jpeg", lastModified: Date.now() }));
+        }, "image/jpeg", 0.85);
+      };
+      img.src = url;
+    });
+  }
+
+  // forms wait for photos that are still being made smaller
+  var pending = new WeakMap();
+
+  if (canShrink) {
+    document.addEventListener("change", function (e) {
+      var input = e.target;
+      if (!input.matches || !input.matches('input[type="file"][data-shrink]') || !input.files || !input.files.length) return;
+      var maxSide = parseInt(input.getAttribute("data-shrink"), 10) || 1600;
+      var files = Array.prototype.slice.call(input.files);
+      var job = Promise.all(files.map(function (f) { return shrink(f, maxSide); })).then(function (out) {
+        if (input._shrinkJob !== job) return;   // another pick replaced these photos
+        if (out.some(function (f, i) { return f !== files[i]; })) {
+          var list = new DataTransfer();
+          out.forEach(function (f) { list.items.add(f); });
+          input.files = list.files;
+        }
+      }).catch(function () {});
+      input._shrinkJob = job;
+      if (input.form) {
+        var jobs = pending.get(input.form) || [];
+        jobs.push(job);
+        pending.set(input.form, jobs);
+        job.then(function () {
+          var left = (pending.get(input.form) || []).filter(function (j) { return j !== job; });
+          pending.set(input.form, left);
+        });
+      }
+    });
+  }
+
+  function busy(form, on) {
+    var text = form.getAttribute("data-busy");
+    form.querySelectorAll('button[type="submit"], button:not([type])').forEach(function (btn) {
+      if (on) {
+        if (btn._idle === undefined) btn._idle = btn.innerHTML;
+        btn.disabled = true;
+        if (text) btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ' + text.replace(/[&<>"]/g, function (c) {
+          return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+        });
+      } else if (btn._idle !== undefined) {
+        btn.disabled = false;
+        btn.innerHTML = btn._idle;
+      }
+    });
+  }
+
+  document.addEventListener("submit", function (e) {
+    var form = e.target;
+    if (e.defaultPrevented) return;
+    var jobs = pending.get(form) || [];
+    if (jobs.length) {
+      // still making the photos smaller: send as soon as they are ready
+      e.preventDefault();
+      busy(form, true);
+      Promise.all(jobs).then(function () {
+        pending.set(form, []);
+        busy(form, false);
+        if (form.requestSubmit) form.requestSubmit(); else form.submit();
+      });
+      return;
+    }
+    if (form.hasAttribute("data-busy")) {
+      // after the browser took the form, so the button still counts as pressed
+      setTimeout(function () { busy(form, true); }, 0);
+    }
+  });
+
+  // back button: the page comes back from the cache with the button still turned off
+  window.addEventListener("pageshow", function (e) {
+    if (e.persisted) document.querySelectorAll("form[data-busy]").forEach(function (f) { busy(f, false); });
+  });
+})();
+
 /* Share buttons: [data-share] opens the phone's share sheet, where there is one. */
 (function () {
   "use strict";

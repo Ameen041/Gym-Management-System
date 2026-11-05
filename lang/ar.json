@@ -1147,5 +1147,13 @@
     "Draft saved": "تم حفظ المسودة",
     "Not saved yet, check the internet": "لم تُحفظ بعد، تحقق من الإنترنت",
     "Saved as a draft as you go": "يُحفظ كمسودة تلقائياً",
-    "Discard the changes you did not send?": "تجاهل التعديلات التي لم تُرسلها؟"
+    "Discard the changes you did not send?": "تجاهل التعديلات التي لم تُرسلها؟",
+    "Sending… keep this page open": "جارٍ الإرسال… لا تغلق الصفحة",
+    "If you picked photos, pick them again: they are not kept when something in the form needs fixing.": "إذا اخترت صوراً فاخترها من جديد: لا تبقى الصور محفوظة عندما يحتاج شيء في النموذج إلى تصحيح.",
+    "You can add up to 4 photos.": "يمكنك إضافة 4 صور كحد أقصى.",
+    "The photo must be JPG, PNG or WEBP. Take a screenshot of it and upload the screenshot.": "يجب أن تكون الصورة بصيغة JPG أو PNG أو WEBP. خذ لقطة شاشة للصورة وارفع اللقطة.",
+    "The photo is bigger than :size MB. Choose a smaller photo, or take a screenshot of it and upload the screenshot.": "حجم الصورة أكبر من :size ميغابايت. اختر صورة أصغر، أو خذ لقطة شاشة للصورة وارفع اللقطة.",
+    "The photo could not be uploaded. Choose a smaller photo, or take a screenshot of it and upload the screenshot.": "تعذّر رفع الصورة. اختر صورة أصغر، أو خذ لقطة شاشة للصورة وارفع اللقطة.",
+    "Phone photos can be uploaded": "يمكن رفع صور الموبايل",
+    "The server takes photos up to :upload MB and forms up to :post MB. Set upload_max_filesize to 10M and post_max_size to 64M (hPanel: Advanced → PHP Configuration → PHP options).": "السيرفر يقبل صوراً حتى :upload ميغابايت ونماذج حتى :post ميغابايت. اضبط upload_max_filesize على 10M و post_max_size على 64M (في hPanel: Advanced ← PHP Configuration ← PHP options)."
 }

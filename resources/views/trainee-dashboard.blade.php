@@ -154,13 +154,13 @@
   <details class="panel fold" @if($errors->any()) open @endif>
     <summary class="panel-head" style="margin:0"><h2><i class="fas fa-user"></i> {{ __('Your Profile') }}</h2><i class="fas fa-chevron-down fold-icon"></i></summary>
     <div style="margin-top:14px">
-    <form method="POST" action="{{ route('trainee.profile.update') }}" enctype="multipart/form-data">
+    <form method="POST" action="{{ route('trainee.profile.update') }}" enctype="multipart/form-data" data-busy="{{ __('Sending… keep this page open') }}">
       @csrf
       <div class="profile-head" style="margin-bottom:14px">
         <img src="{{ $user->photo_url }}" alt="" class="avatar-sm" style="width:64px;height:64px">
         <div class="form-group" style="flex:1;margin:0">
           <label>{{ __('Profile Photo') }}</label>
-          <input type="file" name="photo" accept="image/*">
+          <input type="file" name="photo" accept="image/*" data-shrink="1000">
         </div>
       </div>
       <div class="form-row">

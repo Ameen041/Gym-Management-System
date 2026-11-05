@@ -61,12 +61,12 @@
   </section>
 
   <section class="stack">
-    <form class="panel" method="POST" action="{{ route('subscriptions.pay.submit', $subscription) }}" enctype="multipart/form-data">
+    <form class="panel" method="POST" action="{{ route('subscriptions.pay.submit', $subscription) }}" enctype="multipart/form-data" data-busy="{{ __('Sending… keep this page open') }}">
       @csrf
       <div class="panel-head"><h2><i class="fas fa-receipt"></i> {{ __('Upload the receipt') }}</h2></div>
       <div class="form-group">
         <label>{{ __('Transfer screenshot') }}</label>
-        <input type="file" name="payment_proof" accept="image/*" required>
+        <input type="file" name="payment_proof" accept="image/*" required data-shrink="2400">
       </div>
       <div class="form-group">
         <label for="payment_reference">{{ __('Transaction number') }}</label>
