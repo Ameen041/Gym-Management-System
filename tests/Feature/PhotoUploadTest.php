@@ -70,4 +70,17 @@ class PhotoUploadTest extends TestCase
             ->assertSee('name="body_photos[]" accept="image/*" multiple data-shrink', false)
             ->assertSee('data-busy="جارٍ الإرسال… لا تغلق الصفحة"', false);
     }
+
+    /** In the installed app a photo in a new window had no way back, so "back" closed the app. */
+    public function test_the_coach_opens_body_photos_in_the_page(): void
+    {
+        $this->subscribe([UploadedFile::fake()->image('front.jpg'), UploadedFile::fake()->image('side.jpg')]);
+        $sub = Subscription::sole();
+        $sub->update(['status' => 'active', 'starts_at' => now(), 'ends_at' => now()->addDays(30)]);
+
+        $page = $this->actingAs($this->coach)->get(route('coach.clients.show', $sub))->assertOk();
+        foreach ($sub->photoUrls() as $url) {
+            $page->assertSee('href="' . $url . '" target="_blank" rel="noopener" data-zoom', false);
+        }
+    }
 }

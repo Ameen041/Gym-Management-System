@@ -118,7 +118,7 @@
         <div class="muted small" style="margin-bottom:6px">{{ __('Body photos') }}</div>
         <div class="thumbs">
           @foreach($subscription->photoUrls() as $url)
-            <a href="{{ $url }}" target="_blank" rel="noopener"><img src="{{ $url }}" alt=""></a>
+            <a href="{{ $url }}" target="_blank" rel="noopener" data-zoom><img src="{{ $url }}" alt="{{ __('Body photos') }}"></a>
           @endforeach
         </div>
       </div>

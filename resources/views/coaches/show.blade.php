@@ -47,7 +47,7 @@
         <div class="panel-head"><h2><i class="fas fa-certificate"></i> {{ __('Certificates') }}</h2></div>
         <div class="thumbs">
           @foreach($profile->certificates as $path)
-            <a href="{{ asset('storage/' . $path) }}" target="_blank" rel="noopener"><img src="{{ asset('storage/' . $path) }}" alt="{{ __('Certificate') }}" loading="lazy"></a>
+            <a href="{{ asset('storage/' . $path) }}" target="_blank" rel="noopener" data-zoom><img src="{{ asset('storage/' . $path) }}" alt="{{ __('Certificate') }}" loading="lazy"></a>
           @endforeach
         </div>
       </section>

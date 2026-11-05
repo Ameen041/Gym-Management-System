@@ -59,7 +59,7 @@
               </td>
               <td>
                 @if($sub->payment_proof)
-                  <a href="{{ $sub->proofUrl() }}" target="_blank"><img src="{{ $sub->proofUrl() }}" alt="" style="width:56px;height:56px;object-fit:cover;border-radius:6px;border:1px solid var(--gray-400)"></a>
+                  <a href="{{ $sub->proofUrl() }}" target="_blank" rel="noopener" data-zoom><img src="{{ $sub->proofUrl() }}" alt="" style="width:56px;height:56px;object-fit:cover;border-radius:6px;border:1px solid var(--gray-400)"></a>
                 @endif
                 @if($sub->payment_reference)<div style="font-size:.8rem" dir="ltr">{{ $sub->payment_reference }}</div>@endif
                 @if($sub->payment_submitted_at)<div style="color:var(--gray-700);font-size:.75rem">{{ $sub->payment_submitted_at->format('Y-m-d H:i') }}</div>@endif

@@ -247,3 +247,115 @@
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
 })();
+
+/* Photo viewer: a[data-zoom] links to a photo open it over the page instead of in a new window.
+ * In the installed app a new window has no way back, so "back" closed the whole app. Here the back
+ * button (or ✕, Esc, a tap outside the photo) closes the photo and stays on the page.
+ * Links with data-zoom in the same parent are one group: arrows and swipes go through them. */
+(function () {
+  "use strict";
+  var rtl = document.documentElement.dir === "rtl";
+  var ar = document.documentElement.lang === "ar";
+  var box, img, count, prevBtn, nextBtn, group = [], index = 0, open = false;
+
+  function build() {
+    box = document.createElement("div");
+    box.className = "zoom";
+    box.hidden = true;
+    box.setAttribute("role", "dialog");
+    box.setAttribute("aria-modal", "true");
+    box.innerHTML =
+      '<button type="button" class="zoom-btn zoom-close" aria-label="' + (ar ? "إغلاق" : "Close") + '"><i class="fas fa-xmark"></i></button>' +
+      '<button type="button" class="zoom-btn zoom-prev" aria-label="' + (ar ? "السابقة" : "Previous") + '"><i class="fas fa-chevron-' + (rtl ? "right" : "left") + '"></i></button>' +
+      '<img alt="">' +
+      '<button type="button" class="zoom-btn zoom-next" aria-label="' + (ar ? "التالية" : "Next") + '"><i class="fas fa-chevron-' + (rtl ? "left" : "right") + '"></i></button>' +
+      '<div class="zoom-count" dir="ltr"></div>';
+    document.body.appendChild(box);
+    img = box.querySelector("img");
+    count = box.querySelector(".zoom-count");
+    prevBtn = box.querySelector(".zoom-prev");
+    nextBtn = box.querySelector(".zoom-next");
+
+    box.addEventListener("click", function (e) {
+      if (e.target.closest(".zoom-prev")) return show(index - 1);
+      if (e.target.closest(".zoom-next")) return show(index + 1);
+      if (e.target === img) return;
+      close();   // ✕ or the dark area around the photo
+    });
+
+    var startX = null, startY = null;
+    box.addEventListener("touchstart", function (e) {
+      if (e.touches.length !== 1) { startX = null; return; }
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    }, { passive: true });
+    box.addEventListener("touchend", function (e) {
+      if (startX === null || group.length < 2) return;
+      var dx = e.changedTouches[0].clientX - startX, dy = e.changedTouches[0].clientY - startY;
+      startX = null;
+      if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy)) return;
+      // the next photo comes from the side you read towards
+      show(index + ((dx < 0) !== rtl ? 1 : -1));
+    });
+  }
+
+  function show(i) {
+    index = (i + group.length) % group.length;
+    var link = group[index];
+    var thumb = link.querySelector("img");
+    img.src = link.href;
+    img.alt = thumb ? thumb.alt : "";
+    var many = group.length > 1;
+    prevBtn.hidden = nextBtn.hidden = count.hidden = !many;
+    count.textContent = (index + 1) + " / " + group.length;
+  }
+
+  function openFrom(link) {
+    if (!box) build();
+    var parent = link.parentElement;
+    group = Array.prototype.filter.call(parent.querySelectorAll("a[data-zoom]"), function (a) { return a.parentElement === parent; });
+    if (group.indexOf(link) < 0) group = [link];
+    show(group.indexOf(link));
+    box.hidden = false;
+    document.documentElement.classList.add("zoom-open");
+    if (!open) {
+      open = true;
+      try { history.pushState({ zoom: true }, ""); } catch (e) {}
+    }
+    box.querySelector(".zoom-close").focus({ preventScroll: true });
+  }
+
+  function hide() {
+    open = false;
+    if (!box) return;
+    box.hidden = true;
+    img.removeAttribute("src");
+    document.documentElement.classList.remove("zoom-open");
+  }
+
+  // closing goes back in history, so the entry added on open is used up and "back" works as before
+  function close() {
+    if (history.state && history.state.zoom) history.back(); else hide();
+  }
+
+  window.addEventListener("popstate", function () { if (open) hide(); });
+
+  // a reload while a photo was open leaves its history entry behind: nothing to show for it
+  if (history.state && history.state.zoom) {
+    try { history.replaceState(null, ""); } catch (e) {}
+  }
+
+  document.addEventListener("click", function (e) {
+    var link = e.target.closest && e.target.closest("a[data-zoom]");
+    if (!link || e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return;
+    e.preventDefault();
+    openFrom(link);
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (!open) return;
+    if (e.key === "Escape") close();
+    else if (e.key === "ArrowRight" && group.length > 1) show(index + (rtl ? -1 : 1));
+    else if (e.key === "ArrowLeft" && group.length > 1) show(index + (rtl ? 1 : -1));
+  });
+})();

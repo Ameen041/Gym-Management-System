@@ -53,7 +53,7 @@
     <h4 style="margin:16px 0 8px">{{ __('Certificates') }}</h4>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       @foreach($profile->certificates as $path)
-        <a href="{{ asset('storage/' . $path) }}" target="_blank"><img src="{{ asset('storage/' . $path) }}" alt="" style="width:140px;height:140px;object-fit:cover;border-radius:8px;border:1px solid var(--gray-400)"></a>
+        <a href="{{ asset('storage/' . $path) }}" target="_blank" rel="noopener" data-zoom><img src="{{ asset('storage/' . $path) }}" alt="" style="width:140px;height:140px;object-fit:cover;border-radius:8px;border:1px solid var(--gray-400)"></a>
       @endforeach
     </div>
   @endif

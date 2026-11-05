@@ -33,7 +33,7 @@
   @if($checkIn->photos)
     <div class="thumbs">
       @foreach($checkIn->photoUrls() as $url)
-        <a href="{{ $url }}" target="_blank" rel="noopener"><img src="{{ $url }}" alt="{{ __('Progress photo') }}" loading="lazy"></a>
+        <a href="{{ $url }}" target="_blank" rel="noopener" data-zoom><img src="{{ $url }}" alt="{{ __('Progress photo') }}" loading="lazy"></a>
       @endforeach
     </div>
   @endif
