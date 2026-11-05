@@ -38,7 +38,7 @@
         @php($ex = $library[$exercise['exercise_id'] ?? 0] ?? null)
         <article class="ex-card">
           <span class="ex-num">{{ $loop->iteration }}</span>
-          <span class="pick-icon">@if($ex?->thumbnail)<img src="{{ $ex->thumbnail }}" alt="" loading="lazy">@else<i class="fas fa-dumbbell"></i>@endif</span>
+          <span class="pick-icon {{ $ex?->is_drawing ? 'is-drawing' : '' }}">@if($ex?->thumbnail)<img src="{{ $ex->thumbnail }}" alt="" loading="lazy">@else<i class="fas fa-dumbbell"></i>@endif</span>
           <div class="ex-info">
             @if($ex)
               <a href="{{ route('exercises.show', $ex) }}" class="ex-name">{{ $ex->display_name }}</a>

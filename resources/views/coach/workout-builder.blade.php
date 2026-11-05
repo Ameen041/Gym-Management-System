@@ -27,7 +27,7 @@
       'id' => $e->id, 'n' => $e->display_name, 'en' => $e->name, 'ar' => $e->name_ar,
       'm' => $e->muscle_group, 'ml' => Exercise::MUSCLE_GROUPS[$e->muscle_group]['label'] ?? $e->muscle_group,
       'mt' => $e->muscle_label, 'e' => $e->equipment_type, 'et' => $e->display_equipment ?: __('Bodyweight'),
-      'v' => $e->has_video, 't' => $e->thumbnail,
+      'v' => $e->has_video, 't' => $e->thumbnail, 'd' => $e->is_drawing,
   ])->values();
   $muscleCounts = $library->countBy('muscle_group');
   $firstDay = collect($weekDays)->first(fn ($d) => !empty($details[$d])) ?? $weekDays[0];

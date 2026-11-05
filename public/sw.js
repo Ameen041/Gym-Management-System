@@ -1,5 +1,5 @@
 /* Himma service worker: makes the site installable, keeps static assets fast/offline and shows phone notifications. */
-const VERSION = 'v7';
+const VERSION = 'v8';
 const STATIC_CACHE = `himma-static-${VERSION}`;
 const OFFLINE_URL = '/offline.html';
 
@@ -37,7 +37,7 @@ function isStaticAsset(url) {
   if (url.origin === self.location.origin) {
     return /^\/(css|js|images|icons|vendor)\//.test(url.pathname) || url.pathname === '/favicon.ico';
   }
-  return url.hostname === 'img.youtube.com';
+  return false;
 }
 
 self.addEventListener('fetch', (event) => {

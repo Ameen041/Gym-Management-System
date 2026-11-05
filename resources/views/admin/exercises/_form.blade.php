@@ -102,13 +102,7 @@
   <h3 style="margin-bottom:12px;"><i class="fas fa-video"></i> {{ __('Video explanation') }}</h3>
 
   <div class="form-group">
-    <label class="form-label" for="video_url">{{ __('Video link (YouTube / Vimeo / direct .mp4)') }}</label>
-    <input type="url" id="video_url" name="video_url" class="form-control" dir="ltr" value="{{ old('video_url', $exercise->video_url) }}" placeholder="https://www.youtube.com/watch?v=...">
-    <small style="color: var(--gray-700);">{{ __('Recommended: a YouTube link keeps the app fast and doesn\'t use server storage.') }}</small>
-  </div>
-
-  <div class="form-group">
-    <label class="form-label" for="video_file">{{ __('Or upload a video file (MP4/WebM/MOV, max 100MB)') }}</label>
+    <label class="form-label" for="video_file">{{ __('Video from your phone (MP4 or iPhone MOV, up to 200 MB)') }}</label>
     <input type="file" id="video_file" name="video_file" class="form-control" accept="video/mp4,video/webm,video/ogg,video/quicktime">
     @if($exercise->video_path)
       <div style="margin-top:8px;">
@@ -118,11 +112,23 @@
         </label>
       </div>
     @endif
-    <small style="color: var(--gray-700);">{{ __('If both are provided, the video link is shown first.') }}</small>
+    <small style="color: var(--gray-700);">{{ __('Film the exercise from the side in good light, 10 to 30 seconds, a few clean reps.') }}</small>
   </div>
 
+  @if($exercise->is_drawing)
+    <div class="form-group">
+      <label class="form-label">{{ __('Drawing') }}</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        @foreach($exercise->frame_urls as $src)
+          <img src="{{ $src }}" alt="" class="is-drawing" style="width:120px;height:90px;object-fit:contain;border-radius:8px;background:var(--drawing-bg);border:1px solid var(--gray-400)">
+        @endforeach
+      </div>
+      <small style="color: var(--gray-700);">{{ __('A picture you upload below is shown instead of the drawing.') }}</small>
+    </div>
+  @endif
+
   <div class="form-group" style="margin-bottom:0;">
-    <label class="form-label" for="image_file">{{ __('Thumbnail image (optional)') }}</label>
+    <label class="form-label" for="image_file">{{ __('Picture (optional)') }}</label>
     <input type="file" id="image_file" name="image_file" class="form-control" accept="image/*">
     @if($exercise->image_path)
       <div style="margin-top:8px;">
@@ -133,6 +139,25 @@
       </div>
     @endif
   </div>
+</div>
+
+@php($picked = $exercise->exists ? $exercise->muscles : ['primary' => [], 'secondary' => []])
+<div class="card" style="background: var(--gray-300); box-shadow:none; margin-bottom:16px;">
+  <h3 style="margin-bottom:6px;"><i class="fas fa-child-reaching"></i> {{ __('Muscles worked') }}</h3>
+  <p style="color: var(--gray-700); font-size:.875rem; margin-bottom:12px;">{{ __('They are colored on the muscle map of the exercise page.') }}</p>
+  @foreach(['primary_muscles' => [__('Main'), 'primary'], 'secondary_muscles' => [__('Helping'), 'secondary']] as $field => [$title, $key])
+    <div class="form-group">
+      <label class="form-label">{{ $title }}</label>
+      <div style="display:flex;flex-wrap:wrap;gap:6px 14px">
+        @foreach(\App\Models\Exercise::MUSCLES as $muscleKey => $names)
+          <label style="display:inline-flex;gap:6px;align-items:center;font-size:.9rem">
+            <input type="checkbox" name="{{ $field }}[]" value="{{ $muscleKey }}" @checked(in_array($muscleKey, old($field, $picked[$key]), true))>
+            {{ \App\Models\Exercise::muscleName($muscleKey) }}
+          </label>
+        @endforeach
+      </div>
+    </div>
+  @endforeach
 </div>
 
 <div class="form-group">

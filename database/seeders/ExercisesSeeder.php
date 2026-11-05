@@ -9,7 +9,7 @@ use Illuminate\Database\Seeder;
 /**
  * Starter weight-training library. Uses firstOrCreate so re-running the
  * seeder on every deploy never overwrites edits made from the admin panel.
- * Video links are added by the admin (Admin → Exercises).
+ * Videos are uploaded by the admin (Admin → Exercises).
  */
 class ExercisesSeeder extends Seeder
 {
@@ -30,6 +30,28 @@ class ExercisesSeeder extends Seeder
         }
 
         $this->importMoreExercises();
+        $this->addDrawingsAndMuscles();
+    }
+
+    /**
+     * Drawings of the start and end position (data/exercise_frames.php) and the muscles each
+     * exercise works (data/exercise_muscles.php). Only fills what is still empty, so changes
+     * made by the admin stay.
+     */
+    private function addDrawingsAndMuscles(): void
+    {
+        $frames = require __DIR__ . '/data/exercise_frames.php';
+        $muscles = require __DIR__ . '/data/exercise_muscles.php';
+
+        Exercise::whereIn('name', array_keys($frames + $muscles))->get()->each(function (Exercise $exercise) use ($frames, $muscles) {
+            if (empty($exercise->frames) && isset($frames[$exercise->name])) {
+                $exercise->frames = $frames[$exercise->name];
+            }
+            if (empty($exercise->primary_muscles) && isset($muscles[$exercise->name])) {
+                [$exercise->primary_muscles, $exercise->secondary_muscles] = $muscles[$exercise->name];
+            }
+            $exercise->save();
+        });
     }
 
     /**

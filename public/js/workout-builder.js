@@ -52,7 +52,7 @@
       <input type="hidden" name="day[]" value="${esc(day)}" data-day-input>
       <input type="hidden" name="exercise_id[]" value="${ex.id}" data-ex-id>
       ${HANDLE_HTML}
-      <span class="pick-icon">${ex.t ? `<img src="${esc(ex.t)}" alt="" loading="lazy">` : '<i class="fas fa-dumbbell"></i>'}</span>
+      <span class="pick-icon${ex.d ? " is-drawing" : ""}">${ex.t ? `<img src="${esc(ex.t)}" alt="" loading="lazy">` : '<i class="fas fa-dumbbell"></i>'}</span>
       <div class="wb-info">
         <input type="hidden" name="exercise[]" value="${esc(ex.n)}">
         <input type="hidden" name="muscle[]" value="${esc(ex.ml)}" data-muscle>
@@ -151,7 +151,7 @@
 
     let html = list.map((e) => `
       <button type="button" class="pick ${inDay.has(String(e.id)) ? "added" : ""}" data-id="${e.id}">
-        <span class="pick-icon">${e.t ? `<img src="${esc(e.t)}" alt="" loading="lazy">` : '<i class="fas fa-dumbbell"></i>'}</span>
+        <span class="pick-icon${e.d ? " is-drawing" : ""}">${e.t ? `<img src="${esc(e.t)}" alt="" loading="lazy">` : '<i class="fas fa-dumbbell"></i>'}</span>
         <span><span class="pick-name">${esc(e.n)}</span>
           <span class="pick-meta">${esc(e.mt)} · ${esc(e.et)}${e.v ? ` · <i class="fas fa-circle-play"></i> ${esc(t.video)}` : ""}${inDay.has(String(e.id)) ? ` · <span class="in-day">${esc(t.inDay)}</span>` : ""}</span></span>
         <span class="pick-add"><i class="fas ${inDay.has(String(e.id)) ? "fa-check" : "fa-plus"}"></i></span>

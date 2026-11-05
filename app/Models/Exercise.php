@@ -37,6 +37,34 @@ class Exercise extends Model
         'advanced'     => 'Advanced',
     ];
 
+    /** Muscles shown on the muscle map (partials/muscle-map): key => [English, Arabic]. */
+    public const MUSCLES = [
+        'chest'       => ['Chest', 'الصدر'],
+        'shoulders'   => ['Shoulders', 'الأكتاف'],
+        'traps'       => ['Traps', 'الترابيس'],
+        'lats'        => ['Lats', 'المجنص (الظهر العريض)'],
+        'middle_back' => ['Middle back', 'منتصف الظهر'],
+        'lower_back'  => ['Lower back', 'أسفل الظهر'],
+        'biceps'      => ['Biceps', 'البايسبس'],
+        'triceps'     => ['Triceps', 'الترايسبس'],
+        'forearms'    => ['Forearms', 'الساعد'],
+        'abs'         => ['Abs', 'البطن'],
+        'obliques'    => ['Obliques', 'الخواصر'],
+        'glutes'      => ['Glutes', 'المؤخرة'],
+        'quads'       => ['Quads', 'الفخذ الأمامي'],
+        'hamstrings'  => ['Hamstrings', 'الفخذ الخلفي'],
+        'calves'      => ['Calves', 'السمانة'],
+        'adductors'   => ['Inner thighs', 'الفخذ الداخلي'],
+        'abductors'   => ['Outer hips', 'الورك الخارجي'],
+    ];
+
+    /** Main muscles of a muscle group, for exercises that don't list their own. */
+    private const GROUP_MUSCLES = [
+        'chest' => ['chest'], 'back' => ['lats', 'middle_back'], 'shoulders' => ['shoulders'], 'biceps' => ['biceps'],
+        'triceps' => ['triceps'], 'legs' => ['quads', 'hamstrings'], 'glutes' => ['glutes'], 'abs' => ['abs'],
+        'forearms' => ['forearms'], 'full_body' => ['quads', 'glutes', 'shoulders'], 'cardio' => ['quads', 'calves'],
+    ];
+
     // Fields that have an Arabic version stored in "{field}_ar"
     public const TRANSLATABLE = ['name', 'equipment', 'description', 'instructions', 'tips'];
 
@@ -56,12 +84,18 @@ class Exercise extends Model
         'video_url',
         'video_path',
         'image_path',
+        'frames',
+        'primary_muscles',
+        'secondary_muscles',
         'is_active',
         'created_by',
     ];
 
     protected $casts = [
-        'is_active' => 'boolean',
+        'is_active'         => 'boolean',
+        'frames'            => 'array',
+        'primary_muscles'   => 'array',
+        'secondary_muscles' => 'array',
     ];
 
     public function scopeActive($query)
@@ -156,28 +190,8 @@ class Exercise extends Model
     }
 
     /**
-     * Embeddable iframe URL for YouTube / Vimeo links, null otherwise.
-     */
-    public function getEmbedUrlAttribute(): ?string
-    {
-        $url = trim((string) $this->video_url);
-        if ($url === '') {
-            return null;
-        }
-
-        if (preg_match('~(?:youtube\.com/(?:watch\?(?:.*&)?v=|embed/|shorts/|live/)|youtu\.be/)([A-Za-z0-9_-]{11})~', $url, $m)) {
-            return 'https://www.youtube-nocookie.com/embed/' . $m[1] . '?rel=0&modestbranding=1&playsinline=1';
-        }
-
-        if (preg_match('~vimeo\.com/(?:video/)?(\d+)~', $url, $m)) {
-            return 'https://player.vimeo.com/video/' . $m[1];
-        }
-
-        return null;
-    }
-
-    /**
-     * Source for a native <video> tag: uploaded file or a direct video link.
+     * Source for the <video> tag: a video uploaded to Himma, or a direct link to a video file.
+     * YouTube and other sites are not shown: the videos are Himma's own.
      */
     public function getVideoSrcAttribute(): ?string
     {
@@ -195,36 +209,47 @@ class Exercise extends Model
 
     public function getHasVideoAttribute(): bool
     {
-        return $this->embed_url !== null || $this->video_src !== null;
+        return $this->video_src !== null;
+    }
+
+    /** The drawings of the start and end position, in order (none when the admin uploaded a picture instead). */
+    public function getFrameUrlsAttribute(): array
+    {
+        if ($this->image_path) {
+            return [asset($this->image_path)];
+        }
+
+        return array_map(fn ($path) => asset($path), array_values(array_filter((array) $this->frames)));
+    }
+
+    /** True when the picture is one of the line drawings (shown dark on dark screens). */
+    public function getIsDrawingAttribute(): bool
+    {
+        return !$this->image_path && !empty($this->frames);
     }
 
     public function getThumbnailAttribute(): ?string
     {
-        if ($this->image_path) {
-            return asset($this->image_path);
-        }
-
-        if ($this->embed_url && preg_match('~youtube-nocookie\.com/embed/([A-Za-z0-9_-]{11})~', $this->embed_url, $m)) {
-            return 'https://img.youtube.com/vi/' . $m[1] . '/hqdefault.jpg';
-        }
-
-        return null;
+        return $this->frame_urls[0] ?? null;
     }
 
-    /**
-     * Fallback when no video was added yet: a YouTube search for the exercise.
-     */
-    public function getYoutubeSearchUrlAttribute(): string
+    /** Muscle keys for the muscle map: ['primary' => [...], 'secondary' => [...]]. */
+    public function getMusclesAttribute(): array
     {
-        return 'https://www.youtube.com/results?search_query=' . urlencode($this->name . ' exercise proper form');
+        $primary = array_values(array_intersect((array) $this->primary_muscles, array_keys(self::MUSCLES)));
+        if (!$primary) {
+            $primary = self::GROUP_MUSCLES[$this->muscle_group] ?? [];
+        }
+        $secondary = array_values(array_diff(array_intersect((array) $this->secondary_muscles, array_keys(self::MUSCLES)), $primary));
+
+        return ['primary' => $primary, 'secondary' => $secondary];
     }
 
-    /** Same search in Arabic (videos explained in Arabic), when the Arabic name exists. */
-    public function getYoutubeSearchUrlArAttribute(): ?string
+    public static function muscleName(string $key): string
     {
-        return filled($this->name_ar)
-            ? 'https://www.youtube.com/results?search_query=' . urlencode($this->name_ar . ' طريقة الأداء الصحيحة')
-            : null;
+        $names = self::MUSCLES[$key] ?? [ucfirst(str_replace('_', ' ', $key)), null];
+
+        return app()->isLocale('ar') && $names[1] ? $names[1] : $names[0];
     }
 
     private static function lines(?string $text): array

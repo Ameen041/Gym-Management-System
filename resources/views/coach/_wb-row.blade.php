@@ -11,7 +11,7 @@
   <button type="button" class="wb-handle" data-grip title="{{ __('Drag to change the order') }}" aria-label="{{ __('Drag to change the order') }}">
     <i class="fas fa-grip-vertical"></i><span class="wb-order" data-order></span>
   </button>
-  <span class="pick-icon">
+  <span class="pick-icon {{ $ex?->is_drawing ? 'is-drawing' : '' }}">
     @if($ex?->thumbnail)<img src="{{ $ex->thumbnail }}" alt="" loading="lazy">@else<i class="fas fa-dumbbell"></i>@endif
   </span>
   <div class="wb-info">
