@@ -26,9 +26,18 @@
       <li>{!! __('Tap the menu :icon at the top of Chrome (in Samsung Internet, :icon2 at the bottom).', ['icon' => '<i class="fas fa-ellipsis-vertical"></i>', 'icon2' => '<i class="fas fa-bars"></i>']) !!}</li>
       <li>{{ __('Choose "Install app" or "Add to Home screen", then confirm.') }}</li>
     </ol>
+    {{-- Safari on iOS 26 keeps Share in the ⋯ menu; older iPhones have it in the bar at the bottom --}}
     <ol data-platform="ios" hidden>
-      <li>{!! __('Open the site in Safari and tap Share :icon at the bottom.', ['icon' => '<i class="fas fa-arrow-up-from-bracket"></i>']) !!}</li>
+      <li>{!! __('Tap :more next to the address bar, then Share :icon.', ['more' => '<i class="fas fa-ellipsis"></i>', 'icon' => '<i class="fas fa-arrow-up-from-bracket"></i>']) !!}
+        <span class="muted small" style="display:block">{{ __('On older iPhones, Share is right in the bar at the bottom.') }}</span></li>
+      <li>{{ __('Scroll down and choose "Add to Home Screen". Keep "Open as Web App" on, then tap "Add".') }}</li>
+      <li>{{ __('Open Himma from its new icon and log in once: the app keeps its own login.') }}</li>
+    </ol>
+    {{-- Chrome, Edge or Firefox on an iPhone --}}
+    <ol data-platform="ios-browser" hidden>
+      <li>{!! __('Tap Share :icon (in Chrome it is in the address bar, in other browsers in the menu).', ['icon' => '<i class="fas fa-arrow-up-from-bracket"></i>']) !!}</li>
       <li>{{ __('Choose "Add to Home Screen", then "Add".') }}</li>
+      <li>{{ __('Not in the list? Open the site in Safari and tap "Install App" there.') }}</li>
     </ol>
     <ol data-platform="desktop" hidden>
       <li>{{ __('Open the site in Chrome or Edge.') }}</li>

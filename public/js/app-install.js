@@ -10,9 +10,11 @@
   var deferredPrompt = null;
   var installed = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
   var ua = navigator.userAgent;
-  // inapp: a link opened inside Instagram, Facebook, TikTok…, whose browsers cannot install apps
-  var platform = /Instagram|FBAN|FBAV|FB_IAB|Snapchat|TikTok|musical_ly|Line\//i.test(ua) ? 'inapp'
-    : /iphone|ipad|ipod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1) ? 'ios'
+  // inapp: a link opened inside Instagram, Facebook, TikTok, the Google app…, whose browsers cannot install apps
+  // ios-browser: Chrome, Edge or Firefox on an iPhone, which add to the home screen from their own Share
+  var ios = /iphone|ipad|ipod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var platform = /Instagram|FBAN|FBAV|FB_IAB|Snapchat|TikTok|musical_ly|Line\/|LinkedInApp|Twitter/i.test(ua) || (ios && /GSA\//.test(ua)) ? 'inapp'
+    : ios ? (/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua) ? 'ios-browser' : 'ios')
     : /android/i.test(ua) ? 'android' : 'desktop';
   var LATER = 'himma-install-later'; // when the phone bar was closed; it comes back after two weeks
 

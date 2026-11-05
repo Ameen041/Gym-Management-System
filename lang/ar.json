@@ -1101,7 +1101,6 @@
     "Not now": "ليس الآن",
     "Install Himma": "تثبيت همّة",
     "Choose \"Install app\" or \"Add to Home screen\", then confirm.": "اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية»، ثم أكّد.",
-    "Open the site in Safari and tap Share :icon at the bottom.": "افتح الموقع في Safari واضغط زر المشاركة :icon في الأسفل.",
     "Choose \"Add to Home Screen\", then \"Add\".": "اختر «إضافة إلى الشاشة الرئيسية»، ثم «إضافة».",
     "Open the site in Chrome or Edge.": "افتح الموقع في Chrome أو Edge.",
     "Click the install icon at the end of the address bar (or the menu), then \"Install\".": "اضغط أيقونة التثبيت في آخر شريط العنوان (أو من القائمة)، ثم «تثبيت».",
@@ -1155,5 +1154,11 @@
     "The photo is bigger than :size MB. Choose a smaller photo, or take a screenshot of it and upload the screenshot.": "حجم الصورة أكبر من :size ميغابايت. اختر صورة أصغر، أو خذ لقطة شاشة للصورة وارفع اللقطة.",
     "The photo could not be uploaded. Choose a smaller photo, or take a screenshot of it and upload the screenshot.": "تعذّر رفع الصورة. اختر صورة أصغر، أو خذ لقطة شاشة للصورة وارفع اللقطة.",
     "Phone photos can be uploaded": "يمكن رفع صور الموبايل",
-    "The server takes photos up to :upload MB and forms up to :post MB. Set upload_max_filesize to 10M and post_max_size to 64M (hPanel: Advanced → PHP Configuration → PHP options).": "السيرفر يقبل صوراً حتى :upload ميغابايت ونماذج حتى :post ميغابايت. اضبط upload_max_filesize على 10M و post_max_size على 64M (في hPanel: Advanced ← PHP Configuration ← PHP options)."
+    "The server takes photos up to :upload MB and forms up to :post MB. Set upload_max_filesize to 10M and post_max_size to 64M (hPanel: Advanced → PHP Configuration → PHP options).": "السيرفر يقبل صوراً حتى :upload ميغابايت ونماذج حتى :post ميغابايت. اضبط upload_max_filesize على 10M و post_max_size على 64M (في hPanel: Advanced ← PHP Configuration ← PHP options).",
+    "Scroll down and choose \"Add to Home Screen\". Keep \"Open as Web App\" on, then tap \"Add\".": "انزل في القائمة واختر «إضافة إلى الشاشة الرئيسية». اترك «فتح كتطبيق ويب» مفعّلاً، ثم اضغط «إضافة».",
+    "Open Himma from its new icon and log in once: the app keeps its own login.": "افتح همّة من أيقونتها الجديدة وسجّل الدخول مرة واحدة: للتطبيق تسجيل دخول خاص به.",
+    "Tap Share :icon (in Chrome it is in the address bar, in other browsers in the menu).": "اضغط «مشاركة» :icon (في Chrome تجده في شريط العنوان، وفي المتصفحات الأخرى داخل القائمة).",
+    "Not in the list? Open the site in Safari and tap \"Install App\" there.": "لا تجده في القائمة؟ افتح الموقع في Safari واضغط «تثبيت التطبيق» من هناك.",
+    "Tap :more next to the address bar, then Share :icon.": "اضغط :more بجانب شريط العنوان، ثم «مشاركة» :icon.",
+    "On older iPhones, Share is right in the bar at the bottom.": "في أجهزة iPhone الأقدم، زر المشاركة موجود مباشرةً في الشريط السفلي."
 }
