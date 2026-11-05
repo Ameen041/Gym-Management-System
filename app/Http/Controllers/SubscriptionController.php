@@ -33,6 +33,22 @@ class SubscriptionController extends Controller
         'advanced'     => 'Advanced (more than 2 years)',
     ];
 
+    /** Phones make the photos smaller before they are sent (app.js); this is for the ones that can't. */
+    public const PHOTO_MAX_KB = 10240;
+
+    /** Errors that say what to do, instead of "must not be greater than 10240 kilobytes". */
+    private static function photoMessages(string $field): array
+    {
+        $type = __('The photo must be JPG, PNG or WEBP. Take a screenshot of it and upload the screenshot.');
+
+        return [
+            "$field.max"      => __('The photo is bigger than :size MB. Choose a smaller photo, or take a screenshot of it and upload the screenshot.', ['size' => self::PHOTO_MAX_KB / 1024]),
+            "$field.image"    => $type,
+            "$field.mimes"    => $type,
+            "$field.uploaded" => __('The photo could not be uploaded. Choose a smaller photo, or take a screenshot of it and upload the screenshot.'),
+        ];
+    }
+
     public function create(User $coach, CoachPackage $package)
     {
         $this->ensureBuyable($coach, $package);
@@ -86,8 +102,9 @@ class SubscriptionController extends Controller
             'weight'        => ['required', 'numeric', 'min:30', 'max:300'],
             'phone'         => ['required', 'string', 'max:30', 'regex:/^[0-9+\s-]{8,20}$/'],
             'body_photos'   => ['nullable', 'array', 'max:4'],
-            'body_photos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
-        ], [
+            'body_photos.*' => ['image', 'mimes:jpg,jpeg,png,webp', 'max:' . self::PHOTO_MAX_KB],
+        ], self::photoMessages('body_photos.*') + [
+            'body_photos.max'       => __('You can add up to 4 photos.'),
             'health.required'       => __('Answer every health question.'),
             'health_notes.required' => __('You answered "yes" to a health question: tell your coach what it is and what your doctor said.'),
             'doctor.accepted'       => __('Please confirm that you will check with your doctor before you start.'),
@@ -202,8 +219,8 @@ class SubscriptionController extends Controller
 
         $request->validate([
             'payment_reference' => ['required', 'string', 'max:100'],
-            'payment_proof'     => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
-        ], [], ['payment_reference' => __('Transaction number'), 'payment_proof' => __('Transfer screenshot')]);
+            'payment_proof'     => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:' . self::PHOTO_MAX_KB],
+        ], self::photoMessages('payment_proof'), ['payment_reference' => __('Transaction number'), 'payment_proof' => __('Transfer screenshot')]);
 
         // one transaction pays for one subscription only
         $reference = Subscription::normalizeReference($request->payment_reference);

@@ -9,13 +9,13 @@
   <p>{{ __('What trainees see on the coaches page.') }}</p>
 </div>
 
-<form class="panel" method="POST" action="{{ route('coach.profile.update') }}" enctype="multipart/form-data">
+<form class="panel" method="POST" action="{{ route('coach.profile.update') }}" enctype="multipart/form-data" data-busy="{{ __('Sending… keep this page open') }}">
   @csrf
   <div class="profile-head" style="margin-bottom:16px">
     <img src="{{ $coach->photo_url }}" alt="" class="avatar-lg">
     <div class="form-group" style="flex:1;min-width:220px;margin:0">
       <label>{{ __('Profile Photo') }}</label>
-      <input type="file" name="photo" accept="image/*">
+      <input type="file" name="photo" accept="image/*" data-shrink="1000">
       <div class="form-hint">{{ __('A clear photo of your face builds trust.') }}</div>
     </div>
   </div>
@@ -85,7 +85,7 @@
         @endforeach
       </div>
     @endif
-    <input type="file" name="certificates[]" accept="image/*" multiple>
+    <input type="file" name="certificates[]" accept="image/*" multiple data-shrink="2400">
     <div class="form-hint">{{ __('Certificates are checked by our team before your profile is approved.') }}</div>
   </div>
 

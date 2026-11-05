@@ -19,7 +19,7 @@
   <section class="panel">
     @if($canSend)
       <div class="panel-head"><h2><i class="fas fa-clipboard-check"></i> {{ __('How was your week?') }}</h2></div>
-      <form method="POST" action="{{ route('check-ins.store', $subscription) }}" enctype="multipart/form-data">
+      <form method="POST" action="{{ route('check-ins.store', $subscription) }}" enctype="multipart/form-data" data-busy="{{ __('Sending… keep this page open') }}">
         @csrf
         <div class="form-row">
           <div class="form-group">
@@ -73,7 +73,7 @@
 
         <div class="form-group">
           <label for="ci-photos">{{ __('Progress photos') }} <span class="muted small">{{ __('optional, up to 3') }}</span></label>
-          <input type="file" id="ci-photos" name="photos[]" accept="image/*" multiple>
+          <input type="file" id="ci-photos" name="photos[]" accept="image/*" multiple data-shrink>
           <small class="muted">{{ __('Only your coach can see them.') }}</small>
         </div>
 

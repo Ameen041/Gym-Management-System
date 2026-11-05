@@ -14,7 +14,7 @@
 </div>
 
 <div class="grid-2" style="align-items:start">
-  <form class="panel" method="POST" action="{{ route('subscriptions.store', [$coach, $package]) }}" enctype="multipart/form-data">
+  <form class="panel" method="POST" action="{{ route('subscriptions.store', [$coach, $package]) }}" enctype="multipart/form-data" data-busy="{{ __('Sending… keep this page open') }}">
     @csrf
     <div class="panel-head"><h2><i class="fas fa-clipboard-list"></i> {{ __('Your goal') }}</h2></div>
 
@@ -117,8 +117,11 @@
 
     <div class="form-group">
       <label>{{ __('Body photos (optional, up to 4)') }}</label>
-      <input type="file" name="body_photos[]" accept="image/*" multiple>
+      <input type="file" name="body_photos[]" accept="image/*" multiple data-shrink>
       <div class="form-hint">{{ __('Only your coach can see them. They help to build a better plan.') }}</div>
+      @if($errors->any())
+        <div class="form-hint" style="color:var(--danger)"><i class="fas fa-circle-exclamation"></i> {{ __('If you picked photos, pick them again: they are not kept when something in the form needs fixing.') }}</div>
+      @endif
     </div>
 
     <label class="check" style="margin-bottom:14px;align-items:flex-start">

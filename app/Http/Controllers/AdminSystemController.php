@@ -15,6 +15,8 @@ class AdminSystemController extends Controller
         $lastBackup = $backups->first()['time'] ?? null;
         $heartbeat = Cache::get('scheduler:heartbeat');
         $demoUsers = User::where('email', 'like', '%@demo.com')->count();
+        $uploadMb = self::iniMegabytes('upload_max_filesize');
+        $postMb = self::iniMegabytes('post_max_size');
 
         // [passed, title, what to do when it isn't]
         $checks = [
@@ -28,6 +30,8 @@ class AdminSystemController extends Controller
                 trans_choice('{1} There is :count demo account (ending in @demo.com). Delete it from Users.|[2,*] There are :count demo accounts (ending in @demo.com). Delete them from Users.', $demoUsers)],
             [is_writable(storage_path('app')) && is_writable(storage_path('app/public')), __('Uploads can be saved'),
                 __('The storage/app folder must be writable by the web server.')],
+            [$uploadMb >= 10 && $postMb >= 40, __('Phone photos can be uploaded'),
+                __('The server takes photos up to :upload MB and forms up to :post MB. Set upload_max_filesize to 10M and post_max_size to 64M (hPanel: Advanced → PHP Configuration → PHP options).', ['upload' => $uploadMb, 'post' => $postMb])],
             [is_link(public_path('storage')) || is_dir(public_path('storage')), __('Coach photos are reachable'),
                 __('Run: php artisan storage:link')],
             [$heartbeat && $heartbeat > now()->subMinutes(10)->timestamp, __('Scheduled tasks are running'),
@@ -42,6 +46,21 @@ class AdminSystemController extends Controller
             'backups' => $backups,
             'isLive'  => app()->environment('production'),
         ]);
+    }
+
+    /** "8M", "1G", "512K" or bytes from php.ini, in MB; 0 means no limit. */
+    private static function iniMegabytes(string $key): float
+    {
+        $value = trim((string) ini_get($key));
+        $number = (float) $value;
+        $bytes = match (strtolower(substr($value, -1))) {
+            'g' => $number * 1024 ** 3,
+            'm' => $number * 1024 ** 2,
+            'k' => $number * 1024,
+            default => $number,
+        };
+
+        return $bytes <= 0 ? INF : round($bytes / 1024 ** 2, 1);
     }
 
     public function backup()
