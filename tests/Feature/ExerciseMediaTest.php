@@ -142,5 +142,42 @@ class ExerciseMediaTest extends TestCase
             ->assertDontSee('Everkinetic');
         $this->get(route('exercises.show', Exercise::where('name', 'Leg Press')->sole()))->assertSee('Everkinetic');
     }
+
+    public function test_the_video_cover_comes_from_the_video_and_becomes_the_exercise_picture(): void
+    {
+        $this->seed(ExercisesSeeder::class);
+        $admin = User::factory()->admin()->create();
+        $fly = Exercise::where('name', 'Dumbbell Fly')->sole();
+        $send = fn (Exercise $e, string $poster) => $this->actingAs($admin)->postJson(route('admin.exercises.video', $e->id), [
+            'video_file' => UploadedFile::fake()->create('fly.mp4', 900, 'video/mp4'),
+            'poster'     => UploadedFile::fake()->image($poster, 1280, 720),
+        ])->assertOk();
+
+        // the drawing gives way to the frame the browser took from the video
+        $send($fly, 'cover.jpg');
+        $fly->refresh();
+        $this->assertTrue($fly->has_video);
+        $this->assertCount(1, $fly->frames);
+        $this->assertStringContainsString('-cover-', $fly->frames[0]);
+        $this->assertFileExists(public_path($fly->frames[0]));
+        $this->assertStringContainsString('/thumbs/', $fly->thumbnail);
+        $this->actingAs($admin)->get(route('exercises.show', $fly))->assertSee('poster="' . asset($fly->frames[0]) . '"', false);
+
+        // a new video replaces its cover
+        $old = $fly->frames[0];
+        $send($fly, 'cover2.jpg');
+        $fly->refresh();
+        $this->assertNotSame($old, $fly->frames[0]);
+        $this->assertFileDoesNotExist(public_path($old));
+
+        // pictures the admin made stay, the cover isn't used
+        $press = Exercise::where('name', 'Barbell Bench Press')->sole();
+        $pictures = $press->frames;
+        $send($press, 'cover.jpg');
+        $this->assertSame($pictures, $press->fresh()->frames);
+
+        // the page counts an exercise with a video as done
+        $this->actingAs($admin)->get(route('admin.exercises.pictures', ['show' => 'done']))->assertSee('Dumbbell Fly');
+    }
 }
 

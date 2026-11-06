@@ -1,25 +1,24 @@
 @extends('layouts.admin')
-@section('title', __('Exercise pictures'))
-@section('page-title', __('Exercise pictures'))
+@section('title', __('Exercise videos'))
+@section('page-title', __('Exercise videos'))
 
 @section('content')
 @php use App\Models\Exercise; use App\Support\PicturePrompt; @endphp
 
 <div class="page-header">
-  <h1>{{ __('Exercise pictures') }}</h1>
-  <p>{{ __('Make two pictures for each exercise with Gemini (start and end), in the same style as the bench press, then upload them here.') }}</p>
+  <h1>{{ __('Exercise videos') }}</h1>
+  <p>{{ __('For each exercise: make one picture with Gemini, ask it to animate the picture, and upload the video here. The cover is taken from the video.') }}</p>
 </div>
 
 <div class="card pic-help">
   <h3><i class="fas fa-circle-info"></i> {{ __('How to make them') }}</h3>
   <ol>
     <li>{{ __('Open Gemini, start a new chat and choose "Create image".') }}</li>
-    <li>{{ __('Copy the first text of the exercise, paste it in Gemini and send it.') }}</li>
-    <li>{{ __('Then copy the second text and send it: it is a full description of the end position, in the same style. If Gemini sends the first picture again, send it in a new chat.') }}</li>
-    <li>{{ __('Download both pictures and upload them under the exercise: first the start, then the end.') }}</li>
-    <li>{{ __('For a video: send the start picture to Gemini with the video text (step 4), download the video and upload it (step 5). It plays by itself on the exercise page, without sound.') }}</li>
+    <li>{{ __('Copy the first text (the picture) and send it.') }}</li>
+    <li>{{ __('Copy the second text (the video) and send it in the same chat, with the picture: Gemini animates it.') }}</li>
+    <li>{{ __('Download the video and upload it under the exercise. Its cover is taken from the video by itself.') }}</li>
   </ol>
-  <p class="muted small">{{ __('A picture with a mistake (an extra arm, a bent bar, a wrong position)? Ask Gemini again in a new chat. Pictures are saved on the server; keep a copy of them on your computer too.') }}</p>
+  <p class="muted small">{{ __('A video with a mistake (an extra arm, a bent bar, a wrong move)? Ask Gemini again in a new chat. Videos are saved on the server; keep a copy of them on your computer too.') }}</p>
 </div>
 
 <div class="card">
@@ -53,8 +52,10 @@
           <strong>{{ $exercise->display_name }}</strong>
           @if(app()->isLocale('ar') && $exercise->name_ar)<span class="muted small" dir="ltr">{{ $exercise->name }}</span>@endif
           <span class="small">
-            @if($exercise->has_own_pictures)
-              <span class="badge badge-success"><i class="fas fa-check"></i> {{ __('Done') }}</span>
+            @if($exercise->has_video)
+              <span class="badge badge-success"><i class="fas fa-video"></i> {{ __('Video added') }}</span>
+            @elseif($exercise->has_own_pictures)
+              <span class="badge badge-success"><i class="fas fa-image"></i> {{ __('Pictures added') }}</span>
             @else
               <span class="badge badge-warning">{{ __('Not done yet') }}</span>
             @endif
@@ -67,7 +68,7 @@
         <div class="pic-step">
           <span class="pic-num">1</span>
           <div class="pic-text">
-            <div class="pic-label">{{ __('First text: the start position') }}</div>
+            <div class="pic-label">{{ __('First text: the picture') }}</div>
             <p class="pic-prompt" dir="ltr" id="p1-{{ $exercise->id }}">{{ PicturePrompt::start($exercise) }}</p>
           </div>
           <button type="button" class="btn btn-sm btn-primary" data-copy-text="#p1-{{ $exercise->id }}" data-done="{{ __('Copied') }}"><i class="fas fa-copy"></i> {{ __('Copy') }}</button>
@@ -75,46 +76,53 @@
         <div class="pic-step">
           <span class="pic-num">2</span>
           <div class="pic-text">
-            <div class="pic-label">{{ __('Second text: the end position') }}</div>
-            <p class="pic-prompt" dir="ltr" id="p2-{{ $exercise->id }}">{{ PicturePrompt::end($exercise) }}</p>
-          </div>
-          <button type="button" class="btn btn-sm btn-primary" data-copy-text="#p2-{{ $exercise->id }}" data-done="{{ __('Copied') }}"><i class="fas fa-copy"></i> {{ __('Copy') }}</button>
-        </div>
-        <form class="pic-step" method="POST" action="{{ route('admin.exercises.pictures.store', $exercise->id) }}" enctype="multipart/form-data" data-upload>
-          @csrf
-          <span class="pic-num">3</span>
-          <div class="pic-text">
-            <div class="pic-label">{{ __('Upload the two pictures') }}</div>
-            <div class="pic-files">
-              <label>{{ __('Start') }} <input type="file" name="start" accept="image/*" class="form-control" data-shrink="1200"></label>
-              <label>{{ __('End') }} <input type="file" name="end" accept="image/*" class="form-control" data-shrink="1200"></label>
-            </div>
-            <div class="upload-progress" data-upload-progress hidden><span></span></div>
-            <div class="upload-error" data-upload-error hidden></div>
-          </div>
-          <button class="btn btn-sm btn-success"><i class="fas fa-upload"></i> {{ __('Save') }}</button>
-        </form>
-        <div class="pic-step">
-          <span class="pic-num">4</span>
-          <div class="pic-text">
-            <div class="pic-label">{{ __('Video (optional): send this with the start picture and Gemini animates it') }}
-              @if($exercise->has_video)<span class="badge badge-success"><i class="fas fa-video"></i> {{ __('Video added') }}</span>@endif
-            </div>
+            <div class="pic-label">{{ __('Second text: the video (in the same chat, with the picture)') }}</div>
             <p class="pic-prompt" dir="ltr" id="p3-{{ $exercise->id }}">{{ PicturePrompt::video($exercise) }}</p>
           </div>
           <button type="button" class="btn btn-sm btn-primary" data-copy-text="#p3-{{ $exercise->id }}" data-done="{{ __('Copied') }}"><i class="fas fa-copy"></i> {{ __('Copy') }}</button>
         </div>
         <form class="pic-step" method="POST" action="{{ route('admin.exercises.video', $exercise->id) }}" enctype="multipart/form-data" data-upload>
           @csrf
-          <span class="pic-num">5</span>
+          <span class="pic-num">3</span>
           <div class="pic-text">
             <div class="pic-label">{{ $exercise->has_video ? __('Replace the video') : __('Upload the video') }}</div>
-            <input type="file" name="video_file" accept="video/mp4,video/webm,video/quicktime" required class="form-control">
+            {{-- the browser takes a frame of the video as the cover (app.js: data-poster) --}}
+            <input type="file" name="video_file" accept="video/mp4,video/webm,video/quicktime" required class="form-control" data-poster>
+            <input type="file" name="poster" accept="image/*" hidden>
+            <div class="form-hint small muted" data-poster-note hidden><i class="fas fa-image"></i> {{ __('Cover taken from the video.') }}</div>
             <div class="upload-progress" data-upload-progress hidden><span></span></div>
             <div class="upload-error" data-upload-error hidden></div>
           </div>
           <button class="btn btn-sm btn-success"><i class="fas fa-upload"></i> {{ __('Save') }}</button>
         </form>
+
+        <details class="pic-more">
+          <summary>{{ __('Pictures instead of a video (optional)') }}</summary>
+          <div class="pic-steps">
+            <div class="pic-step">
+              <span class="pic-num">+</span>
+              <div class="pic-text">
+                <div class="pic-label">{{ __('Text for the end picture') }}</div>
+                <p class="pic-prompt" dir="ltr" id="p2-{{ $exercise->id }}">{{ PicturePrompt::end($exercise) }}</p>
+              </div>
+              <button type="button" class="btn btn-sm btn-secondary" data-copy-text="#p2-{{ $exercise->id }}" data-done="{{ __('Copied') }}"><i class="fas fa-copy"></i> {{ __('Copy') }}</button>
+            </div>
+            <form class="pic-step" method="POST" action="{{ route('admin.exercises.pictures.store', $exercise->id) }}" enctype="multipart/form-data" data-upload>
+              @csrf
+              <span class="pic-num">+</span>
+              <div class="pic-text">
+                <div class="pic-label">{{ __('Upload the two pictures') }}</div>
+                <div class="pic-files">
+                  <label>{{ __('Start') }} <input type="file" name="start" accept="image/*" class="form-control" data-shrink="1200"></label>
+                  <label>{{ __('End') }} <input type="file" name="end" accept="image/*" class="form-control" data-shrink="1200"></label>
+                </div>
+                <div class="upload-progress" data-upload-progress hidden><span></span></div>
+                <div class="upload-error" data-upload-error hidden></div>
+              </div>
+              <button class="btn btn-sm btn-secondary"><i class="fas fa-upload"></i> {{ __('Save') }}</button>
+            </form>
+          </div>
+        </details>
         @if($exercise->has_own_pictures && !str_starts_with((string) ($exercise->frames[0] ?? ''), 'images/'))
           <form method="POST" action="{{ route('admin.exercises.pictures.destroy', $exercise->id) }}" onsubmit="return confirm(@js(__('Remove these pictures and go back to the drawing?')))" class="pic-remove">
             @csrf @method('DELETE')
@@ -126,7 +134,7 @@
   @empty
     <div class="empty-state">
       <i class="fas fa-circle-check"></i>
-      <h3>{{ $show === 'todo' ? __('All exercises have their pictures.') : __('No exercises found') }}</h3>
+      <h3>{{ $show === 'todo' ? __('All exercises have their video or pictures.') : __('No exercises found') }}</h3>
     </div>
   @endforelse
 
@@ -151,6 +159,9 @@
   .pic-files{display:flex;gap:8px;flex-wrap:wrap}
   .pic-files label{display:grid;gap:4px;font-size:.85rem;font-weight:600;flex:1 1 200px}
   .pic-remove{justify-self:start}
+  .pic-more{border-top:1px dashed var(--gray-400);padding-top:8px}
+  .pic-more > summary{cursor:pointer;font-weight:700;font-size:.85rem;color:var(--gray-700)}
+  .pic-more > .pic-steps{margin-top:10px}
   @media (max-width:640px){
     .pic-step{grid-template-columns:26px minmax(0,1fr)}
     .pic-step > .btn{grid-column:2;justify-self:start}

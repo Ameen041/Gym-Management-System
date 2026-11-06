@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Exercise;
+use App\Support\ExercisePicture;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
@@ -41,10 +42,26 @@ class AdminExerciseController extends Controller
     public function updateVideo(Request $request, $id)
     {
         $exercise = Exercise::findOrFail($id);
-        $request->validate(['video_file' => self::VIDEO_RULES], self::videoMessages(), ['video_file' => __('Video')]);
+        $request->validate([
+            'video_file' => self::VIDEO_RULES,
+            'poster'     => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:8192'],
+        ], self::videoMessages(), ['video_file' => __('Video')]);
 
         $this->deleteFile($exercise->video_path);
-        $exercise->update(['video_path' => $this->upload($request->file('video_file')), 'video_url' => null]);
+        $data = ['video_path' => $this->upload($request->file('video_file')), 'video_url' => null];
+
+        // the browser takes a frame of the video as its cover: it becomes the exercise's picture, unless the
+        // admin uploaded pictures of their own (a cover from an earlier video is replaced)
+        $frames = array_values(array_filter((array) $exercise->frames));
+        $isCover = count($frames) === 1 && str_contains(basename($frames[0]), '-cover-');
+        if ($request->hasFile('poster') && (!$exercise->has_own_pictures || $isCover)) {
+            if ($isCover) {
+                ExercisePicture::delete($frames[0]);
+            }
+            $data['frames'] = [ExercisePicture::store($request->file('poster'), $exercise->id . '-cover', true)];
+            $data['image_path'] = null;
+        }
+        $exercise->update($data);
 
         return $this->done($request, back()->getTargetUrl(), __('Video saved for ":name".', ['name' => $exercise->display_name]));
     }

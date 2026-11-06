@@ -463,3 +463,60 @@
     v.pause();
   });
 })();
+
+/* Exercise videos: input[type=file][data-poster] takes a frame near the start of the chosen video and puts it,
+ * as a picture, in the form's input[name=poster], so the video's cover comes from the video itself.
+ * The form's buttons wait until the frame is ready; if the browser can't read the video, it is sent without one. */
+(function () {
+  "use strict";
+  var canDo = false;
+  try { canDo = !!(window.DataTransfer && new window.DataTransfer() && HTMLCanvasElement.prototype.toBlob && window.URL); } catch (e) {}
+  if (!canDo) return;
+
+  function frameOf(file) {
+    return new Promise(function (resolve) {
+      var url = URL.createObjectURL(file), v = document.createElement("video"), done = false;
+      function finish(blob) {
+        if (done) return;
+        done = true;
+        URL.revokeObjectURL(url);
+        resolve(blob);
+      }
+      v.muted = true; v.playsInline = true; v.preload = "auto";
+      v.onerror = function () { finish(null); };
+      v.onloadeddata = function () { v.currentTime = Math.min(0.4, (v.duration || 1) / 10); };
+      v.onseeked = function () {
+        var scale = Math.min(1, 1280 / (v.videoWidth || 1));
+        var c = document.createElement("canvas");
+        c.width = Math.round(v.videoWidth * scale); c.height = Math.round(v.videoHeight * scale);
+        if (!c.width || !c.height) return finish(null);
+        c.getContext("2d").drawImage(v, 0, 0, c.width, c.height);
+        c.toBlob(finish, "image/jpeg", 0.9);
+      };
+      setTimeout(function () { finish(null); }, 10000);
+      v.src = url;
+    });
+  }
+
+  document.addEventListener("change", function (e) {
+    var input = e.target;
+    if (!input.matches || !input.matches('input[type="file"][data-poster]') || !input.form) return;
+    var form = input.form, target = form.querySelector('input[name="poster"]');
+    var note = form.querySelector("[data-poster-note]");
+    var buttons = form.querySelectorAll('button[type="submit"], button:not([type])');
+    if (!target) return;
+    target.value = "";
+    if (note) note.hidden = true;
+    if (!input.files || !input.files[0]) return;
+    buttons.forEach(function (b) { b.disabled = true; });
+    frameOf(input.files[0]).then(function (blob) {
+      if (blob) {
+        var list = new DataTransfer();
+        list.items.add(new File([blob], "cover.jpg", { type: "image/jpeg" }));
+        target.files = list.files;
+        if (note) note.hidden = false;
+      }
+      buttons.forEach(function (b) { b.disabled = false; });
+    });
+  });
+})();

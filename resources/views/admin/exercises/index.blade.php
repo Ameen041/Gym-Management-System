@@ -35,7 +35,7 @@
         <i class="fas fa-eye"></i> {{ __('View as trainee') }}
       </a>
       <a href="{{ route('admin.exercises.pictures') }}" class="btn btn-secondary">
-        <i class="fas fa-wand-magic-sparkles"></i> {{ __('Exercise pictures') }}
+        <i class="fas fa-wand-magic-sparkles"></i> {{ __('Exercise videos') }}
       </a>
       <a href="{{ route('admin.exercises.create') }}" class="btn btn-primary">
         <i class="fas fa-plus"></i> {{ __('New Exercise') }}
@@ -96,7 +96,8 @@
                 <form method="POST" action="{{ route('admin.exercises.video', $exercise->id) }}" enctype="multipart/form-data" data-upload style="display:grid;gap:6px;margin-top:6px">
                   @csrf
                   <div style="display:flex;gap:4px">
-                    <input type="file" name="video_file" accept="video/mp4,video/webm,video/quicktime" required class="form-control" style="padding:6px 8px;font-size:.8rem;min-width:150px">
+                    <input type="file" name="video_file" accept="video/mp4,video/webm,video/quicktime" required class="form-control" style="padding:6px 8px;font-size:.8rem;min-width:150px" data-poster>
+                    <input type="file" name="poster" accept="image/*" hidden>
                     <button class="btn btn-sm btn-secondary" title="{{ $exercise->has_video ? __('Replace video') : __('Upload video') }}"><i class="fas fa-upload"></i></button>
                   </div>
                   <div class="upload-progress" data-upload-progress hidden><span></span></div>
