@@ -34,18 +34,23 @@ class ExercisesSeeder extends Seeder
     }
 
     /**
-     * Drawings of the start and end position (data/exercise_frames.php) and the muscles each
-     * exercise works (data/exercise_muscles.php). Only fills what is still empty, so changes
-     * made by the admin stay.
+     * Pictures of the start and end position (data/exercise_pictures.php, or the drawings in
+     * data/exercise_frames.php) and the muscles each exercise works (data/exercise_muscles.php).
+     * Only fills what is still empty or still the old drawing, so changes made by the admin stay.
      */
     private function addDrawingsAndMuscles(): void
     {
         $frames = require __DIR__ . '/data/exercise_frames.php';
         $muscles = require __DIR__ . '/data/exercise_muscles.php';
+        $pictures = require __DIR__ . '/data/exercise_pictures.php';
 
-        Exercise::whereIn('name', array_keys($frames + $muscles))->get()->each(function (Exercise $exercise) use ($frames, $muscles) {
-            if (empty($exercise->frames) && isset($frames[$exercise->name])) {
-                $exercise->frames = $frames[$exercise->name];
+        Exercise::whereIn('name', array_keys($frames + $muscles + $pictures))->get()->each(function (Exercise $exercise) use ($frames, $muscles, $pictures) {
+            $name = $exercise->name;
+            if (isset($pictures[$name]) && (empty($exercise->frames) || $exercise->frames === ($frames[$name] ?? null))) {
+                // the new pictures replace the drawing, unless the admin changed it
+                $exercise->frames = $pictures[$name];
+            } elseif (empty($exercise->frames) && isset($frames[$name])) {
+                $exercise->frames = $frames[$name];
             }
             if (empty($exercise->primary_muscles) && isset($muscles[$exercise->name])) {
                 [$exercise->primary_muscles, $exercise->secondary_muscles] = $muscles[$exercise->name];

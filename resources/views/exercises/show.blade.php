@@ -31,7 +31,7 @@
             </div>
           </div>
         @endif
-        @if($exercise->is_drawing)
+        @if($exercise->needs_drawing_credit)
           <figcaption class="ex-credit">{{ __('Drawing') }}: <a href="https://github.com/everkinetic/data" target="_blank" rel="noopener">Everkinetic</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a></figcaption>
         @endif
       </figure>

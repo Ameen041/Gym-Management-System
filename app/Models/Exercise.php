@@ -222,6 +222,22 @@ class Exercise extends Model
         return array_map(fn ($path) => asset($path), array_values(array_filter((array) $this->frames)));
     }
 
+    /** The Everkinetic drawings need their credit under them (CC BY-SA); Himma's own pictures don't. */
+    public function getNeedsDrawingCreditAttribute(): bool
+    {
+        if ($this->image_path) {
+            return false;
+        }
+
+        foreach ((array) $this->frames as $path) {
+            if (str_starts_with((string) $path, 'images/exercises/') && !str_starts_with((string) $path, 'images/exercises/ai/')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /** True when the picture is one of the line drawings (shown dark on dark screens). */
     public function getIsDrawingAttribute(): bool
     {
