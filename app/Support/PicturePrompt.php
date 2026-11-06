@@ -80,6 +80,8 @@ class PicturePrompt
         'Elliptical Trainer' => ['Standing on an elliptical trainer holding the moving handles, right foot forward.', 'Left foot forward, the opposite arm pulling its handle back.'],
         'Rowing Machine' => ['Catch position on a rowing machine: knees bent, shins vertical, arms straight reaching forward to the handle.', 'Finish position: legs straight, torso leaning back slightly, handle pulled to his lower ribs.'],
         'Jump Rope' => ['Jumping rope, feet together just off the floor, rope passing under his feet.', 'Landing softly on the balls of his feet, rope swinging overhead.'],
+        'Decline Dumbbell Bench Press' => ['Lying on his back on a decline bench, dumbbells at the sides of his lower chest, palms facing his feet, elbows bent.', 'Dumbbells pressed up until his arms are straight above his lower chest.'],
+        'Decline Barbell Bench Press' => ['Lying on his back on a decline bench, holding the bar with straight arms above his lower chest.', 'Bar lowered under control to his lower chest, elbows at a moderate angle from his body.'],
     ];
 
     // muscles that only show from behind: the picture is taken from a back angle
@@ -100,6 +102,7 @@ class PicturePrompt
         $text = 'Clean anatomical fitness illustration, 3D render style. A muscular male athlete with smooth light-gray skin '
             . 'and black shorts performs the ' . $what . ', seen from ' . ($back ? 'a 3/4 back angle so the back of the body is visible' : 'a 3/4 side angle') . '. '
             . 'Start position: ' . $start . ' '
+            . (($note = self::note($exercise)) ? $note . ' ' : '')
             . 'Highlighted in bright red: the ' . self::list($muscles['primary']);
         if ($muscles['secondary']) {
             $text .= '. In light red: the ' . self::list($muscles['secondary']);
@@ -113,7 +116,29 @@ class PicturePrompt
     {
         [, $end] = self::positions($exercise);
 
-        return 'Same image, same person, same angle and style — now the end position of the movement: ' . $end;
+        $note = self::note($exercise);
+
+        return 'Same image, same person, same angle and style — now the end position of the movement: ' . $end
+            . ($note ? ' Keep it exactly as before: ' . lcfirst(preg_replace('/^Important: /', '', $note)) : '');
+    }
+
+    /**
+     * Image models mix up incline and decline: the position of the head is spelled out.
+     */
+    private static function note(Exercise $exercise): ?string
+    {
+        $name = $exercise->name;
+
+        return match (true) {
+            $name === 'Decline Push-Up' => 'Important: his feet are raised on a bench behind him, so his head is clearly lower than his feet.',
+            $name === 'Incline Push-Up' => 'Important: his hands are on a raised bench, so his head is clearly higher than his feet.',
+            $name === 'Incline Reverse Dumbbell Fly' => 'Important: he lies chest-down on a bench raised to about 30 degrees, facing the floor.',
+            str_contains($name, 'Decline') => 'Important: this is a DECLINE bench, not an incline one. The bench slopes down toward his head, '
+                . 'so his head is clearly LOWER than his hips and knees, and his lower legs are hooked under the foot pads at the high end.',
+            str_contains($name, 'Incline') => 'Important: this is an INCLINE bench. The backrest is raised to about 30–45 degrees, '
+                . 'so his head and shoulders are clearly HIGHER than his hips.',
+            default => null,
+        };
     }
 
     /** [start, end] position, in words, from the exercise's English steps. */

@@ -17,6 +17,13 @@ class ExercisePicturesPageTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // settings are kept in memory per process: start from a clean database's settings
+        (new \ReflectionProperty(\App\Models\Setting::class, 'cache'))->setValue(null, null);
+    }
+
     protected function tearDown(): void
     {
         File::deleteDirectory(public_path(ExercisePicture::DIR));
@@ -38,6 +45,12 @@ class ExercisePicturesPageTest extends TestCase
         $squat = Exercise::where('name', 'Barbell Back Squat')->sole();
         $this->assertStringContainsString('quadriceps (front of the thighs) and glutes', PicturePrompt::start($squat));
         $this->assertStringContainsString('Bottom of the squat', PicturePrompt::end($squat));
+
+        // image models mix up incline and decline: both texts say where the head is
+        $decline = Exercise::where('name', 'Decline Dumbbell Bench Press')->sole();
+        $this->assertStringContainsString('his head is clearly LOWER than his hips', PicturePrompt::start($decline));
+        $this->assertStringContainsString('his head is clearly LOWER than his hips', PicturePrompt::end($decline));
+        $this->assertStringContainsString('clearly HIGHER than his hips', PicturePrompt::start(Exercise::where('name', 'Incline Dumbbell Press')->sole()));
     }
 
     public function test_the_admin_uploads_the_two_pictures(): void
