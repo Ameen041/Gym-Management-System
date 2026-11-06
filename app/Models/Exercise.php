@@ -85,7 +85,6 @@ class Exercise extends Model
         'video_path',
         'image_path',
         'frames',
-        'motion',
         'primary_muscles',
         'secondary_muscles',
         'is_active',
@@ -229,8 +228,17 @@ class Exercise extends Model
         return !$this->image_path && !empty($this->frames);
     }
 
+    /** Small picture for lists: the drawing's own thumbnail (images/exercises/thumbs) when there is one. */
     public function getThumbnailAttribute(): ?string
     {
+        $first = array_values(array_filter((array) $this->frames))[0] ?? null;
+        if (!$this->image_path && $first) {
+            $thumb = preg_replace('~^images/exercises/~', 'images/exercises/thumbs/', $first);
+            if ($thumb !== $first && is_file(public_path($thumb))) {
+                return asset($thumb);
+            }
+        }
+
         return $this->frame_urls[0] ?? null;
     }
 

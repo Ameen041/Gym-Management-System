@@ -11,21 +11,6 @@
       <div class="ex-video">
         <video src="{{ $exercise->video_src }}" controls playsinline preload="metadata" @if($exercise->thumbnail) poster="{{ $exercise->thumbnail }}" @endif></video>
       </div>
-    @elseif($exercise->motion)
-      {{-- Himma's own animation (js/exercise-motion.js): the figure does the movement, the working muscles light up --}}
-      @php($worked = $exercise->muscles)
-      <figure class="ex-demo ex-motion">
-        <div class="ex-demo-stage">
-          <svg data-motion="{{ $exercise->motion }}" data-primary="{{ implode(' ', $worked['primary']) }}" data-secondary="{{ implode(' ', $worked['secondary']) }}"
-               role="img" aria-label="{{ __(':name, animation', ['name' => $exercise->display_name]) }}"></svg>
-        </div>
-        <div class="ex-demo-bar">
-          <button type="button" class="ex-demo-btn" data-motion-play aria-pressed="true" data-play-text="{{ __('Play') }}">
-            <i class="fas fa-pause"></i><span>{{ __('Pause') }}</span>
-          </button>
-          <span class="mm-legend"><span><i class="mm-dot mm-on"></i> {{ __('Main') }}</span><span><i class="mm-dot mm-soft"></i> {{ __('Helping') }}</span></span>
-        </div>
-      </figure>
     @elseif($frames)
       {{-- the drawings of the start and end position take turns, so the movement shows like a short clip --}}
       <figure class="ex-demo {{ $exercise->is_drawing ? 'is-drawing' : '' }}" data-demo>
@@ -112,9 +97,3 @@
   </aside>
 </div>
 @endsection
-
-@push('scripts')
-  @if(!$exercise->video_src && $exercise->motion)
-    <script src="{{ \App\Support\Asset::url('js/exercise-motion.js') }}" defer></script>
-  @endif
-@endpush

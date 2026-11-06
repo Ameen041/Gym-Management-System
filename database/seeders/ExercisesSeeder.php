@@ -34,22 +34,18 @@ class ExercisesSeeder extends Seeder
     }
 
     /**
-     * Drawings of the start and end position (data/exercise_frames.php), animations
-     * (data/exercise_motions.php) and the muscles each exercise works (data/exercise_muscles.php).
-     * Only fills what is still empty, so changes made by the admin stay.
+     * Drawings of the start and end position (data/exercise_frames.php) and the muscles each
+     * exercise works (data/exercise_muscles.php). Only fills what is still empty, so changes
+     * made by the admin stay.
      */
     private function addDrawingsAndMuscles(): void
     {
         $frames = require __DIR__ . '/data/exercise_frames.php';
         $muscles = require __DIR__ . '/data/exercise_muscles.php';
-        $motions = require __DIR__ . '/data/exercise_motions.php';
 
-        Exercise::whereIn('name', array_keys($frames + $muscles + $motions))->get()->each(function (Exercise $exercise) use ($frames, $muscles, $motions) {
+        Exercise::whereIn('name', array_keys($frames + $muscles))->get()->each(function (Exercise $exercise) use ($frames, $muscles) {
             if (empty($exercise->frames) && isset($frames[$exercise->name])) {
                 $exercise->frames = $frames[$exercise->name];
-            }
-            if (empty($exercise->motion) && isset($motions[$exercise->name])) {
-                $exercise->motion = $motions[$exercise->name];
             }
             if (empty($exercise->primary_muscles) && isset($muscles[$exercise->name])) {
                 [$exercise->primary_muscles, $exercise->secondary_muscles] = $muscles[$exercise->name];

@@ -529,12 +529,12 @@ html[dir="ltr"] .back-link i{transform:scaleX(-1)}
 .ex-novideo > i{font-size:2rem;opacity:.5}
 
 /* ---------- Exercise drawings and muscle map ---------- */
-/* the drawings are black lines on white: on dark screens they are turned into light lines on dark */
+/* the drawings are dark lines on white with the muscles in red: on dark screens they are only dimmed a little */
 :root{--drawing-bg:#ffffff;--drawing-filter:none;--mm-skin:#eceef1;--mm-base:#d9dde3;--mm-on:#e11d48;--mm-soft:#fda4af;--mm-gap:#ffffff}
 @media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){--drawing-bg:#121212;--drawing-filter:invert(.93);--mm-skin:#1d2228;--mm-base:#2c333b;--mm-on:#fb3b62;--mm-soft:#8a3446;--mm-gap:#121519}
+  :root:not([data-theme="light"]){--drawing-bg:#e9ebee;--drawing-filter:brightness(.92);--mm-skin:#1d2228;--mm-base:#2c333b;--mm-on:#fb3b62;--mm-soft:#8a3446;--mm-gap:#121519}
 }
-:root[data-theme="dark"]{--drawing-bg:#121212;--drawing-filter:invert(.93);--mm-skin:#1d2228;--mm-base:#2c333b;--mm-on:#fb3b62;--mm-soft:#8a3446;--mm-gap:#121519}
+:root[data-theme="dark"]{--drawing-bg:#e9ebee;--drawing-filter:brightness(.92);--mm-skin:#1d2228;--mm-base:#2c333b;--mm-on:#fb3b62;--mm-soft:#8a3446;--mm-gap:#121519}
 .is-drawing img,img.is-drawing{filter:var(--drawing-filter)}
 .lib-thumb.is-drawing,.pick-icon.is-drawing,.wb-thumb.is-drawing{background:var(--drawing-bg)}
 .lib-thumb.is-drawing img,.pick-icon.is-drawing img{object-fit:contain;padding:3px}
@@ -550,23 +550,6 @@ html[dir="ltr"] .back-link i{transform:scaleX(-1)}
 .ex-demo-steps button{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:99px;padding:5px 12px;font:inherit;font-size:.8rem;font-weight:700;cursor:pointer}
 .ex-demo-steps button.on{background:var(--accent-soft);border-color:transparent;color:var(--accent-text)}
 .ex-credit{padding:0 12px 10px;font-size:.72rem;color:var(--faint)}
-
-/* Himma's own exercise animations (js/exercise-motion.js) */
-:root{--em-bg:#f4f6f8;--em-skin:#c7ced8;--em-far:#9ea8b5;--em-hair:#59626e;--em-line:#c4cbd4;--em-plate:#2c323b;--em-ring:#5b6470;--em-bar:#d3d8de;--em-bench:#6b7684;--em-bench-leg:#8d97a3}
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){--em-bg:#15191e;--em-skin:#6f7a87;--em-far:#4b545f;--em-hair:#2a3038;--em-line:#2f363f;--em-plate:#0b0d10;--em-ring:#3d4550;--em-bar:#9aa3ae;--em-bench:#3a424c;--em-bench-leg:#2c333b}
-}
-:root[data-theme="dark"]{--em-bg:#15191e;--em-skin:#6f7a87;--em-far:#4b545f;--em-hair:#2a3038;--em-line:#2f363f;--em-plate:#0b0d10;--em-ring:#3d4550;--em-bar:#9aa3ae;--em-bench:#3a424c;--em-bench-leg:#2c333b}
-.ex-demo.ex-motion .ex-demo-stage{aspect-ratio:11/10;background:var(--em-bg)}
-.ex-motion svg{position:absolute;inset:0;width:100%;height:100%;display:block}
-.ex-motion .mm-legend{font-size:.8rem}
-.em-skin{fill:var(--em-skin)} .em-far{fill:var(--em-far)} .em-hair{fill:var(--em-hair)}
-.em-floor{fill:var(--em-line)} .em-bench{fill:var(--em-bench)} .em-bench-leg{fill:var(--em-bench-leg)}
-.em-plate{fill:var(--em-plate)} .em-plate-ring{fill:none;stroke:var(--em-ring);stroke-width:2} .em-bar{fill:var(--em-bar)}
-.em-muscle.em-on{fill:var(--mm-on);opacity:calc(.6 + var(--effort, 1) * .4)}
-.em-muscle.em-soft{fill:var(--mm-soft)}
-.em-muscle-far{opacity:.65}
-.em-muscle-far.em-on{opacity:calc(.4 + var(--effort, 1) * .3)}
 .ex-credit a{color:inherit;text-decoration:underline}
 
 .muscle-map{margin:0;display:grid;gap:10px}

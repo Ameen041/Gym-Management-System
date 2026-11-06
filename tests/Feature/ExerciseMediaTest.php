@@ -34,6 +34,14 @@ class ExerciseMediaTest extends TestCase
         }
         $this->assertSame(['primary' => ['chest'], 'secondary' => ['shoulders', 'triceps']], $bench->muscles);
         $this->assertGreaterThan(100, Exercise::whereNotNull('frames')->count());
+
+        // every drawing is there, and each exercise has a small thumbnail for the lists
+        foreach (require database_path('seeders/data/exercise_frames.php') as $name => $files) {
+            foreach ($files as $file) {
+                $this->assertFileExists(public_path($file), $name);
+            }
+            $this->assertFileExists(public_path(str_replace('images/exercises/', 'images/exercises/thumbs/', $files[0])), $name);
+        }
         $this->assertSame(0, Exercise::whereNull('primary_muscles')->count());
 
         // the next deploy runs the seeder again: what the admin chose stays
@@ -47,7 +55,7 @@ class ExerciseMediaTest extends TestCase
     public function test_the_exercise_page_shows_the_movement_and_colors_the_muscles(): void
     {
         $this->seed(ExercisesSeeder::class);
-        $squat = Exercise::where('name', 'Leg Press')->sole();
+        $squat = Exercise::where('name', 'Barbell Back Squat')->sole();
         $squat->update(['video_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ']);
 
         $page = $this->actingAs(User::factory()->create())->get(route('exercises.show', $squat))->assertOk()
@@ -63,8 +71,10 @@ class ExerciseMediaTest extends TestCase
         $this->assertStringNotContainsStringIgnoringCase('youtube', $html);
         $this->assertStringNotContainsString('<iframe', $html);
 
-        // the library list shows the drawing too
-        $this->get(route('exercises.index'))->assertSee('lib-thumb is-drawing', false)->assertSee(asset($squat->frames[0]), false);
+        // the library list shows the drawing too, as a small thumbnail so the list loads fast
+        $thumb = str_replace('images/exercises/', 'images/exercises/thumbs/', $squat->frames[0]);
+        $this->assertFileExists(public_path($thumb));
+        $this->get(route('exercises.index'))->assertSee('lib-thumb is-drawing', false)->assertSee(asset($thumb), false);
     }
 
     public function test_the_admin_uploads_a_video_that_plays_on_the_platform(): void
@@ -107,29 +117,5 @@ class ExerciseMediaTest extends TestCase
         $this->actingAs($admin)->put(route('admin.exercises.update', $exercise->id), [
             'name' => 'Test Press', 'muscle_group' => 'shoulders', 'difficulty' => 'beginner', 'primary_muscles' => ['wings'],
         ])->assertSessionHasErrors('primary_muscles.0');
-    }
-
-    public function test_exercises_with_an_animation_play_it_with_their_muscles(): void
-    {
-        $this->seed(ExercisesSeeder::class);
-        $squat = Exercise::where('name', 'Barbell Back Squat')->sole();
-        $this->assertSame('barbell-back-squat', $squat->motion);
-
-        $user = User::factory()->create();
-        $this->actingAs($user)->get(route('exercises.show', $squat))->assertOk()
-            ->assertSee('<svg data-motion="barbell-back-squat" data-primary="quads glutes" data-secondary="hamstrings lower_back calves"', false)
-            ->assertSee('js/exercise-motion.js', false)
-            ->assertDontSee('data-demo', false);
-
-        // every motion the seeder hands out exists in the script
-        $script = file_get_contents(public_path('js/exercise-motion.js'));
-        foreach (require database_path('seeders/data/exercise_motions.php') as $motion) {
-            $this->assertStringContainsString('"' . $motion . '": {', $script);
-        }
-
-        // exercises without one keep the drawings, and don't load the script
-        $deadlift = Exercise::where('name', 'Deadlift')->sole();
-        $this->actingAs($user)->get(route('exercises.show', $deadlift))
-            ->assertSee('data-demo', false)->assertDontSee('js/exercise-motion.js', false);
     }
 }
