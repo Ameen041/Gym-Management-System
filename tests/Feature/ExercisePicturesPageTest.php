@@ -50,6 +50,8 @@ class ExercisePicturesPageTest extends TestCase
         $decline = Exercise::where('name', 'Decline Dumbbell Bench Press')->sole();
         $this->assertStringContainsString('his head is clearly LOWER than his hips', PicturePrompt::start($decline));
         $this->assertStringContainsString('his head is clearly LOWER than his hips', PicturePrompt::end($decline));
+        $this->assertStringContainsString('seen exactly from the side', PicturePrompt::start($decline));
+        $this->assertStringContainsString('seen from a 3/4 side angle', PicturePrompt::start($squat = Exercise::where('name', 'Barbell Biceps Curl')->sole()));
         $this->assertStringContainsString('clearly HIGHER than his hips', PicturePrompt::start(Exercise::where('name', 'Incline Dumbbell Press')->sole()));
     }
 
