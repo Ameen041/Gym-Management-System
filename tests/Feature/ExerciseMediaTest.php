@@ -34,6 +34,14 @@ class ExerciseMediaTest extends TestCase
         }
         $this->assertSame(['primary' => ['chest'], 'secondary' => ['shoulders', 'triceps']], $bench->muscles);
         $this->assertGreaterThan(100, Exercise::whereNotNull('frames')->count());
+
+        // every drawing is there, and each exercise has a small thumbnail for the lists
+        foreach (require database_path('seeders/data/exercise_frames.php') as $name => $files) {
+            foreach ($files as $file) {
+                $this->assertFileExists(public_path($file), $name);
+            }
+            $this->assertFileExists(public_path(str_replace('images/exercises/', 'images/exercises/thumbs/', $files[0])), $name);
+        }
         $this->assertSame(0, Exercise::whereNull('primary_muscles')->count());
 
         // the next deploy runs the seeder again: what the admin chose stays
@@ -63,8 +71,10 @@ class ExerciseMediaTest extends TestCase
         $this->assertStringNotContainsStringIgnoringCase('youtube', $html);
         $this->assertStringNotContainsString('<iframe', $html);
 
-        // the library list shows the drawing too
-        $this->get(route('exercises.index'))->assertSee('lib-thumb is-drawing', false)->assertSee(asset($squat->frames[0]), false);
+        // the library list shows the drawing too, as a small thumbnail so the list loads fast
+        $thumb = str_replace('images/exercises/', 'images/exercises/thumbs/', $squat->frames[0]);
+        $this->assertFileExists(public_path($thumb));
+        $this->get(route('exercises.index'))->assertSee('lib-thumb is-drawing', false)->assertSee(asset($thumb), false);
     }
 
     public function test_the_admin_uploads_a_video_that_plays_on_the_platform(): void

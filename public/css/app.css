@@ -529,12 +529,12 @@ html[dir="ltr"] .back-link i{transform:scaleX(-1)}
 .ex-novideo > i{font-size:2rem;opacity:.5}
 
 /* ---------- Exercise drawings and muscle map ---------- */
-/* the drawings are black lines on white: on dark screens they are turned into light lines on dark */
+/* the drawings are dark lines on white with the muscles in red: on dark screens they are only dimmed a little */
 :root{--drawing-bg:#ffffff;--drawing-filter:none;--mm-skin:#eceef1;--mm-base:#d9dde3;--mm-on:#e11d48;--mm-soft:#fda4af;--mm-gap:#ffffff}
 @media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){--drawing-bg:#121212;--drawing-filter:invert(.93);--mm-skin:#1d2228;--mm-base:#2c333b;--mm-on:#fb3b62;--mm-soft:#8a3446;--mm-gap:#121519}
+  :root:not([data-theme="light"]){--drawing-bg:#e9ebee;--drawing-filter:brightness(.92);--mm-skin:#1d2228;--mm-base:#2c333b;--mm-on:#fb3b62;--mm-soft:#8a3446;--mm-gap:#121519}
 }
-:root[data-theme="dark"]{--drawing-bg:#121212;--drawing-filter:invert(.93);--mm-skin:#1d2228;--mm-base:#2c333b;--mm-on:#fb3b62;--mm-soft:#8a3446;--mm-gap:#121519}
+:root[data-theme="dark"]{--drawing-bg:#e9ebee;--drawing-filter:brightness(.92);--mm-skin:#1d2228;--mm-base:#2c333b;--mm-on:#fb3b62;--mm-soft:#8a3446;--mm-gap:#121519}
 .is-drawing img,img.is-drawing{filter:var(--drawing-filter)}
 .lib-thumb.is-drawing,.pick-icon.is-drawing,.wb-thumb.is-drawing{background:var(--drawing-bg)}
 .lib-thumb.is-drawing img,.pick-icon.is-drawing img{object-fit:contain;padding:3px}
