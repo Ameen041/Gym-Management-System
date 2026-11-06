@@ -17,13 +17,6 @@ class ExercisePicturesPageTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        // settings are kept in memory per process: start from a clean database's settings
-        (new \ReflectionProperty(\App\Models\Setting::class, 'cache'))->setValue(null, null);
-    }
-
     protected function tearDown(): void
     {
         File::deleteDirectory(public_path(ExercisePicture::DIR));

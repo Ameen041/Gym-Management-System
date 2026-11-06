@@ -20,10 +20,10 @@ class AdminExercisePictureController extends Controller
 
         $all = Exercise::orderBy('name')->get()
             ->sortBy(fn ($e) => array_search($e->muscle_group, array_keys(Exercise::MUSCLE_GROUPS)))->values();
-        $done = $all->filter->has_own_pictures->count();
+        $done = $all->filter->has_own_media->count();
 
         $list = $all
-            ->when($show !== 'all', fn ($c) => $c->filter(fn ($e) => $e->has_own_pictures === ($show === 'done')))
+            ->when($show !== 'all', fn ($c) => $c->filter(fn ($e) => $e->has_own_media === ($show === 'done')))
             ->when($muscle, fn ($c) => $c->where('muscle_group', $muscle))
             ->values();
 

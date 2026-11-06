@@ -260,6 +260,12 @@ class Exercise extends Model
         return $this->frame_urls[0] ?? null;
     }
 
+    /** The exercise has its own video or its own pictures (what the "Exercise videos" page counts as done). */
+    public function getHasOwnMediaAttribute(): bool
+    {
+        return $this->has_video || $this->has_own_pictures;
+    }
+
     /** Pictures made for Himma (Gemini), uploaded by the admin or shipped in images/exercises/ai. */
     public function getHasOwnPicturesAttribute(): bool
     {
