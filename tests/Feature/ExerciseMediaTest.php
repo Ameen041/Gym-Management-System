@@ -118,4 +118,29 @@ class ExerciseMediaTest extends TestCase
             'name' => 'Test Press', 'muscle_group' => 'shoulders', 'difficulty' => 'beginner', 'primary_muscles' => ['wings'],
         ])->assertSessionHasErrors('primary_muscles.0');
     }
+
+    public function test_himmas_own_pictures_replace_the_drawing_without_the_drawing_credit(): void
+    {
+        foreach (require database_path('seeders/data/exercise_pictures.php') as $name => $files) {
+            foreach ($files as $file) {
+                $this->assertFileExists(public_path($file), $name);
+            }
+            $this->assertFileExists(public_path(str_replace('images/exercises/', 'images/exercises/thumbs/', $files[0])), $name);
+        }
+
+        // an install that already has the old drawing gets the new pictures on the next deploy
+        $this->seed(ExercisesSeeder::class);
+        $bench = Exercise::where('name', 'Barbell Bench Press')->sole();
+        $old = (require database_path('seeders/data/exercise_frames.php'))['Barbell Bench Press'];
+        $bench->update(['frames' => $old]);
+        $this->seed(ExercisesSeeder::class);
+        $bench->refresh();
+        $this->assertSame('images/exercises/ai/barbell-bench-press-1.webp', $bench->frames[0]);
+
+        $this->actingAs(User::factory()->create())->get(route('exercises.show', $bench))->assertOk()
+            ->assertSee(asset('images/exercises/ai/barbell-bench-press-2.webp'), false)
+            ->assertDontSee('Everkinetic');
+        $this->get(route('exercises.show', Exercise::where('name', 'Leg Press')->sole()))->assertSee('Everkinetic');
+    }
 }
+
