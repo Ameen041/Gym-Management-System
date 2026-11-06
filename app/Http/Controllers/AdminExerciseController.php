@@ -95,7 +95,8 @@ class AdminExerciseController extends Controller
         return [
             'video_file.mimetypes' => __('Choose a video file: MP4, or MOV from an iPhone.'),
             'video_file.max'       => __('The video is bigger than 200 MB. Film a shorter video, or at a lower quality (720p).'),
-            'video_file.uploaded'  => __('The video could not be uploaded. Film a shorter video, or at a lower quality (720p).'),
+            // usually the server's own upload limit (php.ini), which the System page checks
+            'video_file.uploaded'  => __('The video is bigger than the server accepts (:size MB). Raise the upload limit (see Admin → System), or use a smaller video.', ['size' => round(\Illuminate\Http\UploadedFile::getMaxFilesize() / 1048576, 1)]),
         ];
     }
 

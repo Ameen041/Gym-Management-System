@@ -453,3 +453,13 @@
     xhr.send(new FormData(form));
   });
 })();
+
+/* Exercise videos play by themselves, silent and in a loop; with "reduce motion" on they wait for a tap. */
+(function () {
+  "use strict";
+  if (!window.matchMedia || !window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  document.querySelectorAll("video[data-demo-video]").forEach(function (v) {
+    v.removeAttribute("autoplay");
+    v.pause();
+  });
+})();

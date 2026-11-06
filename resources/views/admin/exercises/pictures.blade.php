@@ -17,6 +17,7 @@
     <li>{{ __('Copy the first text of the exercise, paste it in Gemini and send it.') }}</li>
     <li>{{ __('Then copy the second text and send it: it is a full description of the end position, in the same style. If Gemini sends the first picture again, send it in a new chat.') }}</li>
     <li>{{ __('Download both pictures and upload them under the exercise: first the start, then the end.') }}</li>
+    <li>{{ __('For a video: send the start picture to Gemini with the video text (step 4), download the video and upload it (step 5). It plays by itself on the exercise page, without sound.') }}</li>
   </ol>
   <p class="muted small">{{ __('A picture with a mistake (an extra arm, a bent bar, a wrong position)? Ask Gemini again in a new chat. Pictures are saved on the server; keep a copy of them on your computer too.') }}</p>
 </div>
@@ -88,6 +89,27 @@
               <label>{{ __('Start') }} <input type="file" name="start" accept="image/*" class="form-control" data-shrink="1200"></label>
               <label>{{ __('End') }} <input type="file" name="end" accept="image/*" class="form-control" data-shrink="1200"></label>
             </div>
+            <div class="upload-progress" data-upload-progress hidden><span></span></div>
+            <div class="upload-error" data-upload-error hidden></div>
+          </div>
+          <button class="btn btn-sm btn-success"><i class="fas fa-upload"></i> {{ __('Save') }}</button>
+        </form>
+        <div class="pic-step">
+          <span class="pic-num">4</span>
+          <div class="pic-text">
+            <div class="pic-label">{{ __('Video (optional): send this with the start picture and Gemini animates it') }}
+              @if($exercise->has_video)<span class="badge badge-success"><i class="fas fa-video"></i> {{ __('Video added') }}</span>@endif
+            </div>
+            <p class="pic-prompt" dir="ltr" id="p3-{{ $exercise->id }}">{{ PicturePrompt::video($exercise) }}</p>
+          </div>
+          <button type="button" class="btn btn-sm btn-primary" data-copy-text="#p3-{{ $exercise->id }}" data-done="{{ __('Copied') }}"><i class="fas fa-copy"></i> {{ __('Copy') }}</button>
+        </div>
+        <form class="pic-step" method="POST" action="{{ route('admin.exercises.video', $exercise->id) }}" enctype="multipart/form-data" data-upload>
+          @csrf
+          <span class="pic-num">5</span>
+          <div class="pic-text">
+            <div class="pic-label">{{ $exercise->has_video ? __('Replace the video') : __('Upload the video') }}</div>
+            <input type="file" name="video_file" accept="video/mp4,video/webm,video/quicktime" required class="form-control">
             <div class="upload-progress" data-upload-progress hidden><span></span></div>
             <div class="upload-error" data-upload-error hidden></div>
           </div>

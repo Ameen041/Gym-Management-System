@@ -109,6 +109,17 @@ class PicturePrompt
         return 'A new picture, not the previous one. ' . self::describe($exercise, 'End position of the movement: ' . $end);
     }
 
+    /** Sent with the start picture (or right after it in the same chat): Gemini turns it into a short looping video. */
+    public static function video(Exercise $exercise): string
+    {
+        [$start, $end] = self::positions($exercise);
+
+        return 'Animate this image into a short video: the same athlete performs slow, controlled repetitions of the '
+            . $exercise->name . ', moving smoothly from the start position (' . rtrim($start, '.') . ') to the end position ('
+            . rtrim($end, '.') . ') and back, with correct technique. Keep the camera still, the same style, the same red '
+            . 'muscles and the plain white background. No text, no music.';
+    }
+
     private static function describe(Exercise $exercise, string $position): string
     {
         $muscles = $exercise->muscles;

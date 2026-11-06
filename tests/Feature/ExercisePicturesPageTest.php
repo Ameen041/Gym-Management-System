@@ -66,7 +66,12 @@ class ExercisePicturesPageTest extends TestCase
 
         $this->actingAs($admin)->get(route('admin.exercises.pictures'))->assertOk()
             ->assertSee('Cable Chest Fly')->assertSee('data-copy-text', false)
-            ->assertSee(e(PicturePrompt::start($fly)), false);
+            ->assertSee(e(PicturePrompt::start($fly)), false)
+            // step 4: the text that makes Gemini animate the picture, step 5: the video upload
+            ->assertSee(e(PicturePrompt::video($fly)), false)
+            ->assertSee(route('admin.exercises.video', $fly->id), false);
+        $this->assertStringStartsWith('Animate this image into a short video', PicturePrompt::video($fly));
+        $this->assertStringContainsString('Arms opened wide in an arc', PicturePrompt::video(Exercise::where('name', 'Dumbbell Fly')->sole()));
 
         // the first time both pictures are needed
         $this->actingAs($admin)->postJson(route('admin.exercises.pictures.store', $fly->id), [

@@ -96,7 +96,7 @@ class ExerciseMediaTest extends TestCase
         $this->assertTrue($exercise->has_video);
 
         $this->actingAs(User::factory()->create())->get(route('exercises.show', $exercise))
-            ->assertSee('<video src="' . asset($exercise->video_path) . '"', false);
+            ->assertSee('<video src="' . asset($exercise->video_path) . '" autoplay muted loop playsinline', false);
     }
 
     public function test_the_admin_picks_the_muscles(): void

@@ -1174,7 +1174,6 @@
     "They are colored on the muscle map of the exercise page.": "تُلوَّن على خريطة العضلات في صفحة التمرين.",
     "Choose a video file: MP4, or MOV from an iPhone.": "اختر ملف فيديو: MP4، أو MOV من الآيفون.",
     "The video is bigger than 200 MB. Film a shorter video, or at a lower quality (720p).": "حجم الفيديو أكبر من 200 ميغابايت. صوّر فيديو أقصر أو بجودة أقل (720p).",
-    "The video could not be uploaded. Film a shorter video, or at a lower quality (720p).": "تعذّر رفع الفيديو. صوّر فيديو أقصر أو بجودة أقل (720p).",
     "Exercise pictures": "صور التمارين",
     "Make two pictures for each exercise with Gemini (start and end), in the same style as the bench press, then upload them here.": "اعمل صورتين لكل تمرين بـ Gemini (البداية والنهاية) بنفس شكل صور البنش، وبعدين ارفعهن هون.",
     "Open Gemini, start a new chat and choose \"Create image\".": "افتح Gemini، وابدأ محادثة جديدة، واختر «إنشاء صورة».",
@@ -1196,5 +1195,11 @@
     "Pictures removed for \":name\".": "تم حذف صور تمرين \":name\".",
     "How to make them": "طريقة العمل",
     "Then copy the second text and send it: it is a full description of the end position, in the same style. If Gemini sends the first picture again, send it in a new chat.": "بعدين انسخ النص التاني وابعته: هو وصف كامل لوضعية النهاية بنفس الشكل. إذا Gemini رجّعلك الصورة الأولى نفسها، ابعته بمحادثة جديدة.",
-    "Second text: the end position": "النص التاني: وضعية النهاية"
+    "Second text: the end position": "النص التاني: وضعية النهاية",
+    "Video (optional): send this with the start picture and Gemini animates it": "فيديو (اختياري): ابعت هالنص مع صورة البداية وGemini بيحرّكها",
+    "Video added": "في فيديو",
+    "Replace the video": "استبدال الفيديو",
+    "Upload the video": "ارفع الفيديو",
+    "For a video: send the start picture to Gemini with the video text (step 4), download the video and upload it (step 5). It plays by itself on the exercise page, without sound.": "للفيديو: ابعت صورة البداية لـ Gemini مع نص الفيديو (الخطوة ٤)، نزّل الفيديو وارفعه (الخطوة ٥). بيشتغل لحاله بصفحة التمرين وبدون صوت.",
+    "The video is bigger than the server accepts (:size MB). Raise the upload limit (see Admin → System), or use a smaller video.": "الفيديو أكبر من الحد يلي بيقبله السيرفر (:size ميغابايت). ارفع حد الرفع (شوف صفحة النظام عند الأدمن)، أو استعمل فيديو أصغر."
 }
