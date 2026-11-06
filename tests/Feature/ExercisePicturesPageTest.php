@@ -39,7 +39,8 @@ class ExercisePicturesPageTest extends TestCase
             $this->assertStringContainsString('Start position: ', $start, $exercise->name);
             $this->assertStringContainsString('Highlighted in bright red: the ', $start, $exercise->name);
             $this->assertStringNotContainsString(' your ', $start, $exercise->name);
-            $this->assertStringStartsWith('Same image, same person', PicturePrompt::end($exercise));
+            $this->assertStringStartsWith('Now draw the second picture: the END position', PicturePrompt::end($exercise));
+            $this->assertStringContainsString('clearly different from the first picture', PicturePrompt::end($exercise));
         }
 
         $squat = Exercise::where('name', 'Barbell Back Squat')->sole();
@@ -50,6 +51,8 @@ class ExercisePicturesPageTest extends TestCase
         $decline = Exercise::where('name', 'Decline Dumbbell Bench Press')->sole();
         $this->assertStringContainsString('his head is clearly LOWER than his hips', PicturePrompt::start($decline));
         $this->assertStringContainsString('his head is clearly LOWER than his hips', PicturePrompt::end($decline));
+        $this->assertStringContainsString('seen exactly from the side', PicturePrompt::start($decline));
+        $this->assertStringContainsString('seen from a 3/4 side angle', PicturePrompt::start($squat = Exercise::where('name', 'Barbell Biceps Curl')->sole()));
         $this->assertStringContainsString('clearly HIGHER than his hips', PicturePrompt::start(Exercise::where('name', 'Incline Dumbbell Press')->sole()));
     }
 

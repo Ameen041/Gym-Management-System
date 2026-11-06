@@ -100,7 +100,7 @@ class PicturePrompt
         $what = $exercise->name . ($equipment !== '' && stripos($equipment, 'bodyweight') === false ? ' (' . $equipment . ')' : '');
 
         $text = 'Clean anatomical fitness illustration, 3D render style. A muscular male athlete with smooth light-gray skin '
-            . 'and black shorts performs the ' . $what . ', seen from ' . ($back ? 'a 3/4 back angle so the back of the body is visible' : 'a 3/4 side angle') . '. '
+            . 'and black shorts performs the ' . $what . ', seen ' . self::angle($exercise, $back) . '. '
             . 'Start position: ' . $start . ' '
             . (($note = self::note($exercise)) ? $note . ' ' : '')
             . 'Highlighted in bright red: the ' . self::list($muscles['primary']);
@@ -115,11 +115,23 @@ class PicturePrompt
     public static function end(Exercise $exercise): string
     {
         [, $end] = self::positions($exercise);
-
         $note = self::note($exercise);
 
-        return 'Same image, same person, same angle and style — now the end position of the movement: ' . $end
-            . ($note ? ' Keep it exactly as before: ' . lcfirst(preg_replace('/^Important: /', '', $note)) : '');
+        // "keep it exactly as before" made Gemini send the first picture again: the change is asked for first and plainly
+        return 'Now draw the second picture: the END position of the movement. ' . $end . ' '
+            . 'The pose must be clearly different from the first picture. '
+            . 'Keep the same person, equipment, camera angle, colors and style'
+            . ($note ? ', and keep the bench as it was: ' . lcfirst(preg_replace('/^Important: /', '', $note)) : '.');
+    }
+
+    /** A decline bench seen at an angle is easily drawn the wrong way: those are drawn exactly from the side. */
+    private static function angle(Exercise $exercise, bool $back): string
+    {
+        if (str_contains($exercise->name, 'Decline') && !str_contains($exercise->name, 'Push-Up')) {
+            return 'exactly from the side (a profile view, head on the left, so the slope of the bench is obvious)';
+        }
+
+        return $back ? 'from a 3/4 back angle so the back of the body is visible' : 'from a 3/4 side angle';
     }
 
     /**
@@ -133,8 +145,9 @@ class PicturePrompt
             $name === 'Decline Push-Up' => 'Important: his feet are raised on a bench behind him, so his head is clearly lower than his feet.',
             $name === 'Incline Push-Up' => 'Important: his hands are on a raised bench, so his head is clearly higher than his feet.',
             $name === 'Incline Reverse Dumbbell Fly' => 'Important: he lies chest-down on a bench raised to about 30 degrees, facing the floor.',
-            str_contains($name, 'Decline') => 'Important: this is a DECLINE bench, not an incline one. The bench slopes down toward his head, '
-                . 'so his head is clearly LOWER than his hips and knees, and his lower legs are hooked under the foot pads at the high end.',
+            str_contains($name, 'Decline') => 'Important: this is a DECLINE bench, not a flat or incline one. The bench is tilted about 30 degrees: '
+                . 'the end under his head is low, close to the floor, and the end under his knees is high. So his head is clearly LOWER than his hips, '
+                . 'his hips are LOWER than his knees, and his lower legs are hooked under the foot pads at the high end.',
             str_contains($name, 'Incline') => 'Important: this is an INCLINE bench. The backrest is raised to about 30–45 degrees, '
                 . 'so his head and shoulders are clearly HIGHER than his hips.',
             default => null,
