@@ -75,10 +75,10 @@ Each user can also turn on **phone notifications**: every notification and every
 - Each exercise shows its movement: drawings of the start and end position that take turns like a short clip
   (about 105 exercises), or a video the admin uploads; plus step-by-step instructions and tips
 - A muscle map (front and back) colors the main muscles in strong red and the helping muscles in light red
-- Admin → Exercises → **Exercise videos**: for each exercise, the text to paste into Gemini for one picture (the target
-  muscles in red), the text that asks Gemini to animate it, and the video upload. The browser takes a frame of the video
-  as its cover (saved as WebP with a small thumbnail for the lists, in place of the drawing). On the exercise page the
-  video plays by itself, silent and in a loop. Pictures (start and end) can be uploaded instead, under "optional";
+- Admin → Exercises → **Exercise pictures**: for each exercise, the text to paste into Gemini for the start picture and
+  the end picture (the target muscles in red) and two uploads; the pictures are saved as WebP with a small thumbnail for
+  the lists and take the place of the drawing. Optionally a video: the text that asks Gemini to animate the picture and
+  the video upload (it plays by itself, silent and in a loop; without pictures its cover is taken from the video).
   "Not done yet / Done" shows what is left
 - Search and filter by muscle group, available to trainees and trainers at `/exercises`
 - Managed by the admin at `/admin/exercises`; about 140 exercises (including cardio) are seeded automatically,
