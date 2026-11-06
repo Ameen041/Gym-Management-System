@@ -1204,5 +1204,15 @@
     "Cover taken from the video.": "أخدنا صورة الغلاف من الفيديو.",
     "Pictures instead of a video (optional)": "صور بدل الفيديو (اختياري)",
     "Text for the end picture": "نص صورة النهاية",
-    "All exercises have their video or pictures.": "كل التمارين صار إلها فيديو أو صور."
+    "All exercises have their video or pictures.": "كل التمارين صار إلها فيديو أو صور.",
+    "Make two pictures for each exercise with Gemini (start and end), in the same style as the bench press, then upload them here.": "اعمل صورتين لكل تمرين بـ Gemini (البداية والنهاية) بنفس شكل صور البنش، وبعدين ارفعهن هون.",
+    "Copy the first text of the exercise, paste it in Gemini and send it.": "انسخ النص الأول للتمرين، والصقه بـ Gemini وابعته.",
+    "Download both pictures and upload them under the exercise: first the start, then the end.": "نزّل الصورتين وارفعهن تحت التمرين: الأولى البداية والتانية النهاية.",
+    "A picture with a mistake (an extra arm, a bent bar, a wrong position)? Ask Gemini again in a new chat. Pictures are saved on the server; keep a copy of them on your computer too.": "إذا طلعت صورة فيها غلط (إيد زيادة، بار معووج، وضعية غلط)، اطلبها من Gemini من جديد بمحادثة جديدة. الصور بتنحفظ على السيرفر، وخلّي نسخة منهن على جهازك كمان.",
+    "First text: the start position": "النص الأول: وضعية البداية",
+    "All exercises have their pictures.": "كل التمارين صار إلها صور.",
+    "Then copy the second text and send it: it is a full description of the end position, in the same style. If Gemini sends the first picture again, send it in a new chat.": "بعدين انسخ النص التاني وابعته: هو وصف كامل لوضعية النهاية بنفس الشكل. إذا Gemini رجّعلك الصورة الأولى نفسها، ابعته بمحادثة جديدة.",
+    "Second text: the end position": "النص التاني: وضعية النهاية",
+    "Video (optional): send this with the start picture and Gemini animates it": "فيديو (اختياري): ابعت هالنص مع صورة البداية وGemini بيحرّكها",
+    "For a video: send the start picture to Gemini with the video text (step 4), download the video and upload it (step 5). It plays by itself on the exercise page, without sound.": "للفيديو: ابعت صورة البداية لـ Gemini مع نص الفيديو (الخطوة ٤)، نزّل الفيديو وارفعه (الخطوة ٥). بيشتغل لحاله بصفحة التمرين وبدون صوت."
 }
