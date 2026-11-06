@@ -29,6 +29,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\AdminChatController;
+use App\Http\Controllers\AdminExercisePictureController;
 use App\Http\Controllers\Coach\DashboardController as CoachDashboardController;
 use App\Http\Controllers\Coach\ProfileController as CoachProfileController;
 use App\Http\Controllers\Coach\PackageController as CoachPackageController;
@@ -213,6 +214,10 @@ Route::middleware(['auth','active','role:admin'])
         Route::put('/exercises/{id}',      [AdminExerciseController::class,'update'])->name('exercises.update');
         Route::delete('/exercises/{id}',   [AdminExerciseController::class,'destroy'])->name('exercises.destroy');
         Route::post('/exercises/{id}/video', [AdminExerciseController::class,'updateVideo'])->name('exercises.video');
+        // Exercise pictures made with Gemini: the text to paste, and the uploads
+        Route::get('/exercise-pictures',            [AdminExercisePictureController::class, 'index'])->name('exercises.pictures');
+        Route::post('/exercise-pictures/{id}',      [AdminExercisePictureController::class, 'store'])->name('exercises.pictures.store');
+        Route::delete('/exercise-pictures/{id}',    [AdminExercisePictureController::class, 'destroy'])->name('exercises.pictures.destroy');
 
         // Food library for the nutrition calculator
         Route::get('/foods',              [AdminFoodController::class, 'index'])->name('foods.index');

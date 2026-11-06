@@ -34,6 +34,9 @@
       <a href="{{ route('exercises.index') }}" class="btn btn-secondary" target="_blank">
         <i class="fas fa-eye"></i> {{ __('View as trainee') }}
       </a>
+      <a href="{{ route('admin.exercises.pictures') }}" class="btn btn-secondary">
+        <i class="fas fa-wand-magic-sparkles"></i> {{ __('Exercise pictures') }}
+      </a>
       <a href="{{ route('admin.exercises.create') }}" class="btn btn-primary">
         <i class="fas fa-plus"></i> {{ __('New Exercise') }}
       </a>
