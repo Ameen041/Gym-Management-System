@@ -75,6 +75,9 @@ Each user can also turn on **phone notifications**: every notification and every
 - Each exercise shows its movement: drawings of the start and end position that take turns like a short clip
   (about 105 exercises), or a video the admin uploads; plus step-by-step instructions and tips
 - A muscle map (front and back) colors the main muscles in strong red and the helping muscles in light red
+- Admin → Exercises → **Exercise pictures**: for each exercise, the text to paste into Gemini (start position, then the
+  end position in the same chat, the target muscles in red) and two uploads. The pictures are saved as WebP with a small
+  thumbnail for the lists and take the place of the drawing; "Not done yet / Done" shows what is left
 - Search and filter by muscle group, available to trainees and trainers at `/exercises`
 - Managed by the admin at `/admin/exercises`; about 140 exercises (including cardio) are seeded automatically,
   with English and Arabic steps and tips written for this project
