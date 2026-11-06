@@ -115,11 +115,13 @@ class PicturePrompt
     public static function end(Exercise $exercise): string
     {
         [, $end] = self::positions($exercise);
-
         $note = self::note($exercise);
 
-        return 'Same image, same person, same angle and style — now the end position of the movement: ' . $end
-            . ($note ? ' Keep it exactly as before: ' . lcfirst(preg_replace('/^Important: /', '', $note)) : '');
+        // "keep it exactly as before" made Gemini send the first picture again: the change is asked for first and plainly
+        return 'Now draw the second picture: the END position of the movement. ' . $end . ' '
+            . 'The pose must be clearly different from the first picture. '
+            . 'Keep the same person, equipment, camera angle, colors and style'
+            . ($note ? ', and keep the bench as it was: ' . lcfirst(preg_replace('/^Important: /', '', $note)) : '.');
     }
 
     /** A decline bench seen at an angle is easily drawn the wrong way: those are drawn exactly from the side. */
