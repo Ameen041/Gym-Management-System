@@ -9,7 +9,9 @@
     @php($frames = $exercise->frame_urls)
     @if($exercise->video_src)
       <div class="ex-video">
-        <video src="{{ $exercise->video_src }}" controls playsinline preload="metadata" @if($exercise->thumbnail) poster="{{ $exercise->thumbnail }}" @endif></video>
+        {{-- plays by itself like a moving picture: silent, in a loop; still when the phone asks for less motion (app.js) --}}
+        <video src="{{ $exercise->video_src }}" autoplay muted loop playsinline controls preload="auto" data-demo-video
+               @if($exercise->frame_urls) poster="{{ $exercise->frame_urls[0] }}" @endif></video>
       </div>
     @elseif($frames)
       {{-- the drawings of the start and end position take turns, so the movement shows like a short clip --}}
