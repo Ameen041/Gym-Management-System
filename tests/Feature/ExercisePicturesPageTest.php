@@ -39,8 +39,10 @@ class ExercisePicturesPageTest extends TestCase
             $this->assertStringContainsString('Start position: ', $start, $exercise->name);
             $this->assertStringContainsString('Highlighted in bright red: the ', $start, $exercise->name);
             $this->assertStringNotContainsString(' your ', $start, $exercise->name);
-            $this->assertStringStartsWith('Now draw the second picture: the END position', PicturePrompt::end($exercise));
-            $this->assertStringContainsString('clearly different from the first picture', PicturePrompt::end($exercise));
+            // the end is a full description of its own, in the same style
+            $this->assertStringStartsWith('A new picture, not the previous one. Clean anatomical fitness illustration', PicturePrompt::end($exercise));
+            $this->assertStringContainsString('End position of the movement: ', PicturePrompt::end($exercise));
+            $this->assertStringContainsString('Highlighted in bright red: the ', PicturePrompt::end($exercise));
         }
 
         $squat = Exercise::where('name', 'Barbell Back Squat')->sole();

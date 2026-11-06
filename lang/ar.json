@@ -1179,14 +1179,12 @@
     "Make two pictures for each exercise with Gemini (start and end), in the same style as the bench press, then upload them here.": "اعمل صورتين لكل تمرين بـ Gemini (البداية والنهاية) بنفس شكل صور البنش، وبعدين ارفعهن هون.",
     "Open Gemini, start a new chat and choose \"Create image\".": "افتح Gemini، وابدأ محادثة جديدة، واختر «إنشاء صورة».",
     "Copy the first text of the exercise, paste it in Gemini and send it.": "انسخ النص الأول للتمرين، والصقه بـ Gemini وابعته.",
-    "When the picture is ready, copy the second text and send it in the same chat: you get the end position with the same person.": "لما تطلع الصورة، انسخ النص التاني وابعته بنفس المحادثة: بتطلعلك وضعية النهاية بنفس الشخص.",
     "Download both pictures and upload them under the exercise: first the start, then the end.": "نزّل الصورتين وارفعهن تحت التمرين: الأولى البداية والتانية النهاية.",
     "A picture with a mistake (an extra arm, a bent bar, a wrong position)? Ask Gemini again in a new chat. Pictures are saved on the server; keep a copy of them on your computer too.": "إذا طلعت صورة فيها غلط (إيد زيادة، بار معووج، وضعية غلط)، اطلبها من Gemini من جديد بمحادثة جديدة. الصور بتنحفظ على السيرفر، وخلّي نسخة منهن على جهازك كمان.",
     "Not done yet (:count)": "لسا ما خلصت (:count)",
     "Done (:count)": "خلصت (:count)",
     "Not done yet": "لسا",
     "First text: the start position": "النص الأول: وضعية البداية",
-    "Second text, in the same chat: the end position": "النص التاني، بنفس المحادثة: وضعية النهاية",
     "Upload the two pictures": "ارفع الصورتين",
     "Remove these pictures and go back to the drawing?": "حذف هالصور والرجوع للرسمة؟",
     "Remove the pictures": "حذف الصور",
@@ -1196,5 +1194,7 @@
     "Choose a picture (JPG, PNG or WEBP).": "اختر صورة (JPG أو PNG أو WEBP).",
     "Pictures saved for \":name\".": "تم حفظ صور تمرين \":name\".",
     "Pictures removed for \":name\".": "تم حذف صور تمرين \":name\".",
-    "How to make them": "طريقة العمل"
+    "How to make them": "طريقة العمل",
+    "Then copy the second text and send it: it is a full description of the end position, in the same style. If Gemini sends the first picture again, send it in a new chat.": "بعدين انسخ النص التاني وابعته: هو وصف كامل لوضعية النهاية بنفس الشكل. إذا Gemini رجّعلك الصورة الأولى نفسها، ابعته بمحادثة جديدة.",
+    "Second text: the end position": "النص التاني: وضعية النهاية"
 }

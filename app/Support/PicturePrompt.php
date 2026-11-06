@@ -82,6 +82,7 @@ class PicturePrompt
         'Jump Rope' => ['Jumping rope, feet together just off the floor, rope passing under his feet.', 'Landing softly on the balls of his feet, rope swinging overhead.'],
         'Decline Dumbbell Bench Press' => ['Lying on his back on a decline bench, dumbbells at the sides of his lower chest, palms facing his feet, elbows bent.', 'Dumbbells pressed up until his arms are straight above his lower chest.'],
         'Decline Barbell Bench Press' => ['Lying on his back on a decline bench, holding the bar with straight arms above his lower chest.', 'Bar lowered under control to his lower chest, elbows at a moderate angle from his body.'],
+        'Decline Push-Up' => ['Feet raised on a bench behind him, hands on the floor slightly wider than his shoulders, arms straight, body in a straight line.', 'Chest lowered close to the floor, elbows bent at about 45 degrees from his body, feet still on the bench, body still straight.'],
     ];
 
     // muscles that only show from behind: the picture is taken from a back angle
@@ -92,16 +93,33 @@ class PicturePrompt
 
     public static function start(Exercise $exercise): string
     {
+        [$start] = self::positions($exercise);
+
+        return self::describe($exercise, 'Start position: ' . $start);
+    }
+
+    /**
+     * The end position as a full description of its own: asked to change the first picture in the same chat,
+     * Gemini kept sending the first picture back, so it draws a new one in the same style instead.
+     */
+    public static function end(Exercise $exercise): string
+    {
+        [, $end] = self::positions($exercise);
+
+        return 'A new picture, not the previous one. ' . self::describe($exercise, 'End position of the movement: ' . $end);
+    }
+
+    private static function describe(Exercise $exercise, string $position): string
+    {
         $muscles = $exercise->muscles;
         $back = (bool) array_intersect($muscles['primary'], self::BACK_MUSCLES);
-        [$start] = self::positions($exercise);
 
         $equipment = trim((string) $exercise->equipment);
         $what = $exercise->name . ($equipment !== '' && stripos($equipment, 'bodyweight') === false ? ' (' . $equipment . ')' : '');
 
         $text = 'Clean anatomical fitness illustration, 3D render style. A muscular male athlete with smooth light-gray skin '
             . 'and black shorts performs the ' . $what . ', seen ' . self::angle($exercise, $back) . '. '
-            . 'Start position: ' . $start . ' '
+            . $position . ' '
             . (($note = self::note($exercise)) ? $note . ' ' : '')
             . 'Highlighted in bright red: the ' . self::list($muscles['primary']);
         if ($muscles['secondary']) {
@@ -110,18 +128,6 @@ class PicturePrompt
 
         return $text . '. Every other muscle stays gray. Correct, safe technique. Plain white background, dark-gray gym equipment, '
             . 'full body visible, square image, no text, no logos.';
-    }
-
-    public static function end(Exercise $exercise): string
-    {
-        [, $end] = self::positions($exercise);
-        $note = self::note($exercise);
-
-        // "keep it exactly as before" made Gemini send the first picture again: the change is asked for first and plainly
-        return 'Now draw the second picture: the END position of the movement. ' . $end . ' '
-            . 'The pose must be clearly different from the first picture. '
-            . 'Keep the same person, equipment, camera angle, colors and style'
-            . ($note ? ', and keep the bench as it was: ' . lcfirst(preg_replace('/^Important: /', '', $note)) : '.');
     }
 
     /** A decline bench seen at an angle is easily drawn the wrong way: those are drawn exactly from the side. */

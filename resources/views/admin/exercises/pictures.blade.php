@@ -15,7 +15,7 @@
   <ol>
     <li>{{ __('Open Gemini, start a new chat and choose "Create image".') }}</li>
     <li>{{ __('Copy the first text of the exercise, paste it in Gemini and send it.') }}</li>
-    <li>{{ __('When the picture is ready, copy the second text and send it in the same chat: you get the end position with the same person.') }}</li>
+    <li>{{ __('Then copy the second text and send it: it is a full description of the end position, in the same style. If Gemini sends the first picture again, send it in a new chat.') }}</li>
     <li>{{ __('Download both pictures and upload them under the exercise: first the start, then the end.') }}</li>
   </ol>
   <p class="muted small">{{ __('A picture with a mistake (an extra arm, a bent bar, a wrong position)? Ask Gemini again in a new chat. Pictures are saved on the server; keep a copy of them on your computer too.') }}</p>
@@ -74,7 +74,7 @@
         <div class="pic-step">
           <span class="pic-num">2</span>
           <div class="pic-text">
-            <div class="pic-label">{{ __('Second text, in the same chat: the end position') }}</div>
+            <div class="pic-label">{{ __('Second text: the end position') }}</div>
             <p class="pic-prompt" dir="ltr" id="p2-{{ $exercise->id }}">{{ PicturePrompt::end($exercise) }}</p>
           </div>
           <button type="button" class="btn btn-sm btn-primary" data-copy-text="#p2-{{ $exercise->id }}" data-done="{{ __('Copied') }}"><i class="fas fa-copy"></i> {{ __('Copy') }}</button>
