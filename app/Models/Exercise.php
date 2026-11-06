@@ -85,6 +85,7 @@ class Exercise extends Model
         'video_path',
         'image_path',
         'frames',
+        'motion',
         'primary_muscles',
         'secondary_muscles',
         'is_active',
