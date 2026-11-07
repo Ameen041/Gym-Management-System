@@ -114,7 +114,8 @@ class PicturePrompt
     {
         [$start, $end] = self::positions($exercise);
 
-        return 'Animate this image into a short video: the same athlete performs slow, controlled repetitions of the '
+        return 'Animate this wide image into a short video, using the whole picture as it is (do not zoom in or crop it): '
+            . 'the same athlete performs slow, controlled repetitions of the '
             . $exercise->name . ', moving smoothly from the start position (' . rtrim($start, '.') . ') to the end position ('
             . rtrim($end, '.') . ') and back, with correct technique. '
             // the video is wider than the picture, and Gemini zoomed in and cut the athlete and the bar off at the edges
@@ -143,7 +144,8 @@ class PicturePrompt
 
         return $text . '. Every other muscle stays gray. Correct, safe technique. Plain white background, dark-gray gym equipment. '
             . 'The whole athlete and all the equipment (both ends of the bar) fully inside the picture with white space around them, '
-            . 'nothing cut off at the edges. Square image, no text, no logos.';
+            // wide like the video Gemini makes from it: a square picture got its top and bottom cut off in the video
+            . 'nothing cut off at the edges. Wide 16:9 landscape image with the athlete in the middle, no text, no logos.';
     }
 
     /** A decline bench seen at an angle is easily drawn the wrong way: those are drawn exactly from the side. */
