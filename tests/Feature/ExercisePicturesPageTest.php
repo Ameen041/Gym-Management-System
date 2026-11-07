@@ -63,7 +63,14 @@ class ExercisePicturesPageTest extends TestCase
             // step 4: the text that makes Gemini animate the picture, step 5: the video upload
             ->assertSee(e(PicturePrompt::video($fly)), false)
             ->assertSee(route('admin.exercises.video', $fly->id), false);
-        $this->assertStringStartsWith('Animate this image into a short video', PicturePrompt::video($fly));
+        $this->assertStringStartsWith('Animate this wide image into a short video', PicturePrompt::video($fly));
+        // the athlete and the bar stay inside the frame
+        $this->assertStringContainsString('zoom out so the whole athlete', PicturePrompt::video($fly));
+        $this->assertStringContainsString('nothing cut off at the edges', PicturePrompt::start($fly));
+        // wide pictures, so the wide video doesn't cut them
+        $this->assertStringContainsString('Wide 16:9 landscape image', PicturePrompt::start($fly));
+        $this->assertStringContainsString('do not zoom in or crop it', PicturePrompt::video($fly));
+        $this->actingAs($admin)->get(route('admin.exercises.pictures'))->assertSee('data-widen="' . $fly->id . '"', false);
         $this->assertStringContainsString('Arms opened wide in an arc', PicturePrompt::video(Exercise::where('name', 'Dumbbell Fly')->sole()));
 
         // the first time both pictures are needed

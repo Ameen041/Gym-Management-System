@@ -1214,5 +1214,6 @@
     "Then copy the second text and send it: it is a full description of the end position, in the same style. If Gemini sends the first picture again, send it in a new chat.": "بعدين انسخ النص التاني وابعته: هو وصف كامل لوضعية النهاية بنفس الشكل. إذا Gemini رجّعلك الصورة الأولى نفسها، ابعته بمحادثة جديدة.",
     "Second text: the end position": "النص التاني: وضعية النهاية",
     "Video (optional): send this with the start picture and Gemini animates it": "فيديو (اختياري): ابعت هالنص مع صورة البداية وGemini بيحرّكها",
-    "For a video: send the start picture to Gemini with the video text (step 4), download the video and upload it (step 5). It plays by itself on the exercise page, without sound.": "للفيديو: ابعت صورة البداية لـ Gemini مع نص الفيديو (الخطوة ٤)، نزّل الفيديو وارفعه (الخطوة ٥). بيشتغل لحاله بصفحة التمرين وبدون صوت."
+    "For a video: send the start picture to Gemini with the video text (step 4), download the video and upload it (step 5). It plays by itself on the exercise page, without sound.": "للفيديو: ابعت صورة البداية لـ Gemini مع نص الفيديو (الخطوة ٤)، نزّل الفيديو وارفعه (الخطوة ٥). بيشتغل لحاله بصفحة التمرين وبدون صوت.",
+    "Square picture? Make it wide for the video": "صورتك مربّعة؟ خلّيها عريضة للفيديو"
 }

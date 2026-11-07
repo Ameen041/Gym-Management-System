@@ -101,6 +101,11 @@
               @if($exercise->has_video)<span class="badge badge-success"><i class="fas fa-video"></i> {{ __('Video added') }}</span>@endif
             </div>
             <p class="pic-prompt" dir="ltr" id="p3-{{ $exercise->id }}">{{ PicturePrompt::video($exercise) }}</p>
+            {{-- a square picture loses its top and bottom in the wide video: this adds white space on the sides, in the browser --}}
+            <label class="btn btn-sm btn-secondary pic-widen">
+              <i class="fas fa-expand"></i> {{ __('Square picture? Make it wide for the video') }}
+              <input type="file" accept="image/*" hidden data-widen="{{ $exercise->id }}">
+            </label>
           </div>
           <button type="button" class="btn btn-sm btn-primary" data-copy-text="#p3-{{ $exercise->id }}" data-done="{{ __('Copied') }}"><i class="fas fa-copy"></i> {{ __('Copy') }}</button>
         </div>
@@ -153,6 +158,7 @@
   .pic-files{display:flex;gap:8px;flex-wrap:wrap}
   .pic-files label{display:grid;gap:4px;font-size:.85rem;font-weight:600;flex:1 1 200px}
   .pic-remove{justify-self:start}
+  .pic-widen{margin-top:6px;cursor:pointer}
   @media (max-width:640px){
     .pic-step{grid-template-columns:26px minmax(0,1fr)}
     .pic-step > .btn{grid-column:2;justify-self:start}
@@ -160,6 +166,45 @@
 </style>
 
 <script>
+  // a picture for the video: the same picture in a 16:9 frame with white space around it, saved to the device
+  document.addEventListener('change', function (e) {
+    var input = e.target.closest && e.target.closest('input[data-widen]');
+    if (!input || !input.files || !input.files[0]) return;
+    var url = URL.createObjectURL(input.files[0]), img = new Image();
+    img.onload = function () {
+      var h = img.naturalHeight / 0.8, w = h * 16 / 9;
+      if (w < img.naturalWidth / 0.9) { w = img.naturalWidth / 0.9; h = w * 9 / 16; }
+      var c = document.createElement('canvas');
+      c.width = Math.round(w); c.height = Math.round(h);
+      var ctx = c.getContext('2d');
+      // the added space takes the colour of the picture's own background (its top-left corner), so no frame shows
+      ctx.drawImage(img, 0, 0, 1, 1, 0, 0, 1, 1);
+      var px = ctx.getImageData(0, 0, 1, 1).data;
+      ctx.fillStyle = 'rgb(' + px[0] + ',' + px[1] + ',' + px[2] + ')';
+      ctx.fillRect(0, 0, c.width, c.height);
+      var x = Math.round((c.width - img.naturalWidth) / 2), y = Math.round((c.height - img.naturalHeight) / 2);
+      var iw = img.naturalWidth, ih = img.naturalHeight;
+      ctx.drawImage(img, x, y);
+      // soften the picture's edges into the added space, so its frame doesn't show
+      var bg = 'rgba(' + px[0] + ',' + px[1] + ',' + px[2] + ',', f = Math.round(Math.min(iw, ih) * 0.08);
+      [[x, y, x + f, y, x, y, f, ih], [x + iw, y, x + iw - f, y, x + iw - f, y, f, ih],
+       [x, y, x, y + f, x, y, iw, f], [x, y + ih, x, y + ih - f, x, y + ih - f, iw, f]].forEach(function (g) {
+        var grad = ctx.createLinearGradient(g[0], g[1], g[2], g[3]);
+        grad.addColorStop(0, bg + '1)'); grad.addColorStop(1, bg + '0)');
+        ctx.fillStyle = grad; ctx.fillRect(g[4], g[5], g[6], g[7]);
+      });
+      URL.revokeObjectURL(url);
+      c.toBlob(function (blob) {
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'exercise-' + input.getAttribute('data-widen') + '-wide.png';
+        document.body.appendChild(a); a.click(); a.remove();
+        input.value = '';
+      }, 'image/png');
+    };
+    img.src = url;
+  });
+
   document.addEventListener('click', function (e) {
     var btn = e.target.closest('[data-copy-text]');
     if (!btn) return;
