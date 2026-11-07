@@ -64,6 +64,9 @@ class ExercisePicturesPageTest extends TestCase
             ->assertSee(e(PicturePrompt::video($fly)), false)
             ->assertSee(route('admin.exercises.video', $fly->id), false);
         $this->assertStringStartsWith('Animate this image into a short video', PicturePrompt::video($fly));
+        // the athlete and the bar stay inside the frame
+        $this->assertStringContainsString('zoom out so the whole athlete', PicturePrompt::video($fly));
+        $this->assertStringContainsString('nothing cut off at the edges', PicturePrompt::start($fly));
         $this->assertStringContainsString('Arms opened wide in an arc', PicturePrompt::video(Exercise::where('name', 'Dumbbell Fly')->sole()));
 
         // the first time both pictures are needed
