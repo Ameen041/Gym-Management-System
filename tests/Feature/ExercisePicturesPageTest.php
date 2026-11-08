@@ -63,14 +63,7 @@ class ExercisePicturesPageTest extends TestCase
             // step 4: the text that makes Gemini animate the picture, step 5: the video upload
             ->assertSee(e(PicturePrompt::video($fly)), false)
             ->assertSee(route('admin.exercises.video', $fly->id), false);
-        $this->assertStringStartsWith('Animate this wide image into a short video', PicturePrompt::video($fly));
-        // the athlete and the bar stay inside the frame
-        $this->assertStringContainsString('zoom out so the whole athlete', PicturePrompt::video($fly));
-        $this->assertStringContainsString('nothing cut off at the edges', PicturePrompt::start($fly));
-        // wide pictures, so the wide video doesn't cut them
-        $this->assertStringContainsString('Wide 16:9 landscape image', PicturePrompt::start($fly));
-        $this->assertStringContainsString('do not zoom in or crop it', PicturePrompt::video($fly));
-        $this->actingAs($admin)->get(route('admin.exercises.pictures'))->assertSee('data-widen="' . $fly->id . '"', false);
+        $this->assertStringStartsWith('Animate this image into a short video', PicturePrompt::video($fly));
         $this->assertStringContainsString('Arms opened wide in an arc', PicturePrompt::video(Exercise::where('name', 'Dumbbell Fly')->sole()));
 
         // the first time both pictures are needed
@@ -120,4 +113,43 @@ class ExercisePicturesPageTest extends TestCase
         // others are sent back to their own area, like every admin page
         $this->actingAs(User::factory()->create())->get(route('admin.exercises.pictures'))->assertRedirect()->assertDontSee('Start position');
     }
+
+    public function test_one_picture_is_changed_or_both_swapped_and_exercises_can_be_searched(): void
+    {
+        $this->seed(ExercisesSeeder::class);
+        $admin = User::factory()->admin()->create();
+        $fly = Exercise::where('name', 'Cable Chest Fly')->sole();
+        $this->actingAs($admin)->postJson(route('admin.exercises.pictures.store', $fly->id), [
+            'start' => UploadedFile::fake()->image('start.png', 900, 900),
+            'end'   => UploadedFile::fake()->image('end.png', 900, 900),
+        ])->assertOk();
+        $fly->refresh();
+        [$start, $end] = $fly->frames;
+
+        // the page shows each picture with its own "change", and the swap button
+        $this->actingAs($admin)->get(route('admin.exercises.pictures', ['show' => 'done', 'q' => 'cable chest']))->assertOk()
+            ->assertSee('Cable Chest Fly')->assertDontSee('Barbell Bench Press')
+            ->assertSee('name="start" accept="image/*" hidden data-shrink="1200" data-autosubmit', false)
+            ->assertSee('name="end" accept="image/*" hidden data-shrink="1200" data-autosubmit', false)
+            ->assertSee(route('admin.exercises.pictures.swap', $fly->id), false);
+        // searching in Arabic works too
+        $this->actingAs($admin)->get(route('admin.exercises.pictures', ['show' => 'all', 'q' => 'بالكابل']))->assertSee('Cable Chest Fly');
+
+        // swap
+        $this->actingAs($admin)->post(route('admin.exercises.pictures.swap', $fly->id))->assertRedirect();
+        $this->assertSame([$end, $start], $fly->fresh()->frames);
+
+        // change only the start one
+        $this->actingAs($admin)->postJson(route('admin.exercises.pictures.store', $fly->id), [
+            'start' => UploadedFile::fake()->image('new.png', 900, 900),
+        ])->assertOk();
+        $frames = $fly->fresh()->frames;
+        $this->assertNotSame($end, $frames[0]);
+        $this->assertSame($start, $frames[1]);
+        $this->assertFileDoesNotExist(public_path($end));
+
+        // an exercise still on its drawing can't be swapped
+        $this->actingAs($admin)->post(route('admin.exercises.pictures.swap', Exercise::where('name', 'Leg Press')->value('id')))->assertNotFound();
+    }
 }
+

@@ -26,10 +26,11 @@
   <form method="GET" action="{{ route('admin.exercises.pictures') }}" class="pic-filters">
     <div class="pic-tabs">
       @foreach(['todo' => __('Not done yet (:count)', ['count' => $todo]), 'done' => __('Done (:count)', ['count' => $done]), 'all' => __('All')] as $key => $label)
-        <a href="{{ route('admin.exercises.pictures', array_filter(['show' => $key, 'muscle' => $muscle])) }}" class="btn btn-sm {{ $show === $key ? 'btn-primary' : 'btn-secondary' }}">{{ $label }}</a>
+        <a href="{{ route('admin.exercises.pictures', array_filter(['show' => $key, 'muscle' => $muscle, 'q' => $q])) }}" class="btn btn-sm {{ $show === $key ? 'btn-primary' : 'btn-secondary' }}">{{ $label }}</a>
       @endforeach
     </div>
     <input type="hidden" name="show" value="{{ $show }}">
+    <input type="search" name="q" value="{{ $q }}" class="form-control" placeholder="{{ __('Search an exercise…') }}" style="max-width:220px">
     <select name="muscle" class="form-control" onchange="this.form.submit()" style="max-width:220px">
       <option value="">{{ __('All muscles') }}</option>
       @foreach(Exercise::MUSCLE_GROUPS as $key => $group)
@@ -80,6 +81,37 @@
           </div>
           <button type="button" class="btn btn-sm btn-primary" data-copy-text="#p2-{{ $exercise->id }}" data-done="{{ __('Copied') }}"><i class="fas fa-copy"></i> {{ __('Copy') }}</button>
         </div>
+        @if($exercise->has_own_pictures)
+          {{-- each picture can be changed on its own (it is sent as soon as it is chosen), or the two swapped --}}
+          <div class="pic-step">
+            <span class="pic-num">3</span>
+            <div class="pic-text">
+              <div class="pic-label">{{ __('The pictures') }}</div>
+              <div class="pic-pair">
+                @foreach(['start' => __('Start'), 'end' => __('End')] as $field => $label)
+                  @php($src = $exercise->frame_urls[$loop->index] ?? null)
+                  <form class="pic-one" method="POST" action="{{ route('admin.exercises.pictures.store', $exercise->id) }}" enctype="multipart/form-data" data-upload>
+                    @csrf
+                    <div class="pic-one-label">{{ $label }}</div>
+                    @if($src)<img src="{{ $src }}" alt="{{ $label }}" loading="lazy">@else<span class="pic-none"><i class="fas fa-image"></i></span>@endif
+                    <label class="btn btn-sm btn-secondary">
+                      <i class="fas fa-arrows-rotate"></i> {{ __('Change picture') }}
+                      <input type="file" name="{{ $field }}" accept="image/*" hidden data-shrink="1200" data-autosubmit>
+                    </label>
+                    <div class="upload-progress" data-upload-progress hidden><span></span></div>
+                    <div class="upload-error" data-upload-error hidden></div>
+                  </form>
+                @endforeach
+              </div>
+              @if(count($exercise->frame_urls) === 2)
+                <form method="POST" action="{{ route('admin.exercises.pictures.swap', $exercise->id) }}" style="margin-top:8px">
+                  @csrf
+                  <button class="btn btn-sm btn-secondary"><i class="fas fa-right-left"></i> {{ __('Swap start and end') }}</button>
+                </form>
+              @endif
+            </div>
+          </div>
+        @else
         <form class="pic-step" method="POST" action="{{ route('admin.exercises.pictures.store', $exercise->id) }}" enctype="multipart/form-data" data-upload>
           @csrf
           <span class="pic-num">3</span>
@@ -94,6 +126,7 @@
           </div>
           <button class="btn btn-sm btn-success"><i class="fas fa-upload"></i> {{ __('Save') }}</button>
         </form>
+        @endif
         <div class="pic-step">
           <span class="pic-num">4</span>
           <div class="pic-text">
@@ -101,11 +134,6 @@
               @if($exercise->has_video)<span class="badge badge-success"><i class="fas fa-video"></i> {{ __('Video added') }}</span>@endif
             </div>
             <p class="pic-prompt" dir="ltr" id="p3-{{ $exercise->id }}">{{ PicturePrompt::video($exercise) }}</p>
-            {{-- a square picture loses its top and bottom in the wide video: this adds white space on the sides, in the browser --}}
-            <label class="btn btn-sm btn-secondary pic-widen">
-              <i class="fas fa-expand"></i> {{ __('Square picture? Make it wide for the video') }}
-              <input type="file" accept="image/*" hidden data-widen="{{ $exercise->id }}">
-            </label>
           </div>
           <button type="button" class="btn btn-sm btn-primary" data-copy-text="#p3-{{ $exercise->id }}" data-done="{{ __('Copied') }}"><i class="fas fa-copy"></i> {{ __('Copy') }}</button>
         </div>
@@ -158,7 +186,10 @@
   .pic-files{display:flex;gap:8px;flex-wrap:wrap}
   .pic-files label{display:grid;gap:4px;font-size:.85rem;font-weight:600;flex:1 1 200px}
   .pic-remove{justify-self:start}
-  .pic-widen{margin-top:6px;cursor:pointer}
+  .pic-pair{display:flex;gap:12px;flex-wrap:wrap}
+  .pic-one{display:grid;gap:6px;justify-items:start;flex:1 1 140px;max-width:220px}
+  .pic-one img,.pic-one .pic-none{width:100%;aspect-ratio:1;object-fit:contain;border-radius:10px;border:1px solid var(--gray-400);background:#fff}
+  .pic-one-label{font-weight:700;font-size:.85rem}
   @media (max-width:640px){
     .pic-step{grid-template-columns:26px minmax(0,1fr)}
     .pic-step > .btn{grid-column:2;justify-self:start}
@@ -166,43 +197,12 @@
 </style>
 
 <script>
-  // a picture for the video: the same picture in a 16:9 frame with white space around it, saved to the device
+  // "Change": the picture is sent as soon as it is chosen
   document.addEventListener('change', function (e) {
-    var input = e.target.closest && e.target.closest('input[data-widen]');
-    if (!input || !input.files || !input.files[0]) return;
-    var url = URL.createObjectURL(input.files[0]), img = new Image();
-    img.onload = function () {
-      var h = img.naturalHeight / 0.8, w = h * 16 / 9;
-      if (w < img.naturalWidth / 0.9) { w = img.naturalWidth / 0.9; h = w * 9 / 16; }
-      var c = document.createElement('canvas');
-      c.width = Math.round(w); c.height = Math.round(h);
-      var ctx = c.getContext('2d');
-      // the added space takes the colour of the picture's own background (its top-left corner), so no frame shows
-      ctx.drawImage(img, 0, 0, 1, 1, 0, 0, 1, 1);
-      var px = ctx.getImageData(0, 0, 1, 1).data;
-      ctx.fillStyle = 'rgb(' + px[0] + ',' + px[1] + ',' + px[2] + ')';
-      ctx.fillRect(0, 0, c.width, c.height);
-      var x = Math.round((c.width - img.naturalWidth) / 2), y = Math.round((c.height - img.naturalHeight) / 2);
-      var iw = img.naturalWidth, ih = img.naturalHeight;
-      ctx.drawImage(img, x, y);
-      // soften the picture's edges into the added space, so its frame doesn't show
-      var bg = 'rgba(' + px[0] + ',' + px[1] + ',' + px[2] + ',', f = Math.round(Math.min(iw, ih) * 0.08);
-      [[x, y, x + f, y, x, y, f, ih], [x + iw, y, x + iw - f, y, x + iw - f, y, f, ih],
-       [x, y, x, y + f, x, y, iw, f], [x, y + ih, x, y + ih - f, x, y + ih - f, iw, f]].forEach(function (g) {
-        var grad = ctx.createLinearGradient(g[0], g[1], g[2], g[3]);
-        grad.addColorStop(0, bg + '1)'); grad.addColorStop(1, bg + '0)');
-        ctx.fillStyle = grad; ctx.fillRect(g[4], g[5], g[6], g[7]);
-      });
-      URL.revokeObjectURL(url);
-      c.toBlob(function (blob) {
-        var a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'exercise-' + input.getAttribute('data-widen') + '-wide.png';
-        document.body.appendChild(a); a.click(); a.remove();
-        input.value = '';
-      }, 'image/png');
-    };
-    img.src = url;
+    var input = e.target.closest && e.target.closest('input[data-autosubmit]');
+    if (input && input.files && input.files.length && input.form) {
+      if (input.form.requestSubmit) input.form.requestSubmit(); else input.form.submit();
+    }
   });
 
   document.addEventListener('click', function (e) {

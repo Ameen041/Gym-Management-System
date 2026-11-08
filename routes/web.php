@@ -218,6 +218,7 @@ Route::middleware(['auth','active','role:admin'])
         Route::get('/exercise-pictures',            [AdminExercisePictureController::class, 'index'])->name('exercises.pictures');
         Route::post('/exercise-pictures/{id}',      [AdminExercisePictureController::class, 'store'])->name('exercises.pictures.store');
         Route::delete('/exercise-pictures/{id}',    [AdminExercisePictureController::class, 'destroy'])->name('exercises.pictures.destroy');
+        Route::post('/exercise-pictures/{id}/swap', [AdminExercisePictureController::class, 'swap'])->name('exercises.pictures.swap');
 
         // Food library for the nutrition calculator
         Route::get('/foods',              [AdminFoodController::class, 'index'])->name('foods.index');

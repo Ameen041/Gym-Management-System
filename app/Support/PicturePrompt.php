@@ -114,15 +114,10 @@ class PicturePrompt
     {
         [$start, $end] = self::positions($exercise);
 
-        return 'Animate this wide image into a short video, using the whole picture as it is (do not zoom in or crop it): '
-            . 'the same athlete performs slow, controlled repetitions of the '
+        return 'Animate this image into a short video: the same athlete performs slow, controlled repetitions of the '
             . $exercise->name . ', moving smoothly from the start position (' . rtrim($start, '.') . ') to the end position ('
-            . rtrim($end, '.') . ') and back, with correct technique. '
-            // the video is wider than the picture, and Gemini zoomed in and cut the athlete and the bar off at the edges
-            . 'Wide shot: zoom out so the whole athlete, all the equipment (both ends of the bar or both dumbbells) and the '
-            . 'bench or machine stay completely inside the frame the whole time, with white space around them; nothing is '
-            . 'cut off at the edges, even at the top of the movement. Keep the camera completely still, the same style, the '
-            . 'same red muscles and the plain white background. No text, no music.';
+            . rtrim($end, '.') . ') and back, with correct technique. Keep the camera still, the same style, the same red '
+            . 'muscles and the plain white background. No text, no music.';
     }
 
     private static function describe(Exercise $exercise, string $position): string
@@ -142,10 +137,8 @@ class PicturePrompt
             $text .= '. In light red: the ' . self::list($muscles['secondary']);
         }
 
-        return $text . '. Every other muscle stays gray. Correct, safe technique. Plain white background, dark-gray gym equipment. '
-            . 'The whole athlete and all the equipment (both ends of the bar) fully inside the picture with white space around them, '
-            // wide like the video Gemini makes from it: a square picture got its top and bottom cut off in the video
-            . 'nothing cut off at the edges. Wide 16:9 landscape image with the athlete in the middle, no text, no logos.';
+        return $text . '. Every other muscle stays gray. Correct, safe technique. Plain white background, dark-gray gym equipment, '
+            . 'full body visible, square image, no text, no logos.';
     }
 
     /** A decline bench seen at an angle is easily drawn the wrong way: those are drawn exactly from the side. */
