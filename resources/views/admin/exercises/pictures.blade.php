@@ -26,10 +26,11 @@
   <form method="GET" action="{{ route('admin.exercises.pictures') }}" class="pic-filters">
     <div class="pic-tabs">
       @foreach(['todo' => __('Not done yet (:count)', ['count' => $todo]), 'done' => __('Done (:count)', ['count' => $done]), 'all' => __('All')] as $key => $label)
-        <a href="{{ route('admin.exercises.pictures', array_filter(['show' => $key, 'muscle' => $muscle])) }}" class="btn btn-sm {{ $show === $key ? 'btn-primary' : 'btn-secondary' }}">{{ $label }}</a>
+        <a href="{{ route('admin.exercises.pictures', array_filter(['show' => $key, 'muscle' => $muscle, 'q' => $q])) }}" class="btn btn-sm {{ $show === $key ? 'btn-primary' : 'btn-secondary' }}">{{ $label }}</a>
       @endforeach
     </div>
     <input type="hidden" name="show" value="{{ $show }}">
+    <input type="search" name="q" value="{{ $q }}" class="form-control" placeholder="{{ __('Search an exercise…') }}" style="max-width:220px">
     <select name="muscle" class="form-control" onchange="this.form.submit()" style="max-width:220px">
       <option value="">{{ __('All muscles') }}</option>
       @foreach(Exercise::MUSCLE_GROUPS as $key => $group)
@@ -80,6 +81,37 @@
           </div>
           <button type="button" class="btn btn-sm btn-primary" data-copy-text="#p2-{{ $exercise->id }}" data-done="{{ __('Copied') }}"><i class="fas fa-copy"></i> {{ __('Copy') }}</button>
         </div>
+        @if($exercise->has_own_pictures)
+          {{-- each picture can be changed on its own (it is sent as soon as it is chosen), or the two swapped --}}
+          <div class="pic-step">
+            <span class="pic-num">3</span>
+            <div class="pic-text">
+              <div class="pic-label">{{ __('The pictures') }}</div>
+              <div class="pic-pair">
+                @foreach(['start' => __('Start'), 'end' => __('End')] as $field => $label)
+                  @php($src = $exercise->frame_urls[$loop->index] ?? null)
+                  <form class="pic-one" method="POST" action="{{ route('admin.exercises.pictures.store', $exercise->id) }}" enctype="multipart/form-data" data-upload>
+                    @csrf
+                    <div class="pic-one-label">{{ $label }}</div>
+                    @if($src)<img src="{{ $src }}" alt="{{ $label }}" loading="lazy">@else<span class="pic-none"><i class="fas fa-image"></i></span>@endif
+                    <label class="btn btn-sm btn-secondary">
+                      <i class="fas fa-arrows-rotate"></i> {{ __('Change picture') }}
+                      <input type="file" name="{{ $field }}" accept="image/*" hidden data-shrink="1200" data-autosubmit>
+                    </label>
+                    <div class="upload-progress" data-upload-progress hidden><span></span></div>
+                    <div class="upload-error" data-upload-error hidden></div>
+                  </form>
+                @endforeach
+              </div>
+              @if(count($exercise->frame_urls) === 2)
+                <form method="POST" action="{{ route('admin.exercises.pictures.swap', $exercise->id) }}" style="margin-top:8px">
+                  @csrf
+                  <button class="btn btn-sm btn-secondary"><i class="fas fa-right-left"></i> {{ __('Swap start and end') }}</button>
+                </form>
+              @endif
+            </div>
+          </div>
+        @else
         <form class="pic-step" method="POST" action="{{ route('admin.exercises.pictures.store', $exercise->id) }}" enctype="multipart/form-data" data-upload>
           @csrf
           <span class="pic-num">3</span>
@@ -94,6 +126,7 @@
           </div>
           <button class="btn btn-sm btn-success"><i class="fas fa-upload"></i> {{ __('Save') }}</button>
         </form>
+        @endif
         <div class="pic-step">
           <span class="pic-num">4</span>
           <div class="pic-text">
@@ -153,6 +186,10 @@
   .pic-files{display:flex;gap:8px;flex-wrap:wrap}
   .pic-files label{display:grid;gap:4px;font-size:.85rem;font-weight:600;flex:1 1 200px}
   .pic-remove{justify-self:start}
+  .pic-pair{display:flex;gap:12px;flex-wrap:wrap}
+  .pic-one{display:grid;gap:6px;justify-items:start;flex:1 1 140px;max-width:220px}
+  .pic-one img,.pic-one .pic-none{width:100%;aspect-ratio:1;object-fit:contain;border-radius:10px;border:1px solid var(--gray-400);background:#fff}
+  .pic-one-label{font-weight:700;font-size:.85rem}
   @media (max-width:640px){
     .pic-step{grid-template-columns:26px minmax(0,1fr)}
     .pic-step > .btn{grid-column:2;justify-self:start}
@@ -160,6 +197,14 @@
 </style>
 
 <script>
+  // "Change": the picture is sent as soon as it is chosen
+  document.addEventListener('change', function (e) {
+    var input = e.target.closest && e.target.closest('input[data-autosubmit]');
+    if (input && input.files && input.files.length && input.form) {
+      if (input.form.requestSubmit) input.form.requestSubmit(); else input.form.submit();
+    }
+  });
+
   document.addEventListener('click', function (e) {
     var btn = e.target.closest('[data-copy-text]');
     if (!btn) return;

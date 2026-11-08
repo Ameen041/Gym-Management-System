@@ -17,6 +17,7 @@ class AdminExercisePictureController extends Controller
     {
         $show = in_array($request->query('show'), ['todo', 'done', 'all'], true) ? $request->query('show') : 'todo';
         $muscle = $request->query('muscle');
+        $q = trim((string) $request->query('q'));
 
         $all = Exercise::orderBy('name')->get()
             ->sortBy(fn ($e) => array_search($e->muscle_group, array_keys(Exercise::MUSCLE_GROUPS)))->values();
@@ -25,6 +26,7 @@ class AdminExercisePictureController extends Controller
         $list = $all
             ->when($show !== 'all', fn ($c) => $c->filter(fn ($e) => $e->has_own_media === ($show === 'done')))
             ->when($muscle, fn ($c) => $c->where('muscle_group', $muscle))
+            ->when($q !== '', fn ($c) => $c->filter(fn ($e) => mb_stripos($e->name . ' ' . $e->name_ar, $q) !== false))
             ->values();
 
         $page = max(1, (int) $request->query('page', 1));
@@ -37,6 +39,7 @@ class AdminExercisePictureController extends Controller
             'exercises' => $exercises,
             'show'      => $show,
             'muscle'    => $muscle,
+            'q'         => $q,
             'done'      => $done,
             'todo'      => $all->count() - $done,
         ]);
@@ -76,6 +79,17 @@ class AdminExercisePictureController extends Controller
         }
 
         return back()->with('status', $message);
+    }
+
+    /** The start and end pictures were uploaded the wrong way round. */
+    public function swap($id)
+    {
+        $exercise = Exercise::findOrFail($id);
+        abort_unless($exercise->has_own_pictures && count((array) $exercise->frames) === 2, 404);
+
+        $exercise->update(['frames' => array_reverse(array_values($exercise->frames))]);
+
+        return back()->with('status', __('Start and end swapped for ":name".', ['name' => $exercise->display_name]));
     }
 
     /** Back to the drawing (or no picture), for pictures that came out wrong. */
