@@ -73,6 +73,7 @@ class PicturePrompt
         'Dumbbell Triceps Kickback' => ['Bent over a flat bench with one hand and knee on it, working upper arm parallel to the floor, elbow bent at 90 degrees.', 'Working arm fully extended back, straight and in line with his torso.'],
         'Overhead Rope Triceps Extension' => ['Staggered stance facing away from the cable, rope held behind his head, elbows bent and pointing forward.', 'Arms extended forward and up, elbows straight, rope ends spread apart.'],
         'Bench Dips' => ['Hands on the edge of a bench behind him, legs extended in front, arms straight.', 'Hips lowered in front of the bench until his elbows reach about 90 degrees.'],
+        'Chin-Up' => ['Hanging from a pull-up bar with straight arms, legs straight down.', 'Pulled up until his chin is above the bar, elbows bent and close to his sides, chest close to the bar, legs straight down.'],
         'Plank' => ['Kneeling, resting on his forearms with elbows under his shoulders.', 'Forearm plank: body in a straight line from head to heels, supported on forearms and toes.'],
         'Treadmill Running' => ['Running on a treadmill mid-stride, right leg forward, arms swinging.', 'The opposite stride: left leg forward, right arm forward.'],
         'Treadmill Walking' => ['Walking briskly on a treadmill, right foot forward, arms swinging naturally.', 'The next step: left foot forward.'],
@@ -117,7 +118,7 @@ class PicturePrompt
     {
         [$start, $end] = self::positions($exercise);
         $muscles = $exercise->muscles;
-        $back = (bool) array_intersect($muscles['primary'], self::BACK_MUSCLES);
+        $back = self::fromBehind($exercise);
 
         $equipment = trim((string) $exercise->equipment);
         $what = $exercise->name . ($equipment !== '' && stripos($equipment, 'bodyweight') === false ? ' (' . $equipment . ')' : '');
@@ -127,9 +128,11 @@ class PicturePrompt
             . 'separated by a thin vertical white gap, showing two moments of the ' . $what . '. '
             . 'LEFT panel, the start position: ' . $start . ' '
             . 'RIGHT panel, the end position: ' . $end . ' '
-            . 'Both panels show exactly the same muscular male athlete with smooth light-gray skin and black shorts, the same grip, '
-            . 'the same equipment with the same shape and size, seen ' . self::angle($exercise, $back) . ', and in both panels '
-            . rtrim($direction, '.') . '. Only the pose is different. '
+            . 'The two panels are like two frames of the same video: the same scene, the same camera position, angle and zoom, '
+            . 'the same equipment in the same place with exactly the same shape and size (it does not move or change), and the '
+            . 'same muscular male athlete with smooth light-gray skin and black shorts with the same grip; only his pose changes. '
+            . 'Seen ' . self::angle($exercise, $back) . '; in both panels ' . rtrim($direction, '.') . '. '
+            . self::grip($exercise)
             . (($note = self::note($exercise)) ? $note . ' ' : '')
             . 'In both panels, highlighted in bright red: the ' . self::list($muscles['primary']);
         if ($muscles['secondary']) {
@@ -150,6 +153,7 @@ class PicturePrompt
         [, $end] = self::positions($exercise);
 
         return 'Edit the attached picture. Change only the pose: show the END position of the movement. ' . $end . ' '
+            . self::grip($exercise)
             . 'The weight or handles move together with his hands. Everything else stays exactly as in the attached picture: '
             . 'the same person and body, the same grip and hand position, the same equipment, machine and bench with the same '
             . 'shape, size and place, the same camera angle and distance, the same direction he faces, the same colors, red '
@@ -170,7 +174,7 @@ class PicturePrompt
     private static function describe(Exercise $exercise, string $position): string
     {
         $muscles = $exercise->muscles;
-        $back = (bool) array_intersect($muscles['primary'], self::BACK_MUSCLES);
+        $back = self::fromBehind($exercise);
 
         $equipment = trim((string) $exercise->equipment);
         $what = $exercise->name . ($equipment !== '' && stripos($equipment, 'bodyweight') === false ? ' (' . $equipment . ')' : '');
@@ -179,6 +183,7 @@ class PicturePrompt
             . 'and black shorts performs the ' . $what . ', seen ' . self::angle($exercise, $back) . '. '
             . self::direction($exercise, $back) . ' '
             . $position . ' '
+            . self::grip($exercise)
             . (($note = self::note($exercise)) ? $note . ' ' : '')
             . 'Highlighted in bright red: the ' . self::list($muscles['primary']);
         if ($muscles['secondary']) {
@@ -212,11 +217,51 @@ class PicturePrompt
         return 'Direction: ' . $where . '. Keep exactly this direction, do not mirror the picture.';
     }
 
+    // drawn from the front although they work the back: the grip is what tells them apart
+    private const FROM_THE_FRONT = ['Chin-Up'];
+
+    /** The grip, spelled out where it is what makes the exercise (Gemini drew a chin-up with an overhand grip). */
+    private const GRIPS = [
+        'Chin-Up'                                => 'UNDERHAND (supinated): palms facing toward his face, hands about shoulder-width apart',
+        'Pull-Up'                                => 'OVERHAND (pronated): palms facing away from him, hands slightly wider than his shoulders',
+        'Lat Pulldown'                           => 'OVERHAND (pronated): palms facing away from him, hands slightly wider than his shoulders',
+        'Close-Grip Lat Pulldown'                => 'OVERHAND (pronated): palms facing away from him, hands about shoulder-width apart',
+        'V-Bar Lat Pulldown'                     => 'NEUTRAL: palms facing each other on the V-bar handle',
+        'Bent-Over Barbell Row'                  => 'OVERHAND (pronated): palms facing his body, hands slightly wider than his shoulders',
+        'Reverse-Grip Barbell Row'               => 'UNDERHAND (supinated): palms facing forward, away from his body, hands about shoulder-width apart',
+        'Reverse-Grip Triceps Pushdown'          => 'UNDERHAND (supinated): palms facing up, hands about shoulder-width apart',
+        'Single-Arm Reverse-Grip Cable Pushdown' => 'UNDERHAND (supinated): palm facing up',
+        'Reverse-Grip Barbell Curl'              => 'OVERHAND (pronated): palms facing down the whole time, also at the top of the curl',
+        'Hammer Curl'                            => 'NEUTRAL: palms facing each other, thumbs up, the whole time',
+        'Cable Rope Hammer Curl'                 => 'NEUTRAL: palms facing each other, thumbs up, the whole time',
+        'Barbell Biceps Curl'                    => 'UNDERHAND (supinated): palms facing forward and up',
+        'EZ-Bar Curl'                            => 'UNDERHAND (supinated): palms facing up on the angled grips',
+        'Barbell Preacher Curl'                  => 'UNDERHAND (supinated): palms facing up',
+        'Standing Cable Curl'                    => 'UNDERHAND (supinated): palms facing up',
+        'Barbell Wrist Curl'                     => 'palms facing UP, forearms resting on the bench',
+        'Reverse Barbell Wrist Curl'             => 'palms facing DOWN, forearms resting on the bench',
+    ];
+
+    private static function fromBehind(Exercise $exercise): bool
+    {
+        return !in_array($exercise->name, self::FROM_THE_FRONT, true)
+            && (bool) array_intersect($exercise->muscles['primary'], self::BACK_MUSCLES);
+    }
+
+    private static function grip(Exercise $exercise): string
+    {
+        return isset(self::GRIPS[$exercise->name]) ? 'Grip: ' . self::GRIPS[$exercise->name] . '. ' : '';
+    }
+
     /** A decline bench seen at an angle is easily drawn the wrong way: those are drawn exactly from the side. */
     private static function angle(Exercise $exercise, bool $back): string
     {
         if (str_contains($exercise->name, 'Decline') && !str_contains($exercise->name, 'Push-Up')) {
             return 'exactly from the side (a profile view, head on the left, so the slope of the bench is obvious)';
+        }
+
+        if (in_array($exercise->name, self::FROM_THE_FRONT, true)) {
+            return 'from a 3/4 front angle, so his face, chest and both hands on the bar are clearly visible';
         }
 
         return $back ? 'from a 3/4 back angle so the back of the body is visible' : 'from a 3/4 side angle';
