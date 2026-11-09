@@ -262,4 +262,26 @@ class ExercisePicturesPageTest extends TestCase
         $this->actingAs($admin)->get(route('admin.exercises.pictures', ['q' => 'overhead dumbbell']))->assertDontSee('القبضة طلعت غلط؟');
         $this->assertStringNotContainsString('Both hands', PicturePrompt::pair(Exercise::where('name', 'Single-Arm Reverse-Grip Cable Pushdown')->sole()));
     }
+
+    public function test_the_bar_of_a_deadlift_is_drawn_in_front_of_the_legs(): void
+    {
+        $this->seed(ExercisesSeeder::class);
+
+        // seen from behind, Gemini drew the bar behind his legs: a profile view, and the bar spelled out in front
+        $deadlift = Exercise::where('name', 'Deadlift')->sole();
+        $pair = PicturePrompt::pair($deadlift);
+        $this->assertStringContainsString('Seen exactly from the side (a profile view, so it is obvious that the weight is in front of his legs)', $pair);
+        $this->assertStringContainsString('in both panels he is turned toward the RIGHT side of the picture', $pair);
+        $this->assertStringContainsString('Important: the bar stays IN FRONT of his legs, on the side his face looks toward', $pair);
+        $this->assertStringNotContainsString('from behind', $pair);
+        $this->assertStringContainsString('the bar stays IN FRONT of his legs', PicturePrompt::start($deadlift));
+        $this->assertSame('side', PicturePrompt::seenFrom($deadlift));
+
+        $this->assertStringContainsString('the dumbbells stay IN FRONT of his legs', PicturePrompt::pair(Exercise::where('name', 'Dumbbell Stiff-Leg Deadlift')->sole()));
+        $this->assertStringContainsString('the bar stays IN FRONT of his legs', PicturePrompt::pair(Exercise::where('name', 'Bent-Over Barbell Row')->sole()));
+
+        // the other back exercises stay seen from behind
+        $this->assertStringContainsString('we see him from behind', PicturePrompt::pair(Exercise::where('name', 'Seated Cable Row')->sole()));
+        $this->assertStringNotContainsString('IN FRONT of his legs', PicturePrompt::pair(Exercise::where('name', 'Seated Cable Row')->sole()));
+    }
 }

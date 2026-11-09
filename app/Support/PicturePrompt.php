@@ -224,6 +224,9 @@ class PicturePrompt
     // drawn from the front although they work the back: the grip is what tells them apart
     private const FROM_THE_FRONT = ['Chin-Up'];
 
+    // the weight hangs in front of the legs: seen from behind, Gemini drew the bar behind his legs, so these are drawn in profile
+    private const WEIGHT_IN_FRONT = '/\b(deadlift|rack pull|power clean|clean and press|bent-over barbell row|reverse-grip barbell row)\b/i';
+
     /** The grip, spelled out where it is what makes the exercise (Gemini drew a chin-up with an overhand grip). */
     private const GRIPS = [
         // the plain "palms facing his face" still came out overhand: the grip is described by what can be seen
@@ -277,6 +280,7 @@ class PicturePrompt
     private static function fromBehind(Exercise $exercise): bool
     {
         return !in_array($exercise->name, self::FROM_THE_FRONT, true)
+            && !preg_match(self::WEIGHT_IN_FRONT, $exercise->name)
             && (bool) array_intersect($exercise->muscles['primary'], self::BACK_MUSCLES);
     }
 
@@ -290,6 +294,10 @@ class PicturePrompt
     {
         if (str_contains($exercise->name, 'Decline') && !str_contains($exercise->name, 'Push-Up')) {
             return 'exactly from the side (a profile view, head on the left, so the slope of the bench is obvious)';
+        }
+
+        if (preg_match(self::WEIGHT_IN_FRONT, $exercise->name)) {
+            return 'exactly from the side (a profile view, so it is obvious that the weight is in front of his legs)';
         }
 
         if (in_array($exercise->name, self::FROM_THE_FRONT, true)) {
@@ -309,6 +317,8 @@ class PicturePrompt
         return match (true) {
             $name === 'Decline Push-Up' => 'Important: his feet are raised on a bench behind him, so his head is clearly lower than his feet.',
             $name === 'Incline Push-Up' => 'Important: his hands are on a raised bench, so his head is clearly higher than his feet.',
+            (bool) preg_match(self::WEIGHT_IN_FRONT, $name) => 'Important: ' . (str_contains($name, 'Dumbbell') ? 'the dumbbells stay' : 'the bar stays')
+                . ' IN FRONT of his legs, on the side his face looks toward, close to his shins and thighs; never behind his legs.',
             $name === 'Incline Reverse Dumbbell Fly' => 'Important: he lies chest-down on a bench raised to about 30 degrees, facing the floor.',
             str_contains($name, 'Decline') => 'Important: this is a DECLINE bench, not a flat or incline one. The bench is tilted about 30 degrees: '
                 . 'the end under his head is low, close to the floor, and the end under his knees is high. So his head is clearly LOWER than his hips, '
