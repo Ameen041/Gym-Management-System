@@ -130,6 +130,7 @@ class PicturePrompt
 
         $text = 'Clean anatomical fitness illustration, 3D render style. A muscular male athlete with smooth light-gray skin '
             . 'and black shorts performs the ' . $what . ', seen ' . self::angle($exercise, $back) . '. '
+            . self::direction($exercise, $back) . ' '
             . $position . ' '
             . (($note = self::note($exercise)) ? $note . ' ' : '')
             . 'Highlighted in bright red: the ' . self::list($muscles['primary']);
@@ -139,6 +140,29 @@ class PicturePrompt
 
         return $text . '. Every other muscle stays gray. Correct, safe technique. Plain white background, dark-gray gym equipment, '
             . 'full body visible, square image, no text, no logos.';
+    }
+
+    /**
+     * Which way the athlete faces, the same in the start and the end picture: without it Gemini picked a side at
+     * random and the end picture came out mirrored.
+     */
+    private static function direction(Exercise $exercise, bool $back): string
+    {
+        [$start] = self::positions($exercise);
+        $flat = (preg_match('/\b(lie|lies|lying|lay|plank|push-ups?|all fours|face down|on his back|on his side)\b/i', $start)
+                || preg_match('/\b(bench press|pullover|skull crusher|hyperextension|back extension|hip thrust|glute bridge|rollout|push-up|lying|plank)\b/i', $exercise->name))
+            // the arms lie on the pad, the athlete sits or stands
+            && !preg_match('/\b(preacher|spider) curl\b/i', $exercise->name);
+
+        if ($flat) {
+            $where = 'his head is on the LEFT side of the picture and his feet are on the RIGHT side';
+        } elseif ($back) {
+            $where = 'we see him from behind, turned toward the RIGHT side of the picture';
+        } else {
+            $where = 'he is turned toward the RIGHT side of the picture';
+        }
+
+        return 'Direction: ' . $where . '. Keep exactly this direction, do not mirror the picture.';
     }
 
     /** A decline bench seen at an angle is easily drawn the wrong way: those are drawn exactly from the side. */

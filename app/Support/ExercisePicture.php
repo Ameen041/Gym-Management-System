@@ -30,13 +30,41 @@ class ExercisePicture
             return self::DIR . '/' . $base . '.' . $ext;
         }
 
+        $path = self::storeImage($image, $name, $thumb);
+        imagedestroy($image);
+
+        return $path;
+    }
+
+    /** Saves a picture already opened with GD (900px WebP, and the 200px thumbnail when asked). */
+    public static function storeImage(\GdImage $image, string $name, bool $thumb): string
+    {
+        File::ensureDirectoryExists(public_path(self::DIR . '/thumbs'));
+        $base = $name . '-' . Str::lower(Str::random(6));
         self::save($image, 900, public_path(self::DIR . '/' . $base . '.webp'), 84);
         if ($thumb) {
             self::save($image, 200, public_path(self::DIR . '/thumbs/' . $base . '.webp'), 80);
         }
-        imagedestroy($image);
 
         return self::DIR . '/' . $base . '.webp';
+    }
+
+    /** A mirrored copy of a picture (left and right swapped), or null when the server can't open it. */
+    public static function mirrored(string $path, string $name, bool $thumb): ?string
+    {
+        $file = public_path($path);
+        if (!function_exists('imagewebp') || str_contains($path, '..') || !is_file($file)) {
+            return null;
+        }
+        $image = @imagecreatefromstring((string) file_get_contents($file));
+        if (!$image) {
+            return null;
+        }
+        imageflip($image, IMG_FLIP_HORIZONTAL);
+        $new = self::storeImage($image, $name, $thumb);
+        imagedestroy($image);
+
+        return $new;
     }
 
     /** Removes a picture saved by store() and its thumbnail; other paths are left alone. */

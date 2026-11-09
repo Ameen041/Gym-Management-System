@@ -90,17 +90,30 @@
               <div class="pic-pair">
                 @foreach(['start' => __('Start'), 'end' => __('End')] as $field => $label)
                   @php($src = $exercise->frame_urls[$loop->index] ?? null)
-                  <form class="pic-one" method="POST" action="{{ route('admin.exercises.pictures.store', $exercise->id) }}" enctype="multipart/form-data" data-upload>
-                    @csrf
-                    <div class="pic-one-label">{{ $label }}</div>
-                    @if($src)<img src="{{ $src }}" alt="{{ $label }}" loading="lazy">@else<span class="pic-none"><i class="fas fa-image"></i></span>@endif
-                    <label class="btn btn-sm btn-secondary">
-                      <i class="fas fa-arrows-rotate"></i> {{ __('Change picture') }}
-                      <input type="file" name="{{ $field }}" accept="image/*" hidden data-shrink="1200" data-autosubmit>
-                    </label>
-                    <div class="upload-progress" data-upload-progress hidden><span></span></div>
-                    <div class="upload-error" data-upload-error hidden></div>
-                  </form>
+                  <div class="pic-one">
+                    <form method="POST" action="{{ route('admin.exercises.pictures.store', $exercise->id) }}" enctype="multipart/form-data" data-upload>
+                      @csrf
+                      <div class="pic-one-label">{{ $label }}</div>
+                      @if($src)<img src="{{ $src }}" alt="{{ $label }}" loading="lazy">@else<span class="pic-none"><i class="fas fa-image"></i></span>@endif
+                      <div class="pic-one-actions">
+                        <label class="btn btn-sm btn-secondary">
+                          <i class="fas fa-arrows-rotate"></i> {{ __('Change picture') }}
+                          <input type="file" name="{{ $field }}" accept="image/*" hidden data-shrink="1200" data-autosubmit>
+                        </label>
+                        @if($src)
+                          {{-- facing the other way than its partner: mirror it on the server --}}
+                          <button type="submit" class="btn btn-sm btn-secondary" form="flip-{{ $exercise->id }}-{{ $loop->index }}" title="{{ __('Turn the picture around (mirror)') }}">
+                            <i class="fas fa-arrows-left-right"></i> {{ __('Turn around') }}
+                          </button>
+                        @endif
+                      </div>
+                      <div class="upload-progress" data-upload-progress hidden><span></span></div>
+                      <div class="upload-error" data-upload-error hidden></div>
+                    </form>
+                    @if($src)
+                      <form id="flip-{{ $exercise->id }}-{{ $loop->index }}" method="POST" action="{{ route('admin.exercises.pictures.flip', [$exercise->id, $loop->index]) }}" hidden>@csrf</form>
+                    @endif
+                  </div>
                 @endforeach
               </div>
               @if(count($exercise->frame_urls) === 2)
@@ -187,9 +200,11 @@
   .pic-files label{display:grid;gap:4px;font-size:.85rem;font-weight:600;flex:1 1 200px}
   .pic-remove{justify-self:start}
   .pic-pair{display:flex;gap:12px;flex-wrap:wrap}
-  .pic-one{display:grid;gap:6px;justify-items:start;flex:1 1 140px;max-width:220px}
+  .pic-one{flex:1 1 160px;max-width:240px}
   .pic-one img,.pic-one .pic-none{width:100%;aspect-ratio:1;object-fit:contain;border-radius:10px;border:1px solid var(--gray-400);background:#fff}
   .pic-one-label{font-weight:700;font-size:.85rem}
+  .pic-one > form{display:grid;gap:6px;justify-items:start}
+  .pic-one-actions{display:flex;gap:6px;flex-wrap:wrap}
   @media (max-width:640px){
     .pic-step{grid-template-columns:26px minmax(0,1fr)}
     .pic-step > .btn{grid-column:2;justify-self:start}
