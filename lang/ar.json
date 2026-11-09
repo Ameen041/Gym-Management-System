@@ -1219,5 +1219,9 @@
     "The pictures": "الصور",
     "Swap start and end": "بدّل البداية والنهاية",
     "Start and end swapped for \":name\".": "تم تبديل البداية والنهاية لتمرين \":name\".",
-    "Change picture": "تغيير"
+    "Change picture": "تغيير",
+    "Turn around": "اقلب",
+    "Turn the picture around (mirror)": "اقلب الصورة (عكس الاتجاه)",
+    "This picture could not be turned around on the server.": "ما قدرنا نقلب هالصورة على السيرفر.",
+    "Picture turned around for \":name\".": "تم قلب صورة تمرين \":name\"."
 }

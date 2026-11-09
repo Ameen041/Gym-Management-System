@@ -151,5 +151,42 @@ class ExercisePicturesPageTest extends TestCase
         // an exercise still on its drawing can't be swapped
         $this->actingAs($admin)->post(route('admin.exercises.pictures.swap', Exercise::where('name', 'Leg Press')->value('id')))->assertNotFound();
     }
+
+    public function test_both_pictures_face_the_same_way_and_one_can_be_turned_around(): void
+    {
+        $this->seed(ExercisesSeeder::class);
+        $admin = User::factory()->admin()->create();
+
+        // the same direction in the start and the end text, by the kind of exercise
+        $press = Exercise::where('name', 'Overhead Dumbbell Press')->sole();
+        foreach ([PicturePrompt::start($press), PicturePrompt::end($press)] as $text) {
+            $this->assertStringContainsString('Direction: he is turned toward the RIGHT side of the picture. Keep exactly this direction, do not mirror the picture.', $text);
+        }
+        $this->assertStringContainsString('his head is on the LEFT side of the picture and his feet are on the RIGHT side', PicturePrompt::end(Exercise::where('name', 'Barbell Bench Press')->sole()));
+        $this->assertStringContainsString('we see him from behind', PicturePrompt::start(Exercise::where('name', 'Lat Pulldown')->sole()));
+
+        // a picture that faces the wrong way is mirrored on the server
+        $this->actingAs($admin)->postJson(route('admin.exercises.pictures.store', $press->id), [
+            'start' => UploadedFile::fake()->image('start.png', 400, 300),
+            'end'   => UploadedFile::fake()->image('end.png', 400, 300),
+        ])->assertOk();
+        $press->refresh();
+        [$start, $end] = $press->frames;
+        $this->actingAs($admin)->get(route('admin.exercises.pictures', ['show' => 'done', 'q' => 'overhead']))
+            ->assertSee(route('admin.exercises.pictures.flip', [$press->id, 1]), false);
+
+        $this->actingAs($admin)->post(route('admin.exercises.pictures.flip', [$press->id, 1]))->assertRedirect()->assertSessionHas('status');
+        $press->refresh();
+        $this->assertSame($start, $press->frames[0]);
+        $this->assertNotSame($end, $press->frames[1]);
+        $this->assertFileExists(public_path($press->frames[1]));
+        $this->assertFileDoesNotExist(public_path($end));
+
+        // the first picture keeps its list thumbnail when it is turned around
+        $this->actingAs($admin)->post(route('admin.exercises.pictures.flip', [$press->id, 0]))->assertRedirect();
+        $press->refresh();
+        $this->assertStringContainsString('/thumbs/', $press->thumbnail);
+        $this->actingAs($admin)->post(route('admin.exercises.pictures.flip', [$press->id, 2]))->assertNotFound();
+    }
 }
 

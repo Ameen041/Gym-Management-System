@@ -92,6 +92,24 @@ class AdminExercisePictureController extends Controller
         return back()->with('status', __('Start and end swapped for ":name".', ['name' => $exercise->display_name]));
     }
 
+    /** A picture that faces the other way than its partner: it is mirrored (left and right swapped). */
+    public function flip($id, int $n)
+    {
+        $exercise = Exercise::findOrFail($id);
+        $frames = array_values((array) $exercise->frames);
+        abort_unless($exercise->has_own_pictures && isset($frames[$n]) && $n < 2, 404);
+
+        $new = ExercisePicture::mirrored($frames[$n], $exercise->id . '-' . ($n + 1), $n === 0);
+        if (!$new) {
+            return back()->with('error', __('This picture could not be turned around on the server.'));
+        }
+        ExercisePicture::delete($frames[$n]);
+        $frames[$n] = $new;
+        $exercise->update(['frames' => $frames]);
+
+        return back()->with('status', __('Picture turned around for ":name".', ['name' => $exercise->display_name]));
+    }
+
     /** Back to the drawing (or no picture), for pictures that came out wrong. */
     public function destroy($id)
     {
