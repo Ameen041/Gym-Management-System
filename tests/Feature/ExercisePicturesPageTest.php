@@ -221,11 +221,13 @@ class ExercisePicturesPageTest extends TestCase
         // the chin-up: drawn from the front with its underhand grip spelled out, in every text
         $chin = Exercise::where('name', 'Chin-Up')->sole();
         foreach ([PicturePrompt::pair($chin), PicturePrompt::start($chin), PicturePrompt::end($chin), PicturePrompt::edit($chin)] as $text) {
-            $this->assertStringContainsString('Grip: UNDERHAND (supinated): palms facing toward his face', $text);
+            $this->assertStringContainsString('Grip: UNDERHAND (supinated), like holding a barbell for a biceps curl but above his head', $text);
+            $this->assertStringContainsString('the BACKS of his hands face the camera, and his thumbs point OUTWARD', $text);
         }
         $this->assertStringContainsString('from a 3/4 front angle', PicturePrompt::pair($chin));
         $this->assertStringNotContainsString('from behind', PicturePrompt::pair($chin));
         $this->assertStringContainsString('until his chin is above the bar', PicturePrompt::pair($chin));
+        $this->assertStringContainsString('LEFT panel, the start position: Dead hang: arms COMPLETELY straight', PicturePrompt::pair($chin));
 
         // step 1 is that text, step 2 the double picture (cut in two in the browser into "start" and "end")
         $this->actingAs(User::factory()->admin()->create())->get(route('admin.exercises.pictures', ['q' => 'overhead dumbbell']))
