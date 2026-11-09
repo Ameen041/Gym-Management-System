@@ -224,7 +224,10 @@ class PicturePrompt
 
     /** The grip, spelled out where it is what makes the exercise (Gemini drew a chin-up with an overhand grip). */
     private const GRIPS = [
-        'Chin-Up'                                => 'UNDERHAND (supinated): palms facing toward his face, hands about shoulder-width apart',
+        // the plain "palms facing his face" still came out overhand: the grip is described by what can be seen
+        'Chin-Up'                                => 'UNDERHAND (supinated), like holding a barbell for a biceps curl but above his head: '
+            . 'his palms face toward his own face, the BACKS of his hands face the camera, and his thumbs point OUTWARD, away '
+            . 'from his head; hands about shoulder-width apart. Not an overhand grip',
         'Pull-Up'                                => 'OVERHAND (pronated): palms facing away from him, hands slightly wider than his shoulders',
         'Lat Pulldown'                           => 'OVERHAND (pronated): palms facing away from him, hands slightly wider than his shoulders',
         'Close-Grip Lat Pulldown'                => 'OVERHAND (pronated): palms facing away from him, hands about shoulder-width apart',
