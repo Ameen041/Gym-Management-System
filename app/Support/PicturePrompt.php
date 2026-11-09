@@ -109,6 +109,21 @@ class PicturePrompt
         return 'A new picture, not the previous one. ' . self::describe($exercise, 'End position of the movement: ' . $end);
     }
 
+    /**
+     * The end picture as an edit of the start picture (attached to the message): drawn from scratch, the grip and the
+     * machine came out different, so only the pose is changed and everything else is kept.
+     */
+    public static function edit(Exercise $exercise): string
+    {
+        [, $end] = self::positions($exercise);
+
+        return 'Edit the attached picture. Change only the pose: show the END position of the movement. ' . $end . ' '
+            . 'The weight or handles move together with his hands. Everything else stays exactly as in the attached picture: '
+            . 'the same person and body, the same grip and hand position, the same equipment, machine and bench with the same '
+            . 'shape, size and place, the same camera angle and distance, the same direction he faces, the same colors, red '
+            . 'muscles, lighting and white background. Do not redraw the scene, do not mirror it, do not add or remove anything.';
+    }
+
     /** Sent with the start picture (or right after it in the same chat): Gemini turns it into a short looping video. */
     public static function video(Exercise $exercise): string
     {

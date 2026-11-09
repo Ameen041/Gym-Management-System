@@ -1211,8 +1211,6 @@
     "A picture with a mistake (an extra arm, a bent bar, a wrong position)? Ask Gemini again in a new chat. Pictures are saved on the server; keep a copy of them on your computer too.": "إذا طلعت صورة فيها غلط (إيد زيادة، بار معووج، وضعية غلط)، اطلبها من Gemini من جديد بمحادثة جديدة. الصور بتنحفظ على السيرفر، وخلّي نسخة منهن على جهازك كمان.",
     "First text: the start position": "النص الأول: وضعية البداية",
     "All exercises have their pictures.": "كل التمارين صار إلها صور.",
-    "Then copy the second text and send it: it is a full description of the end position, in the same style. If Gemini sends the first picture again, send it in a new chat.": "بعدين انسخ النص التاني وابعته: هو وصف كامل لوضعية النهاية بنفس الشكل. إذا Gemini رجّعلك الصورة الأولى نفسها، ابعته بمحادثة جديدة.",
-    "Second text: the end position": "النص التاني: وضعية النهاية",
     "Video (optional): send this with the start picture and Gemini animates it": "فيديو (اختياري): ابعت هالنص مع صورة البداية وGemini بيحرّكها",
     "For a video: send the start picture to Gemini with the video text (step 4), download the video and upload it (step 5). It plays by itself on the exercise page, without sound.": "للفيديو: ابعت صورة البداية لـ Gemini مع نص الفيديو (الخطوة ٤)، نزّل الفيديو وارفعه (الخطوة ٥). بيشتغل لحاله بصفحة التمرين وبدون صوت.",
     "Search an exercise…": "ابحث عن تمرين…",
@@ -1223,5 +1221,8 @@
     "Turn around": "اقلب",
     "Turn the picture around (mirror)": "اقلب الصورة (عكس الاتجاه)",
     "This picture could not be turned around on the server.": "ما قدرنا نقلب هالصورة على السيرفر.",
-    "Picture turned around for \":name\".": "تم قلب صورة تمرين \":name\"."
+    "Picture turned around for \":name\".": "تم قلب صورة تمرين \":name\".",
+    "Second text: attach the start picture with it, and Gemini changes only the pose": "النص التاني: أرفق معه صورة البداية، وجيميناي بيغيّر الوضعية بس",
+    "Gemini sent the same picture back? Use this text in a new chat instead": "رجّعلك نفس الصورة؟ استعمل هالنص بمحادثة جديدة بدالُه",
+    "For the end picture: tap + in Gemini, attach the start picture, paste the second text and send it. Gemini keeps the picture and changes only the pose.": "لصورة النهاية: اكبس + بجيميناي، وأرفق صورة البداية، والصق النص التاني وابعته. جيميناي بيحافظ على الصورة وبيغيّر الوضعية بس."
 }
