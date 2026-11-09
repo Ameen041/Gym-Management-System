@@ -73,7 +73,9 @@ class PicturePrompt
         'Dumbbell Triceps Kickback' => ['Bent over a flat bench with one hand and knee on it, working upper arm parallel to the floor, elbow bent at 90 degrees.', 'Working arm fully extended back, straight and in line with his torso.'],
         'Overhead Rope Triceps Extension' => ['Staggered stance facing away from the cable, rope held behind his head, elbows bent and pointing forward.', 'Arms extended forward and up, elbows straight, rope ends spread apart.'],
         'Bench Dips' => ['Hands on the edge of a bench behind him, legs extended in front, arms straight.', 'Hips lowered in front of the bench until his elbows reach about 90 degrees.'],
-        'Chin-Up' => ['Hanging from a pull-up bar with straight arms, legs straight down.', 'Pulled up until his chin is above the bar, elbows bent and close to his sides, chest close to the bar, legs straight down.'],
+        // Gemini drew the start with bent arms: the dead hang is spelled out
+        'Chin-Up' => ['Dead hang: arms COMPLETELY straight, elbows locked, his head clearly BELOW the bar, legs straight down.', 'Pulled up until his chin is above the bar, elbows bent and close to his sides, chest close to the bar, legs straight down.'],
+        'Pull-Up' => ['Dead hang: arms COMPLETELY straight, elbows locked, his head clearly BELOW the bar, legs straight down.', 'Pulled up until his chin is above the bar, elbows pointing down to his sides, chest close to the bar.'],
         'Plank' => ['Kneeling, resting on his forearms with elbows under his shoulders.', 'Forearm plank: body in a straight line from head to heels, supported on forearms and toes.'],
         'Treadmill Running' => ['Running on a treadmill mid-stride, right leg forward, arms swinging.', 'The opposite stride: left leg forward, right arm forward.'],
         'Treadmill Walking' => ['Walking briskly on a treadmill, right foot forward, arms swinging naturally.', 'The next step: left foot forward.'],

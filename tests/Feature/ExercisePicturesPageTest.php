@@ -226,6 +226,7 @@ class ExercisePicturesPageTest extends TestCase
         $this->assertStringContainsString('from a 3/4 front angle', PicturePrompt::pair($chin));
         $this->assertStringNotContainsString('from behind', PicturePrompt::pair($chin));
         $this->assertStringContainsString('until his chin is above the bar', PicturePrompt::pair($chin));
+        $this->assertStringContainsString('LEFT panel, the start position: Dead hang: arms COMPLETELY straight', PicturePrompt::pair($chin));
 
         // step 1 is that text, step 2 the double picture (cut in two in the browser into "start" and "end")
         $this->actingAs(User::factory()->admin()->create())->get(route('admin.exercises.pictures', ['q' => 'overhead dumbbell']))
