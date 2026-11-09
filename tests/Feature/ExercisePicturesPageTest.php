@@ -235,5 +235,53 @@ class ExercisePicturesPageTest extends TestCase
             ->assertSee('<input type="file" name="start" accept="image/*" hidden>', false)
             ->assertSee('<input type="file" name="end" accept="image/*" hidden>', false);
     }
-}
 
+    public function test_a_photo_of_the_hands_shows_gemini_the_grip(): void
+    {
+        $this->seed(ExercisesSeeder::class);
+        $admin = User::factory()->admin()->create();
+        $close = Exercise::where('name', 'Close-Grip Lat Pulldown')->sole();
+
+        // the width and both hands at the same places are spelled out
+        $pair = PicturePrompt::pair($close);
+        $this->assertStringContainsString('his hands are CLOSE together, only about shoulder-width apart, NOT out near the ends of the bar', $pair);
+        $this->assertStringContainsString('Both hands hold it the same way, symmetric left and right, at exactly the same places in both panels.', $pair);
+
+        // where the grip matters, the page has the sentence that goes with a photo of the hands, taken from the same side
+        $this->assertSame('behind', PicturePrompt::seenFrom($close));
+        $this->assertSame('front', PicturePrompt::seenFrom(Exercise::where('name', 'Chin-Up')->sole()));
+        $this->actingAs($admin)->get(route('admin.exercises.pictures', ['q' => 'close-grip lat']))
+            ->assertSee('القبضة طلعت غلط؟')
+            ->assertSee('وبنفس العرض، من ورا.')
+            ->assertSee(e(PicturePrompt::gripPhoto($close)), false);
+
+        // elsewhere there's nothing about the grip
+        $press = Exercise::where('name', 'Overhead Dumbbell Press')->sole();
+        $this->assertNull(PicturePrompt::gripPhoto($press));
+        $this->assertStringNotContainsString('Both hands hold it the same way', PicturePrompt::pair($press));
+        $this->actingAs($admin)->get(route('admin.exercises.pictures', ['q' => 'overhead dumbbell']))->assertDontSee('القبضة طلعت غلط؟');
+        $this->assertStringNotContainsString('Both hands', PicturePrompt::pair(Exercise::where('name', 'Single-Arm Reverse-Grip Cable Pushdown')->sole()));
+    }
+
+    public function test_the_bar_of_a_deadlift_is_drawn_in_front_of_the_legs(): void
+    {
+        $this->seed(ExercisesSeeder::class);
+
+        // seen from behind, Gemini drew the bar behind his legs: a profile view, and the bar spelled out in front
+        $deadlift = Exercise::where('name', 'Deadlift')->sole();
+        $pair = PicturePrompt::pair($deadlift);
+        $this->assertStringContainsString('Seen exactly from the side (a profile view, so it is obvious that the weight is in front of his legs)', $pair);
+        $this->assertStringContainsString('in both panels he is turned toward the RIGHT side of the picture', $pair);
+        $this->assertStringContainsString('Important: the bar stays IN FRONT of his legs, on the side his face looks toward', $pair);
+        $this->assertStringNotContainsString('from behind', $pair);
+        $this->assertStringContainsString('the bar stays IN FRONT of his legs', PicturePrompt::start($deadlift));
+        $this->assertSame('side', PicturePrompt::seenFrom($deadlift));
+
+        $this->assertStringContainsString('the dumbbells stay IN FRONT of his legs', PicturePrompt::pair(Exercise::where('name', 'Dumbbell Stiff-Leg Deadlift')->sole()));
+        $this->assertStringContainsString('the bar stays IN FRONT of his legs', PicturePrompt::pair(Exercise::where('name', 'Bent-Over Barbell Row')->sole()));
+
+        // the other back exercises stay seen from behind
+        $this->assertStringContainsString('we see him from behind', PicturePrompt::pair(Exercise::where('name', 'Seated Cable Row')->sole()));
+        $this->assertStringNotContainsString('IN FRONT of his legs', PicturePrompt::pair(Exercise::where('name', 'Seated Cable Row')->sole()));
+    }
+}
