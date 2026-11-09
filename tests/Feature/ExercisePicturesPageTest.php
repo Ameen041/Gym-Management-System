@@ -188,5 +188,21 @@ class ExercisePicturesPageTest extends TestCase
         $this->assertStringContainsString('/thumbs/', $press->thumbnail);
         $this->actingAs($admin)->post(route('admin.exercises.pictures.flip', [$press->id, 2]))->assertNotFound();
     }
+
+    public function test_the_end_picture_is_an_edit_of_the_start_picture(): void
+    {
+        $this->seed(ExercisesSeeder::class);
+        $press = Exercise::where('name', 'Overhead Dumbbell Press')->sole();
+        $edit = PicturePrompt::edit($press);
+
+        $this->assertStringStartsWith('Edit the attached picture. Change only the pose: show the END position of the movement. ', $edit);
+        $this->assertStringContainsString('Press the dumbbells overhead until his arms are straight.', $edit);
+        $this->assertStringContainsString('the same grip and hand position, the same equipment, machine and bench', $edit);
+
+        // on the page it is the second step, with the full text kept for when editing doesn't work
+        $this->actingAs(User::factory()->admin()->create())->get(route('admin.exercises.pictures', ['q' => 'overhead dumbbell']))
+            ->assertSee(e($edit), false)->assertSee('id="pe-' . $press->id . '"', false)
+            ->assertSee(e(PicturePrompt::end($press)), false);
+    }
 }
 

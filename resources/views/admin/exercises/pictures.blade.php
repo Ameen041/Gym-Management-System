@@ -15,7 +15,7 @@
   <ol>
     <li>{{ __('Open Gemini, start a new chat and choose "Create image".') }}</li>
     <li>{{ __('Copy the first text of the exercise, paste it in Gemini and send it.') }}</li>
-    <li>{{ __('Then copy the second text and send it: it is a full description of the end position, in the same style. If Gemini sends the first picture again, send it in a new chat.') }}</li>
+    <li>{{ __('For the end picture: tap + in Gemini, attach the start picture, paste the second text and send it. Gemini keeps the picture and changes only the pose.') }}</li>
     <li>{{ __('Download both pictures and upload them under the exercise: first the start, then the end.') }}</li>
     <li>{{ __('For a video: send the start picture to Gemini with the video text (step 4), download the video and upload it (step 5). It plays by itself on the exercise page, without sound.') }}</li>
   </ol>
@@ -76,10 +76,16 @@
         <div class="pic-step">
           <span class="pic-num">2</span>
           <div class="pic-text">
-            <div class="pic-label">{{ __('Second text: the end position') }}</div>
-            <p class="pic-prompt" dir="ltr" id="p2-{{ $exercise->id }}">{{ PicturePrompt::end($exercise) }}</p>
+            <div class="pic-label">{{ __('Second text: attach the start picture with it, and Gemini changes only the pose') }}</div>
+            <p class="pic-prompt" dir="ltr" id="pe-{{ $exercise->id }}">{{ PicturePrompt::edit($exercise) }}</p>
+            {{-- drawn from scratch instead, when editing gives the first picture back --}}
+            <details class="pic-alt">
+              <summary>{{ __('Gemini sent the same picture back? Use this text in a new chat instead') }}</summary>
+              <p class="pic-prompt" dir="ltr" id="p2-{{ $exercise->id }}">{{ PicturePrompt::end($exercise) }}</p>
+              <button type="button" class="btn btn-sm btn-secondary" data-copy-text="#p2-{{ $exercise->id }}" data-done="{{ __('Copied') }}"><i class="fas fa-copy"></i> {{ __('Copy') }}</button>
+            </details>
           </div>
-          <button type="button" class="btn btn-sm btn-primary" data-copy-text="#p2-{{ $exercise->id }}" data-done="{{ __('Copied') }}"><i class="fas fa-copy"></i> {{ __('Copy') }}</button>
+          <button type="button" class="btn btn-sm btn-primary" data-copy-text="#pe-{{ $exercise->id }}" data-done="{{ __('Copied') }}"><i class="fas fa-copy"></i> {{ __('Copy') }}</button>
         </div>
         @if($exercise->has_own_pictures)
           {{-- each picture can be changed on its own (it is sent as soon as it is chosen), or the two swapped --}}
@@ -199,6 +205,9 @@
   .pic-files{display:flex;gap:8px;flex-wrap:wrap}
   .pic-files label{display:grid;gap:4px;font-size:.85rem;font-weight:600;flex:1 1 200px}
   .pic-remove{justify-self:start}
+  .pic-alt{margin-top:6px}
+  .pic-alt > summary{cursor:pointer;font-size:.8rem;color:var(--gray-700)}
+  .pic-alt > .pic-prompt{margin:6px 0}
   .pic-pair{display:flex;gap:12px;flex-wrap:wrap}
   .pic-one{flex:1 1 160px;max-width:240px}
   .pic-one img,.pic-one .pic-none{width:100%;aspect-ratio:1;object-fit:contain;border-radius:10px;border:1px solid var(--gray-400);background:#fff}
