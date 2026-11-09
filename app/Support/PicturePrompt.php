@@ -224,8 +224,8 @@ class PicturePrompt
     // drawn from the front although they work the back: the grip is what tells them apart
     private const FROM_THE_FRONT = ['Chin-Up'];
 
-    // the weight hangs in front of the legs: seen from behind, Gemini drew the bar behind his legs, so these are drawn in profile
-    private const WEIGHT_IN_FRONT = '/\b(deadlift|rack pull|power clean|clean and press|bent-over barbell row|reverse-grip barbell row)\b/i';
+    // the bar is in front of the legs: seen from behind, Gemini drew it behind his legs (and the admin didn't want a profile view)
+    private const WEIGHT_IN_FRONT = '/\b(deadlift|rack pull|power clean|clean and press)\b/i';
 
     /** The grip, spelled out where it is what makes the exercise (Gemini drew a chin-up with an overhand grip). */
     private const GRIPS = [
@@ -271,7 +271,8 @@ class PicturePrompt
     public static function seenFrom(Exercise $exercise): string
     {
         return match (true) {
-            in_array($exercise->name, self::FROM_THE_FRONT, true) => 'front',
+            in_array($exercise->name, self::FROM_THE_FRONT, true),
+            (bool) preg_match(self::WEIGHT_IN_FRONT, $exercise->name)  => 'front',
             self::fromBehind($exercise)                            => 'behind',
             default                                                => 'side',
         };
@@ -297,7 +298,8 @@ class PicturePrompt
         }
 
         if (preg_match(self::WEIGHT_IN_FRONT, $exercise->name)) {
-            return 'exactly from the side (a profile view, so it is obvious that the weight is in front of his legs)';
+            return 'from a 3/4 front angle (between the front and the side, not a flat profile view), so the weight is clearly '
+                . 'in front of his legs, between him and the camera';
         }
 
         if (in_array($exercise->name, self::FROM_THE_FRONT, true)) {

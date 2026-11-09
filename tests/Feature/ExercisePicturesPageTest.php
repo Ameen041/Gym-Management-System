@@ -267,21 +267,23 @@ class ExercisePicturesPageTest extends TestCase
     {
         $this->seed(ExercisesSeeder::class);
 
-        // seen from behind, Gemini drew the bar behind his legs: a profile view, and the bar spelled out in front
+        // seen from behind, Gemini drew the bar behind his legs: seen from the front at an angle, and the bar spelled out in front
         $deadlift = Exercise::where('name', 'Deadlift')->sole();
         $pair = PicturePrompt::pair($deadlift);
-        $this->assertStringContainsString('Seen exactly from the side (a profile view, so it is obvious that the weight is in front of his legs)', $pair);
+        $this->assertStringContainsString('Seen from a 3/4 front angle (between the front and the side, not a flat profile view), so the weight is clearly in front of his legs, between him and the camera', $pair);
         $this->assertStringContainsString('in both panels he is turned toward the RIGHT side of the picture', $pair);
         $this->assertStringContainsString('Important: the bar stays IN FRONT of his legs, on the side his face looks toward', $pair);
         $this->assertStringNotContainsString('from behind', $pair);
         $this->assertStringContainsString('the bar stays IN FRONT of his legs', PicturePrompt::start($deadlift));
-        $this->assertSame('side', PicturePrompt::seenFrom($deadlift));
+        $this->assertSame('front', PicturePrompt::seenFrom($deadlift));
 
         $this->assertStringContainsString('the dumbbells stay IN FRONT of his legs', PicturePrompt::pair(Exercise::where('name', 'Dumbbell Stiff-Leg Deadlift')->sole()));
-        $this->assertStringContainsString('the bar stays IN FRONT of his legs', PicturePrompt::pair(Exercise::where('name', 'Bent-Over Barbell Row')->sole()));
+        $this->assertStringContainsString('the bar stays IN FRONT of his legs', PicturePrompt::pair(Exercise::where('name', 'Rack Pull')->sole()));
 
         // the other back exercises stay seen from behind
-        $this->assertStringContainsString('we see him from behind', PicturePrompt::pair(Exercise::where('name', 'Seated Cable Row')->sole()));
-        $this->assertStringNotContainsString('IN FRONT of his legs', PicturePrompt::pair(Exercise::where('name', 'Seated Cable Row')->sole()));
+        foreach (['Seated Cable Row', 'Bent-Over Barbell Row'] as $name) {
+            $this->assertStringContainsString('we see him from behind', PicturePrompt::pair(Exercise::where('name', $name)->sole()));
+            $this->assertStringNotContainsString('IN FRONT of his legs', PicturePrompt::pair(Exercise::where('name', $name)->sole()));
+        }
     }
 }
