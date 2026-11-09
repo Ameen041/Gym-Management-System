@@ -1224,5 +1224,10 @@
     "Picture turned around for \":name\".": "تم قلب صورة تمرين \":name\".",
     "Second text: attach the start picture with it, and Gemini changes only the pose": "النص التاني: أرفق معه صورة البداية، وجيميناي بيغيّر الوضعية بس",
     "Gemini sent the same picture back? Use this text in a new chat instead": "رجّعلك نفس الصورة؟ استعمل هالنص بمحادثة جديدة بدالُه",
-    "For the end picture: tap + in Gemini, attach the start picture, paste the second text and send it. Gemini keeps the picture and changes only the pose.": "لصورة النهاية: اكبس + بجيميناي، وأرفق صورة البداية، والصق النص التاني وابعته. جيميناي بيحافظ على الصورة وبيغيّر الوضعية بس."
+    "For the end picture: tap + in Gemini, attach the start picture, paste the second text and send it. Gemini keeps the picture and changes only the pose.": "لصورة النهاية: اكبس + بجيميناي، وأرفق صورة البداية، والصق النص التاني وابعته. جيميناي بيحافظ على الصورة وبيغيّر الوضعية بس.",
+    "The text: both positions in one picture, side by side": "النص: الوضعيتين بصورة وحدة، جنب بعض",
+    "Upload the double picture: it is cut in two by itself": "ارفع الصورة المزدوجة: بتنقسم لنصين لحالها",
+    "Another way: each picture on its own": "طريقة تانية: كل صورة لحالها",
+    "Copy the text of the exercise (step 1) and send it: Gemini draws the start and the end side by side, in one picture, with the same person and the same equipment.": "انسخ نص التمرين (الخطوة ١) وابعته: جيميناي بيرسم البداية والنهاية جنب بعض بصورة وحدة، بنفس الشخص ونفس الأدوات.",
+    "Download the picture and upload it under the exercise (step 2): it is cut in two by itself, left half the start and right half the end. Check them and save.": "نزّل الصورة وارفعها تحت التمرين (الخطوة ٢): بتنقسم لحالها لنصين، النص اليسار البداية واليمين النهاية. تأكد منهن واكبس حفظ."
 }

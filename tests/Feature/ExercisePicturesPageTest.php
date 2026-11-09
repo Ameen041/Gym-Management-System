@@ -204,5 +204,24 @@ class ExercisePicturesPageTest extends TestCase
             ->assertSee(e($edit), false)->assertSee('id="pe-' . $press->id . '"', false)
             ->assertSee(e(PicturePrompt::end($press)), false);
     }
+
+    public function test_both_positions_are_asked_for_in_one_picture_that_the_page_cuts_in_two(): void
+    {
+        $this->seed(ExercisesSeeder::class);
+        $press = Exercise::where('name', 'Overhead Dumbbell Press')->sole();
+        $pair = PicturePrompt::pair($press);
+
+        $this->assertStringContainsString('ONE wide 16:9 image made of TWO panels side by side', $pair);
+        $this->assertStringContainsString('LEFT panel, the start position: Sit on a bench with back support', $pair);
+        $this->assertStringContainsString('RIGHT panel, the end position: Press the dumbbells overhead', $pair);
+        $this->assertStringContainsString('the same grip, the same equipment with the same shape and size', $pair);
+        $this->assertStringContainsString('in both panels he is turned toward the RIGHT side of the picture', $pair);
+
+        // step 1 is that text, step 2 the double picture (cut in two in the browser into "start" and "end")
+        $this->actingAs(User::factory()->admin()->create())->get(route('admin.exercises.pictures', ['q' => 'overhead dumbbell']))
+            ->assertSee(e($pair), false)->assertSee('data-split', false)
+            ->assertSee('<input type="file" name="start" accept="image/*" hidden>', false)
+            ->assertSee('<input type="file" name="end" accept="image/*" hidden>', false);
+    }
 }
 

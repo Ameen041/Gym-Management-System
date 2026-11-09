@@ -110,6 +110,38 @@ class PicturePrompt
     }
 
     /**
+     * Both positions in one picture, side by side: drawn together, they have the same person, grip and machine
+     * (drawn apart or edited, they didn't). The pictures page cuts it in two: left the start, right the end.
+     */
+    public static function pair(Exercise $exercise): string
+    {
+        [$start, $end] = self::positions($exercise);
+        $muscles = $exercise->muscles;
+        $back = (bool) array_intersect($muscles['primary'], self::BACK_MUSCLES);
+
+        $equipment = trim((string) $exercise->equipment);
+        $what = $exercise->name . ($equipment !== '' && stripos($equipment, 'bodyweight') === false ? ' (' . $equipment . ')' : '');
+        $direction = preg_replace(['/^Direction: /', '/ Keep exactly this direction, do not mirror the picture\.$/'], ['', ''], self::direction($exercise, $back));
+
+        $text = 'Clean anatomical fitness illustration, 3D render style. ONE wide 16:9 image made of TWO panels side by side, '
+            . 'separated by a thin vertical white gap, showing two moments of the ' . $what . '. '
+            . 'LEFT panel, the start position: ' . $start . ' '
+            . 'RIGHT panel, the end position: ' . $end . ' '
+            . 'Both panels show exactly the same muscular male athlete with smooth light-gray skin and black shorts, the same grip, '
+            . 'the same equipment with the same shape and size, seen ' . self::angle($exercise, $back) . ', and in both panels '
+            . rtrim($direction, '.') . '. Only the pose is different. '
+            . (($note = self::note($exercise)) ? $note . ' ' : '')
+            . 'In both panels, highlighted in bright red: the ' . self::list($muscles['primary']);
+        if ($muscles['secondary']) {
+            $text .= '. In light red: the ' . self::list($muscles['secondary']);
+        }
+
+        return $text . '. Every other muscle stays gray. Correct, safe technique. Plain white background, dark-gray gym equipment, '
+            . 'the whole athlete and all the equipment inside each panel with white space around them. No text, no numbers, '
+            . 'no arrows, no logos.';
+    }
+
+    /**
      * The end picture as an edit of the start picture (attached to the message): drawn from scratch, the grip and the
      * machine came out different, so only the pose is changed and everything else is kept.
      */
