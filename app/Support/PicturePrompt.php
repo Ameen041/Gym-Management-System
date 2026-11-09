@@ -224,8 +224,8 @@ class PicturePrompt
     // drawn from the front although they work the back: the grip is what tells them apart
     private const FROM_THE_FRONT = ['Chin-Up'];
 
-    // the bar is in front of the legs: seen from behind, Gemini drew it behind his legs (and the admin didn't want a profile view)
-    private const WEIGHT_IN_FRONT = '/\b(deadlift|rack pull|power clean|clean and press)\b/i';
+    // the bar is in front of the legs: seen from behind, Gemini drew it behind his legs, so where it is, and what can be seen of it, is spelled out
+    private const WEIGHT_IN_FRONT = '/\b(deadlift|rack pull)\b/i';
 
     /** The grip, spelled out where it is what makes the exercise (Gemini drew a chin-up with an overhand grip). */
     private const GRIPS = [
@@ -271,8 +271,7 @@ class PicturePrompt
     public static function seenFrom(Exercise $exercise): string
     {
         return match (true) {
-            in_array($exercise->name, self::FROM_THE_FRONT, true),
-            (bool) preg_match(self::WEIGHT_IN_FRONT, $exercise->name)  => 'front',
+            in_array($exercise->name, self::FROM_THE_FRONT, true) => 'front',
             self::fromBehind($exercise)                            => 'behind',
             default                                                => 'side',
         };
@@ -281,7 +280,6 @@ class PicturePrompt
     private static function fromBehind(Exercise $exercise): bool
     {
         return !in_array($exercise->name, self::FROM_THE_FRONT, true)
-            && !preg_match(self::WEIGHT_IN_FRONT, $exercise->name)
             && (bool) array_intersect($exercise->muscles['primary'], self::BACK_MUSCLES);
     }
 
@@ -295,11 +293,6 @@ class PicturePrompt
     {
         if (str_contains($exercise->name, 'Decline') && !str_contains($exercise->name, 'Push-Up')) {
             return 'exactly from the side (a profile view, head on the left, so the slope of the bench is obvious)';
-        }
-
-        if (preg_match(self::WEIGHT_IN_FRONT, $exercise->name)) {
-            return 'from a 3/4 front angle (between the front and the side, not a flat profile view), so the weight is clearly '
-                . 'in front of his legs, between him and the camera';
         }
 
         if (in_array($exercise->name, self::FROM_THE_FRONT, true)) {
@@ -319,6 +312,13 @@ class PicturePrompt
         return match (true) {
             $name === 'Decline Push-Up' => 'Important: his feet are raised on a bench behind him, so his head is clearly lower than his feet.',
             $name === 'Incline Push-Up' => 'Important: his hands are on a raised bench, so his head is clearly higher than his feet.',
+            // the deadlift is seen from behind (it works the back): the bar is then on the far side of his legs
+            preg_match(self::WEIGHT_IN_FRONT, $name) && self::fromBehind($exercise) => str_contains($name, 'Dumbbell')
+                ? 'Important: we see him from behind, so the dumbbells are on the FAR side of his legs, in front of his thighs, and his '
+                    . 'legs partly hide them. His arms hang down in front of his legs. The dumbbells are never between his legs and the camera.'
+                : 'Important: we see him from behind, so the bar is on the FAR side of his legs, in front of his shins and thighs: his legs '
+                    . 'hide the middle of the bar, and only its two ends with the plates stick out on both sides of his legs. His arms hang '
+                    . 'down in front of his legs to the bar. The bar is never between his legs and the camera.',
             (bool) preg_match(self::WEIGHT_IN_FRONT, $name) => 'Important: ' . (str_contains($name, 'Dumbbell') ? 'the dumbbells stay' : 'the bar stays')
                 . ' IN FRONT of his legs, on the side his face looks toward, close to his shins and thighs; never behind his legs.',
             $name === 'Incline Reverse Dumbbell Fly' => 'Important: he lies chest-down on a bench raised to about 30 degrees, facing the floor.',
