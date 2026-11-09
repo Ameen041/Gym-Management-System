@@ -235,5 +235,31 @@ class ExercisePicturesPageTest extends TestCase
             ->assertSee('<input type="file" name="start" accept="image/*" hidden>', false)
             ->assertSee('<input type="file" name="end" accept="image/*" hidden>', false);
     }
-}
 
+    public function test_a_photo_of_the_hands_shows_gemini_the_grip(): void
+    {
+        $this->seed(ExercisesSeeder::class);
+        $admin = User::factory()->admin()->create();
+        $close = Exercise::where('name', 'Close-Grip Lat Pulldown')->sole();
+
+        // the width and both hands at the same places are spelled out
+        $pair = PicturePrompt::pair($close);
+        $this->assertStringContainsString('his hands are CLOSE together, only about shoulder-width apart, NOT out near the ends of the bar', $pair);
+        $this->assertStringContainsString('Both hands hold it the same way, symmetric left and right, at exactly the same places in both panels.', $pair);
+
+        // where the grip matters, the page has the sentence that goes with a photo of the hands, taken from the same side
+        $this->assertSame('behind', PicturePrompt::seenFrom($close));
+        $this->assertSame('front', PicturePrompt::seenFrom(Exercise::where('name', 'Chin-Up')->sole()));
+        $this->actingAs($admin)->get(route('admin.exercises.pictures', ['q' => 'close-grip lat']))
+            ->assertSee('القبضة طلعت غلط؟')
+            ->assertSee('وبنفس العرض، من ورا.')
+            ->assertSee(e(PicturePrompt::gripPhoto($close)), false);
+
+        // elsewhere there's nothing about the grip
+        $press = Exercise::where('name', 'Overhead Dumbbell Press')->sole();
+        $this->assertNull(PicturePrompt::gripPhoto($press));
+        $this->assertStringNotContainsString('Both hands hold it the same way', PicturePrompt::pair($press));
+        $this->actingAs($admin)->get(route('admin.exercises.pictures', ['q' => 'overhead dumbbell']))->assertDontSee('القبضة طلعت غلط؟');
+        $this->assertStringNotContainsString('Both hands', PicturePrompt::pair(Exercise::where('name', 'Single-Arm Reverse-Grip Cable Pushdown')->sole()));
+    }
+}

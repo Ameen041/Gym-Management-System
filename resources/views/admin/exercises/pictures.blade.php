@@ -69,6 +69,15 @@
           <div class="pic-text">
             <div class="pic-label">{{ __('The text: both positions in one picture, side by side') }}</div>
             <p class="pic-prompt" dir="ltr" id="pp-{{ $exercise->id }}">{{ PicturePrompt::pair($exercise) }}</p>
+            @if ($gripPhoto = PicturePrompt::gripPhoto($exercise))
+              {{-- Gemini doesn't always draw the grip from the text: a photo of the admin's hands shows it --}}
+              <details class="pic-alt pic-grip">
+                <summary>{{ __('The grip came out wrong?') }}</summary>
+                <p class="pic-grip-how">{{ __('Take a photo of your hands holding a bar or a stick with the grip of this exercise and the same width, :side. In a new Gemini chat, attach the photo, paste the text above and add this sentence after it:', ['side' => match (PicturePrompt::seenFrom($exercise)) { 'behind' => __('seen from behind'), 'front' => __('seen from front'), default => __('seen from side') }]) }}</p>
+                <p class="pic-prompt" dir="ltr" id="pg-{{ $exercise->id }}">{{ $gripPhoto }}</p>
+                <button type="button" class="btn btn-sm btn-secondary" data-copy-text="#pg-{{ $exercise->id }}" data-done="{{ __('Copied') }}"><i class="fas fa-copy"></i> {{ __('Copy') }}</button>
+              </details>
+            @endif
           </div>
           <button type="button" class="btn btn-sm btn-primary" data-copy-text="#pp-{{ $exercise->id }}" data-done="{{ __('Copied') }}"><i class="fas fa-copy"></i> {{ __('Copy') }}</button>
         </div>
@@ -246,6 +255,7 @@
   .pic-alt{margin-top:6px}
   .pic-alt > summary{cursor:pointer;font-size:.8rem;color:var(--gray-700)}
   .pic-alt > .pic-prompt{margin:6px 0}
+  .pic-grip-how{font-size:.82rem;line-height:1.6;margin:6px 0 0}
   .pic-pair{display:flex;gap:12px;flex-wrap:wrap}
   .pic-one{flex:1 1 160px;max-width:240px}
   .pic-one img,.pic-one .pic-none{width:100%;aspect-ratio:1;object-fit:contain;border-radius:10px;border:1px solid var(--gray-400);background:#fff}

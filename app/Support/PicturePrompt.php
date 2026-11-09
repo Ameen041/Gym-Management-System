@@ -135,6 +135,8 @@ class PicturePrompt
             . 'same muscular male athlete with smooth light-gray skin and black shorts with the same grip; only his pose changes. '
             . 'Seen ' . self::angle($exercise, $back) . '; in both panels ' . rtrim($direction, '.') . '. '
             . self::grip($exercise)
+            . (self::grip($exercise) !== '' && !str_contains($exercise->name, 'Single-Arm')
+                ? 'Both hands hold it the same way, symmetric left and right, at exactly the same places in both panels. ' : '')
             . (($note = self::note($exercise)) ? $note . ' ' : '')
             . 'In both panels, highlighted in bright red: the ' . self::list($muscles['primary']);
         if ($muscles['secondary']) {
@@ -230,7 +232,9 @@ class PicturePrompt
             . 'from his head; hands about shoulder-width apart. Not an overhand grip',
         'Pull-Up'                                => 'OVERHAND (pronated): palms facing away from him, hands slightly wider than his shoulders',
         'Lat Pulldown'                           => 'OVERHAND (pronated): palms facing away from him, hands slightly wider than his shoulders',
-        'Close-Grip Lat Pulldown'                => 'OVERHAND (pronated): palms facing away from him, hands about shoulder-width apart',
+        // Gemini put the hands out at the ends of the bar, like the wide pulldown
+        'Close-Grip Lat Pulldown'                => 'OVERHAND (pronated): palms facing away from him; his hands are CLOSE together, only '
+            . 'about shoulder-width apart, NOT out near the ends of the bar',
         'V-Bar Lat Pulldown'                     => 'NEUTRAL: palms facing each other on the V-bar handle',
         'Bent-Over Barbell Row'                  => 'OVERHAND (pronated): palms facing his body, hands slightly wider than his shoulders',
         'Reverse-Grip Barbell Row'               => 'UNDERHAND (supinated): palms facing forward, away from his body, hands about shoulder-width apart',
@@ -246,6 +250,29 @@ class PicturePrompt
         'Barbell Wrist Curl'                     => 'palms facing UP, forearms resting on the bench',
         'Reverse Barbell Wrist Curl'             => 'palms facing DOWN, forearms resting on the bench',
     ];
+
+    /**
+     * Gemini doesn't always draw the grip the text asks for: a photo of the admin's own hands, attached to the message,
+     * shows it. The sentence that goes with the photo, for the exercises where the grip matters.
+     */
+    public static function gripPhoto(Exercise $exercise): ?string
+    {
+        return isset(self::GRIPS[$exercise->name])
+            ? 'The attached photo is ONLY a reference for the grip: draw his hands, and how they hold the equipment, exactly '
+                . 'like the hands in the photo. Do not copy anything else from the photo (the person, clothes or background); '
+                . 'everything else follows the text above.'
+            : null;
+    }
+
+    /** Where the picture is seen from, so the photo of the hands is taken from the same side: behind, front or side. */
+    public static function seenFrom(Exercise $exercise): string
+    {
+        return match (true) {
+            in_array($exercise->name, self::FROM_THE_FRONT, true) => 'front',
+            self::fromBehind($exercise)                            => 'behind',
+            default                                                => 'side',
+        };
+    }
 
     private static function fromBehind(Exercise $exercise): bool
     {

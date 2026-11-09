@@ -1229,5 +1229,10 @@
     "Upload the double picture: it is cut in two by itself": "ارفع الصورة المزدوجة: بتنقسم لنصين لحالها",
     "Another way: each picture on its own": "طريقة تانية: كل صورة لحالها",
     "Copy the text of the exercise (step 1) and send it: Gemini draws the start and the end side by side, in one picture, with the same person and the same equipment.": "انسخ نص التمرين (الخطوة ١) وابعته: جيميناي بيرسم البداية والنهاية جنب بعض بصورة وحدة، بنفس الشخص ونفس الأدوات.",
-    "Download the picture and upload it under the exercise (step 2): it is cut in two by itself, left half the start and right half the end. Check them and save.": "نزّل الصورة وارفعها تحت التمرين (الخطوة ٢): بتنقسم لحالها لنصين، النص اليسار البداية واليمين النهاية. تأكد منهن واكبس حفظ."
+    "Download the picture and upload it under the exercise (step 2): it is cut in two by itself, left half the start and right half the end. Check them and save.": "نزّل الصورة وارفعها تحت التمرين (الخطوة ٢): بتنقسم لحالها لنصين، النص اليسار البداية واليمين النهاية. تأكد منهن واكبس حفظ.",
+    "The grip came out wrong?": "القبضة طلعت غلط؟",
+    "Take a photo of your hands holding a bar or a stick with the grip of this exercise and the same width, :side. In a new Gemini chat, attach the photo, paste the text above and add this sentence after it:": "صوّر إيديك وإنت ماسك بار أو عصاية بنفس قبضة هالتمرين وبنفس العرض، :side. بمحادثة جديدة بجيميناي، ارفق الصورة، والصق النص اللي فوق، وزيد بعده هالجملة:",
+    "seen from behind": "من ورا",
+    "seen from front": "من قدّام",
+    "seen from side": "من الجنب"
 }
