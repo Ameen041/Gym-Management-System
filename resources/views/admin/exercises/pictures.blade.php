@@ -14,9 +14,8 @@
   <h3><i class="fas fa-circle-info"></i> {{ __('How to make them') }}</h3>
   <ol>
     <li>{{ __('Open Gemini, start a new chat and choose "Create image".') }}</li>
-    <li>{{ __('Copy the first text of the exercise, paste it in Gemini and send it.') }}</li>
-    <li>{{ __('For the end picture: tap + in Gemini, attach the start picture, paste the second text and send it. Gemini keeps the picture and changes only the pose.') }}</li>
-    <li>{{ __('Download both pictures and upload them under the exercise: first the start, then the end.') }}</li>
+    <li>{{ __('Copy the text of the exercise (step 1) and send it: Gemini draws the start and the end side by side, in one picture, with the same person and the same equipment.') }}</li>
+    <li>{{ __('Download the picture and upload it under the exercise (step 2): it is cut in two by itself, left half the start and right half the end. Check them and save.') }}</li>
     <li>{{ __('For a video: send the start picture to Gemini with the video text (step 4), download the video and upload it (step 5). It plays by itself on the exercise page, without sound.') }}</li>
   </ol>
   <p class="muted small">{{ __('A picture with a mistake (an extra arm, a bent bar, a wrong position)? Ask Gemini again in a new chat. Pictures are saved on the server; keep a copy of them on your computer too.') }}</p>
@@ -68,25 +67,29 @@
         <div class="pic-step">
           <span class="pic-num">1</span>
           <div class="pic-text">
-            <div class="pic-label">{{ __('First text: the start position') }}</div>
-            <p class="pic-prompt" dir="ltr" id="p1-{{ $exercise->id }}">{{ PicturePrompt::start($exercise) }}</p>
+            <div class="pic-label">{{ __('The text: both positions in one picture, side by side') }}</div>
+            <p class="pic-prompt" dir="ltr" id="pp-{{ $exercise->id }}">{{ PicturePrompt::pair($exercise) }}</p>
           </div>
-          <button type="button" class="btn btn-sm btn-primary" data-copy-text="#p1-{{ $exercise->id }}" data-done="{{ __('Copied') }}"><i class="fas fa-copy"></i> {{ __('Copy') }}</button>
+          <button type="button" class="btn btn-sm btn-primary" data-copy-text="#pp-{{ $exercise->id }}" data-done="{{ __('Copied') }}"><i class="fas fa-copy"></i> {{ __('Copy') }}</button>
         </div>
-        <div class="pic-step">
+        {{-- the double picture is cut in two in the browser: left half the start, right half the end --}}
+        <form class="pic-step" method="POST" action="{{ route('admin.exercises.pictures.store', $exercise->id) }}" enctype="multipart/form-data" data-upload>
+          @csrf
           <span class="pic-num">2</span>
           <div class="pic-text">
-            <div class="pic-label">{{ __('Second text: attach the start picture with it, and Gemini changes only the pose') }}</div>
-            <p class="pic-prompt" dir="ltr" id="pe-{{ $exercise->id }}">{{ PicturePrompt::edit($exercise) }}</p>
-            {{-- drawn from scratch instead, when editing gives the first picture back --}}
-            <details class="pic-alt">
-              <summary>{{ __('Gemini sent the same picture back? Use this text in a new chat instead') }}</summary>
-              <p class="pic-prompt" dir="ltr" id="p2-{{ $exercise->id }}">{{ PicturePrompt::end($exercise) }}</p>
-              <button type="button" class="btn btn-sm btn-secondary" data-copy-text="#p2-{{ $exercise->id }}" data-done="{{ __('Copied') }}"><i class="fas fa-copy"></i> {{ __('Copy') }}</button>
-            </details>
+            <div class="pic-label">{{ __('Upload the double picture: it is cut in two by itself') }}</div>
+            <input type="file" accept="image/*" class="form-control" data-split>
+            <input type="file" name="start" accept="image/*" hidden>
+            <input type="file" name="end" accept="image/*" hidden>
+            <div class="pic-split" data-split-preview hidden>
+              <figure><figcaption>{{ __('Start') }}</figcaption><img alt="" data-split-start></figure>
+              <figure><figcaption>{{ __('End') }}</figcaption><img alt="" data-split-end></figure>
+            </div>
+            <div class="upload-progress" data-upload-progress hidden><span></span></div>
+            <div class="upload-error" data-upload-error hidden></div>
           </div>
-          <button type="button" class="btn btn-sm btn-primary" data-copy-text="#pe-{{ $exercise->id }}" data-done="{{ __('Copied') }}"><i class="fas fa-copy"></i> {{ __('Copy') }}</button>
-        </div>
+          <button class="btn btn-sm btn-success" disabled data-split-save><i class="fas fa-upload"></i> {{ __('Save') }}</button>
+        </form>
         @if($exercise->has_own_pictures)
           {{-- each picture can be changed on its own (it is sent as soon as it is chosen), or the two swapped --}}
           <div class="pic-step">
@@ -130,10 +133,36 @@
               @endif
             </div>
           </div>
-        @else
+        @endif
+        <details class="pic-more">
+          <summary>{{ __('Another way: each picture on its own') }}</summary>
+          <div class="pic-steps">
+        <div class="pic-step">
+          <span class="pic-num">+</span>
+          <div class="pic-text">
+            <div class="pic-label">{{ __('First text: the start position') }}</div>
+            <p class="pic-prompt" dir="ltr" id="p1-{{ $exercise->id }}">{{ PicturePrompt::start($exercise) }}</p>
+          </div>
+          <button type="button" class="btn btn-sm btn-primary" data-copy-text="#p1-{{ $exercise->id }}" data-done="{{ __('Copied') }}"><i class="fas fa-copy"></i> {{ __('Copy') }}</button>
+        </div>
+        <div class="pic-step">
+          <span class="pic-num">+</span>
+          <div class="pic-text">
+            <div class="pic-label">{{ __('Second text: attach the start picture with it, and Gemini changes only the pose') }}</div>
+            <p class="pic-prompt" dir="ltr" id="pe-{{ $exercise->id }}">{{ PicturePrompt::edit($exercise) }}</p>
+            {{-- drawn from scratch instead, when editing gives the first picture back --}}
+            <details class="pic-alt">
+              <summary>{{ __('Gemini sent the same picture back? Use this text in a new chat instead') }}</summary>
+              <p class="pic-prompt" dir="ltr" id="p2-{{ $exercise->id }}">{{ PicturePrompt::end($exercise) }}</p>
+              <button type="button" class="btn btn-sm btn-secondary" data-copy-text="#p2-{{ $exercise->id }}" data-done="{{ __('Copied') }}"><i class="fas fa-copy"></i> {{ __('Copy') }}</button>
+            </details>
+          </div>
+          <button type="button" class="btn btn-sm btn-primary" data-copy-text="#pe-{{ $exercise->id }}" data-done="{{ __('Copied') }}"><i class="fas fa-copy"></i> {{ __('Copy') }}</button>
+        </div>
+            @unless($exercise->has_own_pictures)
         <form class="pic-step" method="POST" action="{{ route('admin.exercises.pictures.store', $exercise->id) }}" enctype="multipart/form-data" data-upload>
           @csrf
-          <span class="pic-num">3</span>
+          <span class="pic-num">+</span>
           <div class="pic-text">
             <div class="pic-label">{{ __('Upload the two pictures') }}</div>
             <div class="pic-files">
@@ -143,9 +172,11 @@
             <div class="upload-progress" data-upload-progress hidden><span></span></div>
             <div class="upload-error" data-upload-error hidden></div>
           </div>
-          <button class="btn btn-sm btn-success"><i class="fas fa-upload"></i> {{ __('Save') }}</button>
+          <button class="btn btn-sm btn-secondary"><i class="fas fa-upload"></i> {{ __('Save') }}</button>
         </form>
-        @endif
+            @endunless
+          </div>
+        </details>
         <div class="pic-step">
           <span class="pic-num">4</span>
           <div class="pic-text">
@@ -205,6 +236,13 @@
   .pic-files{display:flex;gap:8px;flex-wrap:wrap}
   .pic-files label{display:grid;gap:4px;font-size:.85rem;font-weight:600;flex:1 1 200px}
   .pic-remove{justify-self:start}
+  .pic-split{display:flex;gap:8px;margin-top:8px}
+  .pic-split figure{margin:0;flex:1 1 0;min-width:0}
+  .pic-split figcaption{font-size:.8rem;font-weight:700;margin-bottom:4px}
+  .pic-split img{width:100%;aspect-ratio:1;object-fit:contain;border:1px solid var(--gray-400);border-radius:10px;background:#fff}
+  .pic-more{border-top:1px dashed var(--gray-400);padding-top:8px}
+  .pic-more > summary{cursor:pointer;font-weight:700;font-size:.85rem;color:var(--gray-700)}
+  .pic-more > .pic-steps{margin-top:10px}
   .pic-alt{margin-top:6px}
   .pic-alt > summary{cursor:pointer;font-size:.8rem;color:var(--gray-700)}
   .pic-alt > .pic-prompt{margin:6px 0}
@@ -221,6 +259,45 @@
 </style>
 
 <script>
+  // a double picture (start | end): cut at the whitest column near the middle, each half goes to its own input
+  document.addEventListener('change', function (e) {
+    var input = e.target.closest && e.target.closest('input[data-split]');
+    if (!input || !input.files || !input.files[0] || !window.DataTransfer) return;
+    var form = input.form, save = form.querySelector('[data-split-save]');
+    save.disabled = true;
+    var url = URL.createObjectURL(input.files[0]), img = new Image();
+    img.onload = function () {
+      var w = img.naturalWidth, h = img.naturalHeight;
+      var c = document.createElement('canvas'); c.width = w; c.height = h;
+      var ctx = c.getContext('2d'); ctx.drawImage(img, 0, 0);
+      var data = ctx.getImageData(0, 0, w, h).data, best = Math.round(w / 2), bestScore = -1;
+      for (var x = Math.round(w * 0.35); x <= Math.round(w * 0.65); x++) {
+        var sum = 0;
+        for (var y = 0; y < h; y += 4) { var i = (y * w + x) * 4; sum += data[i] + data[i + 1] + data[i + 2]; }
+        // the whitest column, and the nearer the middle the better when there is a tie
+        var score = sum - Math.abs(x - w / 2);
+        if (score > bestScore) { bestScore = score; best = x; }
+      }
+      var halves = [[0, best], [best, w - best]], done = 0;
+      halves.forEach(function (part, n) {
+        var hc = document.createElement('canvas'); hc.width = part[1]; hc.height = h;
+        hc.getContext('2d').drawImage(c, part[0], 0, part[1], h, 0, 0, part[1], h);
+        hc.toBlob(function (blob) {
+          var name = n === 0 ? 'start' : 'end', list = new DataTransfer();
+          list.items.add(new File([blob], name + '.png', { type: 'image/png' }));
+          form.querySelector('input[name="' + name + '"]').files = list.files;
+          form.querySelector('[data-split-' + name + ']').src = URL.createObjectURL(blob);
+          if (++done === 2) {
+            form.querySelector('[data-split-preview]').hidden = false;
+            save.disabled = false;
+            URL.revokeObjectURL(url);
+          }
+        }, 'image/png');
+      });
+    };
+    img.src = url;
+  });
+
   // "Change": the picture is sent as soon as it is chosen
   document.addEventListener('change', function (e) {
     var input = e.target.closest && e.target.closest('input[data-autosubmit]');
