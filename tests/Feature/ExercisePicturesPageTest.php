@@ -286,4 +286,15 @@ class ExercisePicturesPageTest extends TestCase
             $this->assertStringNotContainsString('FAR side of his legs', PicturePrompt::pair(Exercise::where('name', $name)->sole()));
         }
     }
+
+    public function test_the_page_links_are_the_apps_own(): void
+    {
+        $this->seed(ExercisesSeeder::class);
+
+        // the default links are drawn with Tailwind, which the admin pages don't load: they showed up as two huge arrows
+        $this->actingAs(User::factory()->admin()->create())->get(route('admin.exercises.pictures', ['show' => 'all']))->assertOk()
+            ->assertSee('<nav class="pager"', false)
+            ->assertSee(e(route('admin.exercises.pictures', ['show' => 'all', 'page' => 2])), false)
+            ->assertDontSee('relative inline-flex', false);
+    }
 }
