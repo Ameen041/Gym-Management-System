@@ -224,7 +224,8 @@
     </div>
   @endforelse
 
-  <div style="margin-top:16px">{{ $exercises->links() }}</div>
+  {{-- the app's own page links: the default ones are drawn with Tailwind, which the admin pages don't have (two huge arrows) --}}
+  <div style="margin-top:16px">{{ $exercises->links('partials.pager') }}</div>
 </div>
 
 <style>
