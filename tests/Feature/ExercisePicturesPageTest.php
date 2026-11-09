@@ -214,8 +214,18 @@ class ExercisePicturesPageTest extends TestCase
         $this->assertStringContainsString('ONE wide 16:9 image made of TWO panels side by side', $pair);
         $this->assertStringContainsString('LEFT panel, the start position: Sit on a bench with back support', $pair);
         $this->assertStringContainsString('RIGHT panel, the end position: Press the dumbbells overhead', $pair);
-        $this->assertStringContainsString('the same grip, the same equipment with the same shape and size', $pair);
+        $this->assertStringContainsString('like two frames of the same video', $pair);
+        $this->assertStringContainsString('the same equipment in the same place with exactly the same shape and size', $pair);
         $this->assertStringContainsString('in both panels he is turned toward the RIGHT side of the picture', $pair);
+
+        // the chin-up: drawn from the front with its underhand grip spelled out, in every text
+        $chin = Exercise::where('name', 'Chin-Up')->sole();
+        foreach ([PicturePrompt::pair($chin), PicturePrompt::start($chin), PicturePrompt::end($chin), PicturePrompt::edit($chin)] as $text) {
+            $this->assertStringContainsString('Grip: UNDERHAND (supinated): palms facing toward his face', $text);
+        }
+        $this->assertStringContainsString('from a 3/4 front angle', PicturePrompt::pair($chin));
+        $this->assertStringNotContainsString('from behind', PicturePrompt::pair($chin));
+        $this->assertStringContainsString('until his chin is above the bar', PicturePrompt::pair($chin));
 
         // step 1 is that text, step 2 the double picture (cut in two in the browser into "start" and "end")
         $this->actingAs(User::factory()->admin()->create())->get(route('admin.exercises.pictures', ['q' => 'overhead dumbbell']))
