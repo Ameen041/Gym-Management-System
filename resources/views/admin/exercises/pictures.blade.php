@@ -259,6 +259,39 @@
 </style>
 
 <script>
+  // Gemini often draws a thin line between the two panels: near the cut edge, a thin column of colour with white
+  // on both sides (not the machine or the athlete, which are wider and touch other things) is painted white
+  function clearSeparator(canvas, edge) {
+    var w = canvas.width, h = canvas.height, ctx = canvas.getContext('2d');
+    var data = ctx.getImageData(0, 0, w, h).data, cov = [];
+    for (var x = 0; x < w; x++) {
+      var dark = 0, rows = 0;
+      for (var y = 0; y < h; y += 2) {
+        var i = (y * w + x) * 4; rows++;
+        if (data[i] < 232 || data[i + 1] < 232 || data[i + 2] < 232) dark++;
+      }
+      cov.push(dark / rows);
+    }
+    var white = function (x) { return cov[x] < 0.01; };
+    var thin = Math.max(6, Math.round(w * 0.015)), reach = Math.round(w * 0.25), x0 = edge === 'right' ? w - 1 : 0;
+    var step = edge === 'right' ? -1 : 1;
+    for (var k = 0; k < reach; k++) {
+      var x = x0 + step * k;
+      if (white(x)) continue;
+      // a run of coloured columns starting here
+      var run = 0, sum = 0;
+      while (k + run < reach && !white(x0 + step * (k + run))) { sum += cov[x0 + step * (k + run)]; run++; }
+      var after = 0;
+      while (after < 4 && k + run + after < w && white(x0 + step * (k + run + after))) after++;
+      if (run <= thin && sum / run > 0.3 && after >= 4) {
+        ctx.fillStyle = '#fff';
+        var from = Math.min(x, x0 + step * (k + run - 1));
+        ctx.fillRect(from - 1, 0, run + 2, h);
+      }
+      k += run;
+    }
+  }
+
   // a double picture (start | end): cut at the whitest column near the middle, each half goes to its own input
   document.addEventListener('change', function (e) {
     var input = e.target.closest && e.target.closest('input[data-split]');
@@ -282,6 +315,7 @@
       halves.forEach(function (part, n) {
         var hc = document.createElement('canvas'); hc.width = part[1]; hc.height = h;
         hc.getContext('2d').drawImage(c, part[0], 0, part[1], h, 0, 0, part[1], h);
+        clearSeparator(hc, n === 0 ? 'right' : 'left');
         hc.toBlob(function (blob) {
           var name = n === 0 ? 'start' : 'end', list = new DataTransfer();
           list.items.add(new File([blob], name + '.png', { type: 'image/png' }));
