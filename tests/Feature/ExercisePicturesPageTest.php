@@ -310,11 +310,23 @@ class ExercisePicturesPageTest extends TestCase
         $this->assertStringContainsString('One knee rests ON a flat bench', $pair);
         $this->assertStringContainsString('The hand nearer the camera holds the dumbbell', $pair);
         $this->assertStringContainsString('The same hand, nearer the camera, has rowed the dumbbell up to his hip', $pair);
-        $this->assertStringContainsString('Important: only ONE arm works, always the same one: the arm NEAREST the camera', $pair);
+        $this->assertStringContainsString('Important: only ONE arm works, always the same arm in both panels, and only that hand holds the weight.', $pair);
+        $this->assertStringContainsString('The other arm clearly does NOT work: its hand rests flat on the bench, relaxed, clearly visible and holding nothing', $pair);
         $this->assertStringContainsString('only ONE arm works', PicturePrompt::start($row));
 
-        $this->assertStringContainsString('only ONE arm works', PicturePrompt::pair(Exercise::where('name', 'Concentration Curl')->sole()));
-        $this->assertStringContainsString('only ONE leg works, always the same one: the leg NEAREST the camera', PicturePrompt::pair(Exercise::where('name', 'Single-Leg Glute Bridge')->sole()));
+        // the free hand rests where it can be seen
+        // the seated row: the free hand on the knee, in both positions, so it can't look like it rows too
+        $seated = PicturePrompt::pair(Exercise::where('name', 'Seated One-Arm Cable Row')->sole());
+        $this->assertStringContainsString('its hand rests open on his other knee, that arm almost straight', $seated);
+        $this->assertStringContainsString('LEFT panel, the start position: Seated at the cable row station', $seated);
+        $this->assertStringContainsString('His arm NEARER the camera does not work: it reaches forward and down, straight, the hand resting flat on top of his near knee.', $seated);
+        $this->assertStringContainsString('RIGHT panel, the end position: His near arm has NOT moved', $seated);
+        $this->assertStringContainsString('This is NOT a two-arm row: only ONE elbow is back.', $seated);
+        $this->assertStringContainsString('Only the working arm moves between the panels: the other arm keeps exactly the same pose and never pulls, pushes or lifts.', $seated);
+        $this->assertStringContainsString('its hand rests open on his other thigh', PicturePrompt::pair(Exercise::where('name', 'Concentration Curl')->sole()));
+        $this->assertStringContainsString('its hand rests open on his hip', PicturePrompt::pair(Exercise::where('name', 'Single-Arm Cable Lateral Raise')->sole()));
+        $this->assertStringContainsString('its hand hangs relaxed at his side', PicturePrompt::pair(Exercise::where('name', 'Single-Arm Kettlebell Swing')->sole()));
+        $this->assertStringContainsString('only ONE leg works, always the same leg in both panels', PicturePrompt::pair(Exercise::where('name', 'Single-Leg Glute Bridge')->sole()));
 
         // a decline exercise keeps its own note, and the two-armed ones get none
         $this->assertStringContainsString('this is a DECLINE bench', PicturePrompt::pair(Exercise::where('name', 'Decline Barbell Bench Press')->sole()));

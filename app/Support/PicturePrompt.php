@@ -43,6 +43,9 @@ class PicturePrompt
         'Side Plank' => ['Lying on his side, propped on one forearm, legs straight and stacked.', 'Side plank: hips lifted so his body forms a straight line from head to feet, supported on one forearm.'],
         // Gemini mixed up "his left hand" and "his right hand" (the dumbbell changed hands): the sides are told by the picture
         'One-Arm Dumbbell Row' => ['One knee rests ON a flat bench (his lower leg along the bench) and the hand on the same side rests on the bench, both on the side farther from the camera; the other foot stands on the floor beside the bench; back flat, roughly parallel to the floor. The hand nearer the camera holds the dumbbell, arm hanging straight down beside the bench.', 'The same hand, nearer the camera, has rowed the dumbbell up to his hip, elbow close to his body, shoulder blade drawn back; the other hand and knee are still on the bench.'],
+        // the free arm was drawn bent back in the end, as if it rowed too, twice: Gemini rows with the far arm, so the free arm is the
+        // near one, in plain sight, and the end describes it first
+        'Seated One-Arm Cable Row' => ['Seated at the cable row station, feet on the platform, knees slightly bent, sitting tall with his chest up. His arm FARTHER from the camera holds the single handle, stretched forward toward the machine. His arm NEARER the camera does not work: it reaches forward and down, straight, the hand resting flat on top of his near knee.', 'His near arm has NOT moved: still straight, reaching forward and down, the hand still flat on top of his near knee. Only his far arm has pulled the handle to the side of his waist, that elbow driven back. This is NOT a two-arm row: only ONE elbow is back.'],
         'Bent-Over Barbell Row' => ['Bent over with a flat back, torso about 45 degrees to the floor, knees slightly bent, bar hanging at arm\'s length.', 'Bar rowed to his lower chest, elbows driven back, same torso angle.'],
         'Close-Grip Lat Pulldown' => ['Seated at the lat pulldown, thighs under the pads, arms straight up holding the bar at shoulder width.', 'Bar pulled down to his upper chest, elbows driven down and back.'],
         'Deadlift' => ['Bottom position: hips hinged, back flat, gripping the bar on the floor just outside his legs.', 'Standing tall with the bar at his thighs, hips and knees fully extended, shoulders back.'],
@@ -314,18 +317,29 @@ class PicturePrompt
 
     /**
      * One arm or one leg works: Gemini can't tell his left from his right (the dumbbell changed hands between the panels),
-     * so it is the one nearest the camera, and it stays the same.
+     * so it is the same one in both panels. The free hand rests where it can be seen (on his back it looked like it worked too).
      */
     private static function oneSide(Exercise $exercise): ?string
     {
-        return match (true) {
-            (bool) preg_match('/\b(one-arm|single-arm|concentration curl|triceps kickback)\b/i', $exercise->name) => 'Important: only ONE arm '
-                . 'works, always the same one: the arm NEAREST the camera, so it is clearly visible, and only that hand holds the weight. '
-                . 'The other arm holds nothing and stays in the same place.',
-            (bool) preg_match('/\b(single-leg|glute kickback)\b/i', $exercise->name) => 'Important: only ONE leg works, always the same '
-                . 'one: the leg NEAREST the camera, so it is clearly visible. The other leg stays in the same place.',
-            default => null,
-        };
+        if (preg_match('/\b(one-arm|single-arm|concentration curl|triceps kickback)\b/i', $exercise->name)) {
+            $rest = match (true) {
+                (bool) preg_match('/\b(dumbbell row|triceps kickback)\b/i', $exercise->name) => 'rests flat on the bench',
+                str_contains($exercise->name, 'Seated')                                     => 'rests open on his other knee, that arm almost straight',
+                str_contains($exercise->name, 'Concentration')                              => 'rests open on his other thigh',
+                str_contains($exercise->name, 'Kettlebell')                                 => 'hangs relaxed at his side, open',
+                default                                                                     => 'rests open on his hip',
+            };
+
+            return 'Important: only ONE arm works, always the same arm in both panels, and only that hand holds the weight. '
+                . 'The other arm clearly does NOT work: its hand ' . $rest . ', relaxed, clearly visible and holding nothing, '
+                . 'in exactly the same place in both panels. Only the working arm moves between the panels: the other arm keeps '
+                . 'exactly the same pose and never pulls, pushes or lifts.';
+        }
+
+        return preg_match('/\b(single-leg|glute kickback)\b/i', $exercise->name)
+            ? 'Important: only ONE leg works, always the same leg in both panels. The other leg does not move: it stays in exactly '
+                . 'the same place in both panels.'
+            : null;
     }
 
     /** Image models mix up incline and decline (the position of the head is spelled out), and where the deadlift bar is. */
