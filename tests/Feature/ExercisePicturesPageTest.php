@@ -315,7 +315,12 @@ class ExercisePicturesPageTest extends TestCase
         $this->assertStringContainsString('only ONE arm works', PicturePrompt::start($row));
 
         // the free hand rests where it can be seen
-        $this->assertStringContainsString('its hand rests open on his other thigh', PicturePrompt::pair(Exercise::where('name', 'Seated One-Arm Cable Row')->sole()));
+        // the seated row: the free hand on the knee, in both positions, so it can't look like it rows too
+        $seated = PicturePrompt::pair(Exercise::where('name', 'Seated One-Arm Cable Row')->sole());
+        $this->assertStringContainsString('its hand rests open on his other knee, that arm almost straight', $seated);
+        $this->assertStringContainsString('LEFT panel, the start position: Seated at the cable row station', $seated);
+        $this->assertStringContainsString('His other arm has NOT moved: still almost straight, the hand still resting open on his knee.', $seated);
+        $this->assertStringContainsString('Only the working arm moves between the panels: the other arm keeps exactly the same pose and never pulls, pushes or lifts.', $seated);
         $this->assertStringContainsString('its hand rests open on his other thigh', PicturePrompt::pair(Exercise::where('name', 'Concentration Curl')->sole()));
         $this->assertStringContainsString('its hand rests open on his hip', PicturePrompt::pair(Exercise::where('name', 'Single-Arm Cable Lateral Raise')->sole()));
         $this->assertStringContainsString('its hand hangs relaxed at his side', PicturePrompt::pair(Exercise::where('name', 'Single-Arm Kettlebell Swing')->sole()));
