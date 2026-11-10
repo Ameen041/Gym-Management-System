@@ -332,4 +332,25 @@ class ExercisePicturesPageTest extends TestCase
         $this->assertStringContainsString('this is a DECLINE bench', PicturePrompt::pair(Exercise::where('name', 'Decline Barbell Bench Press')->sole()));
         $this->assertStringNotContainsString('ONE arm', PicturePrompt::pair(Exercise::where('name', 'Barbell Bench Press')->sole()));
     }
+
+    public function test_the_t_bar_runs_between_his_legs(): void
+    {
+        $this->seed(ExercisesSeeder::class);
+
+        // Gemini laid the bar beside him and rowed with one hand, like a landmine row
+        $pair = PicturePrompt::pair(Exercise::where('name', 'T-Bar Row')->sole());
+        $this->assertStringContainsString('two moments of the T-Bar Row (a two-hand row on a T-bar, with a V-handle).', $pair);
+        $this->assertStringNotContainsString('andmine handle', $pair);
+        $this->assertStringContainsString('LEFT panel, the start position: Bent over a T-bar: one end of the bar sits in a pivot base on the floor just BEHIND his heels', $pair);
+        $this->assertStringContainsString('the bar goes forward BETWEEN his legs, under his body, to the plates on the floor in front of him', $pair);
+        $this->assertStringContainsString('BOTH hands on the V-handle have rowed the loaded end up toward his chest', $pair);
+        $this->assertStringContainsString('Seen from behind and a little from above (a 3/4 back angle, the camera a little higher than his hips)', $pair);
+        $this->assertStringContainsString('Grip: NEUTRAL: BOTH hands on the V-handle under the bar', $pair);
+        $this->assertStringContainsString('This is a two-hand T-bar row, not a one-arm landmine row', $pair);
+        $this->assertStringNotContainsString('ONE arm', $pair);
+        $this->assertStringContainsString('two-hand row on a T-bar', PicturePrompt::start(Exercise::where('name', 'T-Bar Row')->sole()));
+
+        // the other exercises keep their equipment in the name
+        $this->assertStringContainsString('two moments of the Deadlift (Barbell).', PicturePrompt::pair(Exercise::where('name', 'Deadlift')->sole()));
+    }
 }

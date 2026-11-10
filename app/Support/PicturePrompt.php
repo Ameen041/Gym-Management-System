@@ -46,6 +46,8 @@ class PicturePrompt
         // the free arm was drawn bent back in the end, as if it rowed too, twice: Gemini rows with the far arm, so the free arm is the
         // near one, in plain sight, and the end describes it first
         'Seated One-Arm Cable Row' => ['Seated at the cable row station, feet on the platform, knees slightly bent, sitting tall with his chest up. His arm FARTHER from the camera holds the single handle, stretched forward toward the machine. His arm NEARER the camera does not work: it reaches forward and down, straight, the hand resting flat on top of his near knee.', 'His near arm has NOT moved: still straight, reaching forward and down, the hand still flat on top of his near knee. Only his far arm has pulled the handle to the side of his waist, that elbow driven back. This is NOT a two-arm row: only ONE elbow is back.'],
+        // Gemini laid the bar beside him and rowed with one hand (a landmine row), twice: what can be seen from behind is spelled out
+        'T-Bar Row' => ['Bent over a T-bar: one end of the bar sits in a pivot base on the floor just BEHIND his heels, between his feet, and from there the bar goes forward BETWEEN his legs, under his body, to the plates on the floor in front of him. Bent at the hips about 45 degrees, knees slightly bent, back flat, chest up; BOTH hands hold the V-handle that sits under the bar just behind the plates, both arms hanging straight down.', 'The same bar in the same place, still between his legs from the base behind his heels to the plates in front of him: BOTH hands on the V-handle have rowed the loaded end up toward his chest, both elbows driven back on both sides of his body, the same bent-over angle.'],
         'Bent-Over Barbell Row' => ['Bent over with a flat back, torso about 45 degrees to the floor, knees slightly bent, bar hanging at arm\'s length.', 'Bar rowed to his lower chest, elbows driven back, same torso angle.'],
         'Close-Grip Lat Pulldown' => ['Seated at the lat pulldown, thighs under the pads, arms straight up holding the bar at shoulder width.', 'Bar pulled down to his upper chest, elbows driven down and back.'],
         'Deadlift' => ['Bottom position: hips hinged, back flat, gripping the bar on the floor just outside his legs.', 'Standing tall with the bar at his thighs, hips and knees fully extended, shoulders back.'],
@@ -127,8 +129,7 @@ class PicturePrompt
         $muscles = $exercise->muscles;
         $back = self::fromBehind($exercise);
 
-        $equipment = trim((string) $exercise->equipment);
-        $what = $exercise->name . ($equipment !== '' && stripos($equipment, 'bodyweight') === false ? ' (' . $equipment . ')' : '');
+        $what = self::what($exercise);
         $direction = preg_replace(['/^Direction: /', '/ Keep exactly this direction, do not mirror the picture\.$/'], ['', ''], self::direction($exercise, $back));
 
         $text = 'Clean anatomical fitness illustration, 3D render style. ONE wide 16:9 image made of TWO panels side by side, '
@@ -185,8 +186,7 @@ class PicturePrompt
         $muscles = $exercise->muscles;
         $back = self::fromBehind($exercise);
 
-        $equipment = trim((string) $exercise->equipment);
-        $what = $exercise->name . ($equipment !== '' && stripos($equipment, 'bodyweight') === false ? ' (' . $equipment . ')' : '');
+        $what = self::what($exercise);
 
         $text = 'Clean anatomical fitness illustration, 3D render style. A muscular male athlete with smooth light-gray skin '
             . 'and black shorts performs the ' . $what . ', seen ' . self::angle($exercise, $back) . '. '
@@ -244,6 +244,7 @@ class PicturePrompt
         'Close-Grip Lat Pulldown'                => 'OVERHAND (pronated): palms facing away from him; his hands are CLOSE together, only '
             . 'about shoulder-width apart, NOT out near the ends of the bar',
         'V-Bar Lat Pulldown'                     => 'NEUTRAL: palms facing each other on the V-bar handle',
+        'T-Bar Row'                              => 'NEUTRAL: BOTH hands on the V-handle under the bar, palms facing each other',
         'Bent-Over Barbell Row'                  => 'OVERHAND (pronated): palms facing his body, hands slightly wider than his shoulders',
         'Reverse-Grip Barbell Row'               => 'UNDERHAND (supinated): palms facing forward, away from his body, hands about shoulder-width apart',
         'Reverse-Grip Triceps Pushdown'          => 'UNDERHAND (supinated): palms facing up, hands about shoulder-width apart',
@@ -282,6 +283,19 @@ class PicturePrompt
         };
     }
 
+    /** The exercise and its equipment, as named in the texts. */
+    private static function what(Exercise $exercise): string
+    {
+        // "landmine" made Gemini draw a one-arm landmine row
+        if ($exercise->name === 'T-Bar Row') {
+            return 'T-Bar Row (a two-hand row on a T-bar, with a V-handle)';
+        }
+
+        $equipment = trim((string) $exercise->equipment);
+
+        return $exercise->name . ($equipment !== '' && stripos($equipment, 'bodyweight') === false ? ' (' . $equipment . ')' : '');
+    }
+
     private static function fromBehind(Exercise $exercise): bool
     {
         return !in_array($exercise->name, self::FROM_THE_FRONT, true)
@@ -298,6 +312,11 @@ class PicturePrompt
     {
         if (str_contains($exercise->name, 'Decline') && !str_contains($exercise->name, 'Push-Up')) {
             return 'exactly from the side (a profile view, head on the left, so the slope of the bench is obvious)';
+        }
+
+        if ($exercise->name === 'T-Bar Row') {
+            return 'from behind and a little from above (a 3/4 back angle, the camera a little higher than his hips), so the bar '
+                . 'between his legs is visible';
         }
 
         if (in_array($exercise->name, self::FROM_THE_FRONT, true)) {
@@ -359,6 +378,9 @@ class PicturePrompt
                     . 'down in front of his legs to the bar. The bar is never between his legs and the camera.',
             (bool) preg_match(self::WEIGHT_IN_FRONT, $name) => 'Important: ' . (str_contains($name, 'Dumbbell') ? 'the dumbbells stay' : 'the bar stays')
                 . ' IN FRONT of his legs, on the side his face looks toward, close to his shins and thighs; never behind his legs.',
+            $name === 'T-Bar Row' => 'Important: we see him from behind and a little from above, so we see the base on the floor behind his '
+                . 'heels and the bar going away from us BETWEEN his legs; the plates are in front of him, partly hidden by his body. The bar is '
+                . 'never beside his legs. This is a two-hand T-bar row, not a one-arm landmine row: both hands are on the handle in both panels.',
             $name === 'Incline Reverse Dumbbell Fly' => 'Important: he lies chest-down on a bench raised to about 30 degrees, facing the floor.',
             str_contains($name, 'Decline') => 'Important: this is a DECLINE bench, not a flat or incline one. The bench is tilted about 30 degrees: '
                 . 'the end under his head is low, close to the floor, and the end under his knees is high. So his head is clearly LOWER than his hips, '
