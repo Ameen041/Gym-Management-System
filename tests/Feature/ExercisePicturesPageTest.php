@@ -332,4 +332,19 @@ class ExercisePicturesPageTest extends TestCase
         $this->assertStringContainsString('this is a DECLINE bench', PicturePrompt::pair(Exercise::where('name', 'Decline Barbell Bench Press')->sole()));
         $this->assertStringNotContainsString('ONE arm', PicturePrompt::pair(Exercise::where('name', 'Barbell Bench Press')->sole()));
     }
+
+    public function test_the_t_bar_runs_between_his_legs(): void
+    {
+        $this->seed(ExercisesSeeder::class);
+
+        // Gemini laid the bar beside him and held it with one hand
+        $pair = PicturePrompt::pair(Exercise::where('name', 'T-Bar Row')->sole());
+        $this->assertStringContainsString('LEFT panel, the start position: Standing over a T-bar row: the bar runs straight forward BETWEEN his feet', $pair);
+        $this->assertStringContainsString('a landmine base on the floor BEHIND him and the plates on the other end IN FRONT of him', $pair);
+        $this->assertStringContainsString('with BOTH hands on the V-handle he has rowed the loaded end up toward his chest', $pair);
+        $this->assertStringContainsString('Grip: NEUTRAL: BOTH hands on the V-handle under the bar', $pair);
+        $this->assertStringContainsString('Important: the bar is never beside him or across in front of him', $pair);
+        $this->assertStringContainsString('we see him from behind', $pair);
+        $this->assertStringNotContainsString('ONE arm', $pair);
+    }
 }
