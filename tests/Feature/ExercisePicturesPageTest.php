@@ -343,10 +343,12 @@ class ExercisePicturesPageTest extends TestCase
         $this->assertStringNotContainsString('andmine handle', $pair);
         $this->assertStringContainsString('LEFT panel, the start position: Bent over a T-bar: one end of the bar sits in a pivot base on the floor just BEHIND his heels', $pair);
         $this->assertStringContainsString('the bar goes forward BETWEEN his legs, under his body, to the plates on the floor in front of him', $pair);
-        $this->assertStringContainsString('BOTH hands on the V-handle have rowed the loaded end up toward his chest', $pair);
+        $this->assertStringContainsString('BOTH arms hang straight down the middle, close together, and BOTH hands hold the handle side by side, touching.', $pair);
+        $this->assertStringContainsString('RIGHT panel, the end position: BOTH hands are still on the handle together, side by side', $pair);
+        $this->assertStringContainsString('Neither hand is on his back or his hip.', $pair);
         $this->assertStringContainsString('Seen from behind and a little from above (a 3/4 back angle, the camera a little higher than his hips)', $pair);
-        $this->assertStringContainsString('Grip: NEUTRAL: BOTH hands on the V-handle under the bar', $pair);
-        $this->assertStringContainsString('This is a two-hand T-bar row, not a one-arm landmine row', $pair);
+        $this->assertStringContainsString('Grip: NEUTRAL: BOTH hands side by side on the V-handle, touching', $pair);
+        $this->assertStringContainsString('This is a two-hand T-bar row, not a one-arm landmine row: in both panels BOTH hands hold the handle together', $pair);
         $this->assertStringNotContainsString('ONE arm', $pair);
         $this->assertStringContainsString('two-hand row on a T-bar', PicturePrompt::start(Exercise::where('name', 'T-Bar Row')->sole()));
 
