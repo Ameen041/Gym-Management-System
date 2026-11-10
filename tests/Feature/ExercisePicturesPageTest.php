@@ -319,7 +319,9 @@ class ExercisePicturesPageTest extends TestCase
         $seated = PicturePrompt::pair(Exercise::where('name', 'Seated One-Arm Cable Row')->sole());
         $this->assertStringContainsString('its hand rests open on his other knee, that arm almost straight', $seated);
         $this->assertStringContainsString('LEFT panel, the start position: Seated at the cable row station', $seated);
-        $this->assertStringContainsString('His other arm has NOT moved: still almost straight, the hand still resting open on his knee.', $seated);
+        $this->assertStringContainsString('His arm NEARER the camera does not work: it reaches forward and down, straight, the hand resting flat on top of his near knee.', $seated);
+        $this->assertStringContainsString('RIGHT panel, the end position: His near arm has NOT moved', $seated);
+        $this->assertStringContainsString('This is NOT a two-arm row: only ONE elbow is back.', $seated);
         $this->assertStringContainsString('Only the working arm moves between the panels: the other arm keeps exactly the same pose and never pulls, pushes or lifts.', $seated);
         $this->assertStringContainsString('its hand rests open on his other thigh', PicturePrompt::pair(Exercise::where('name', 'Concentration Curl')->sole()));
         $this->assertStringContainsString('its hand rests open on his hip', PicturePrompt::pair(Exercise::where('name', 'Single-Arm Cable Lateral Raise')->sole()));
