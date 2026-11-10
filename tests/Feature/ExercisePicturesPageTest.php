@@ -310,11 +310,16 @@ class ExercisePicturesPageTest extends TestCase
         $this->assertStringContainsString('One knee rests ON a flat bench', $pair);
         $this->assertStringContainsString('The hand nearer the camera holds the dumbbell', $pair);
         $this->assertStringContainsString('The same hand, nearer the camera, has rowed the dumbbell up to his hip', $pair);
-        $this->assertStringContainsString('Important: only ONE arm works, always the same one: the arm NEAREST the camera', $pair);
+        $this->assertStringContainsString('Important: only ONE arm works, always the same arm in both panels, and only that hand holds the weight.', $pair);
+        $this->assertStringContainsString('The other arm clearly does NOT work: its hand rests flat on the bench, relaxed, clearly visible and holding nothing', $pair);
         $this->assertStringContainsString('only ONE arm works', PicturePrompt::start($row));
 
-        $this->assertStringContainsString('only ONE arm works', PicturePrompt::pair(Exercise::where('name', 'Concentration Curl')->sole()));
-        $this->assertStringContainsString('only ONE leg works, always the same one: the leg NEAREST the camera', PicturePrompt::pair(Exercise::where('name', 'Single-Leg Glute Bridge')->sole()));
+        // the free hand rests where it can be seen
+        $this->assertStringContainsString('its hand rests open on his other thigh', PicturePrompt::pair(Exercise::where('name', 'Seated One-Arm Cable Row')->sole()));
+        $this->assertStringContainsString('its hand rests open on his other thigh', PicturePrompt::pair(Exercise::where('name', 'Concentration Curl')->sole()));
+        $this->assertStringContainsString('its hand rests open on his hip', PicturePrompt::pair(Exercise::where('name', 'Single-Arm Cable Lateral Raise')->sole()));
+        $this->assertStringContainsString('its hand hangs relaxed at his side', PicturePrompt::pair(Exercise::where('name', 'Single-Arm Kettlebell Swing')->sole()));
+        $this->assertStringContainsString('only ONE leg works, always the same leg in both panels', PicturePrompt::pair(Exercise::where('name', 'Single-Leg Glute Bridge')->sole()));
 
         // a decline exercise keeps its own note, and the two-armed ones get none
         $this->assertStringContainsString('this is a DECLINE bench', PicturePrompt::pair(Exercise::where('name', 'Decline Barbell Bench Press')->sole()));

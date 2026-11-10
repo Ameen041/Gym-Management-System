@@ -314,18 +314,27 @@ class PicturePrompt
 
     /**
      * One arm or one leg works: Gemini can't tell his left from his right (the dumbbell changed hands between the panels),
-     * so it is the one nearest the camera, and it stays the same.
+     * so it is the same one in both panels. The free hand rests where it can be seen (on his back it looked like it worked too).
      */
     private static function oneSide(Exercise $exercise): ?string
     {
-        return match (true) {
-            (bool) preg_match('/\b(one-arm|single-arm|concentration curl|triceps kickback)\b/i', $exercise->name) => 'Important: only ONE arm '
-                . 'works, always the same one: the arm NEAREST the camera, so it is clearly visible, and only that hand holds the weight. '
-                . 'The other arm holds nothing and stays in the same place.',
-            (bool) preg_match('/\b(single-leg|glute kickback)\b/i', $exercise->name) => 'Important: only ONE leg works, always the same '
-                . 'one: the leg NEAREST the camera, so it is clearly visible. The other leg stays in the same place.',
-            default => null,
-        };
+        if (preg_match('/\b(one-arm|single-arm|concentration curl|triceps kickback)\b/i', $exercise->name)) {
+            $rest = match (true) {
+                (bool) preg_match('/\b(dumbbell row|triceps kickback)\b/i', $exercise->name) => 'rests flat on the bench',
+                (bool) preg_match('/\b(seated|concentration)\b/i', $exercise->name)       => 'rests open on his other thigh',
+                str_contains($exercise->name, 'Kettlebell')                                 => 'hangs relaxed at his side, open',
+                default                                                                     => 'rests open on his hip',
+            };
+
+            return 'Important: only ONE arm works, always the same arm in both panels, and only that hand holds the weight. '
+                . 'The other arm clearly does NOT work: its hand ' . $rest . ', relaxed, clearly visible and holding nothing, '
+                . 'in exactly the same place in both panels.';
+        }
+
+        return preg_match('/\b(single-leg|glute kickback)\b/i', $exercise->name)
+            ? 'Important: only ONE leg works, always the same leg in both panels. The other leg does not move: it stays in exactly '
+                . 'the same place in both panels.'
+            : null;
     }
 
     /** Image models mix up incline and decline (the position of the head is spelled out), and where the deadlift bar is. */
