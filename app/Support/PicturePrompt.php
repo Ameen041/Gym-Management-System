@@ -41,6 +41,8 @@ class PicturePrompt
         'Hanging Leg Raise' => ['Hanging from a pull-up bar with straight arms, legs straight down.', 'Straight legs raised until they are parallel to the floor.'],
         'Kneeling Barbell Rollout' => ['Kneeling on a mat, hands on a barbell with round plates on the floor below his shoulders.', 'Bar rolled forward, arms stretched out in front of his head, body extended in a straight line from knees to hands.'],
         'Side Plank' => ['Lying on his side, propped on one forearm, legs straight and stacked.', 'Side plank: hips lifted so his body forms a straight line from head to feet, supported on one forearm.'],
+        // Gemini mixed up "his left hand" and "his right hand" (the dumbbell changed hands): the sides are told by the picture
+        'One-Arm Dumbbell Row' => ['One knee rests ON a flat bench (his lower leg along the bench) and the hand on the same side rests on the bench, both on the side farther from the camera; the other foot stands on the floor beside the bench; back flat, roughly parallel to the floor. The hand nearer the camera holds the dumbbell, arm hanging straight down beside the bench.', 'The same hand, nearer the camera, has rowed the dumbbell up to his hip, elbow close to his body, shoulder blade drawn back; the other hand and knee are still on the bench.'],
         'Bent-Over Barbell Row' => ['Bent over with a flat back, torso about 45 degrees to the floor, knees slightly bent, bar hanging at arm\'s length.', 'Bar rowed to his lower chest, elbows driven back, same torso angle.'],
         'Close-Grip Lat Pulldown' => ['Seated at the lat pulldown, thighs under the pads, arms straight up holding the bar at shoulder width.', 'Bar pulled down to his upper chest, elbows driven down and back.'],
         'Deadlift' => ['Bottom position: hips hinged, back flat, gripping the bar on the floor just outside his legs.', 'Standing tall with the bar at his thighs, hips and knees fully extended, shoulders back.'],
@@ -302,10 +304,32 @@ class PicturePrompt
         return $back ? 'from a 3/4 back angle so the back of the body is visible' : 'from a 3/4 side angle';
     }
 
-    /**
-     * Image models mix up incline and decline: the position of the head is spelled out.
-     */
+    /** What Gemini got wrong, spelled out: the bench, where the bar is, which arm or leg works. */
     private static function note(Exercise $exercise): ?string
+    {
+        $notes = array_filter([self::bench($exercise), self::oneSide($exercise)]);
+
+        return $notes ? implode(' ', $notes) : null;
+    }
+
+    /**
+     * One arm or one leg works: Gemini can't tell his left from his right (the dumbbell changed hands between the panels),
+     * so it is the one nearest the camera, and it stays the same.
+     */
+    private static function oneSide(Exercise $exercise): ?string
+    {
+        return match (true) {
+            (bool) preg_match('/\b(one-arm|single-arm|concentration curl|triceps kickback)\b/i', $exercise->name) => 'Important: only ONE arm '
+                . 'works, always the same one: the arm NEAREST the camera, so it is clearly visible, and only that hand holds the weight. '
+                . 'The other arm holds nothing and stays in the same place.',
+            (bool) preg_match('/\b(single-leg|glute kickback)\b/i', $exercise->name) => 'Important: only ONE leg works, always the same '
+                . 'one: the leg NEAREST the camera, so it is clearly visible. The other leg stays in the same place.',
+            default => null,
+        };
+    }
+
+    /** Image models mix up incline and decline (the position of the head is spelled out), and where the deadlift bar is. */
+    private static function bench(Exercise $exercise): ?string
     {
         $name = $exercise->name;
 
