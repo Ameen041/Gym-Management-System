@@ -297,4 +297,27 @@ class ExercisePicturesPageTest extends TestCase
             ->assertSee(e(route('admin.exercises.pictures', ['show' => 'all', 'page' => 2])), false)
             ->assertDontSee('relative inline-flex', false);
     }
+
+    public function test_one_arm_exercises_keep_the_weight_in_the_same_hand(): void
+    {
+        $this->seed(ExercisesSeeder::class);
+
+        // Gemini put the dumbbell in the other hand in the second panel: no "left" or "right" hand, the one nearest the camera
+        $row = Exercise::where('name', 'One-Arm Dumbbell Row')->sole();
+        $pair = PicturePrompt::pair($row);
+        $this->assertStringNotContainsString('his left', $pair);
+        $this->assertStringNotContainsString('his right', $pair);
+        $this->assertStringContainsString('One knee rests ON a flat bench', $pair);
+        $this->assertStringContainsString('The hand nearer the camera holds the dumbbell', $pair);
+        $this->assertStringContainsString('The same hand, nearer the camera, has rowed the dumbbell up to his hip', $pair);
+        $this->assertStringContainsString('Important: only ONE arm works, always the same one: the arm NEAREST the camera', $pair);
+        $this->assertStringContainsString('only ONE arm works', PicturePrompt::start($row));
+
+        $this->assertStringContainsString('only ONE arm works', PicturePrompt::pair(Exercise::where('name', 'Concentration Curl')->sole()));
+        $this->assertStringContainsString('only ONE leg works, always the same one: the leg NEAREST the camera', PicturePrompt::pair(Exercise::where('name', 'Single-Leg Glute Bridge')->sole()));
+
+        // a decline exercise keeps its own note, and the two-armed ones get none
+        $this->assertStringContainsString('this is a DECLINE bench', PicturePrompt::pair(Exercise::where('name', 'Decline Barbell Bench Press')->sole()));
+        $this->assertStringNotContainsString('ONE arm', PicturePrompt::pair(Exercise::where('name', 'Barbell Bench Press')->sole()));
+    }
 }
