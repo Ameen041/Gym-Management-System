@@ -6,6 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Exercise extends Model
 {
+    /** Names of the exercises the admin deleted, so the starter list run on every update doesn't add them back. */
+    public static function deletedNames(): array
+    {
+        return json_decode((string) Setting::get('deleted_exercises', '[]'), true) ?: [];
+    }
+
     public const MUSCLE_GROUPS = [
         'chest'     => ['label' => 'Chest',     'label_ar' => 'الصدر'],
         'back'      => ['label' => 'Back',      'label_ar' => 'الظهر'],

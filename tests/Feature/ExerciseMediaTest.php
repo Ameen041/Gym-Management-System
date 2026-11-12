@@ -179,5 +179,23 @@ class ExerciseMediaTest extends TestCase
         // the page counts an exercise with a video as done
         $this->actingAs($admin)->get(route('admin.exercises.pictures', ['show' => 'done']))->assertSee('Dumbbell Fly');
     }
-}
 
+    public function test_a_deleted_exercise_does_not_come_back_on_the_next_update(): void
+    {
+        // every update runs the seeder: the starter exercises are added again if they are missing
+        $this->seed(ExercisesSeeder::class);
+        $admin = User::factory()->admin()->create();
+        $starter = Exercise::where('name', 'Push-Up')->sole();
+        $imported = Exercise::where('name', 'T-Bar Row')->sole();
+
+        foreach ([$starter, $imported] as $exercise) {
+            $this->actingAs($admin)->delete(route('admin.exercises.destroy', $exercise->id))->assertRedirect(route('admin.exercises.index'));
+        }
+        $this->assertSame(['Push-Up', 'T-Bar Row'], Exercise::deletedNames());
+
+        $this->seed(ExercisesSeeder::class);
+        $this->assertFalse(Exercise::where('name', 'Push-Up')->exists());
+        $this->assertFalse(Exercise::where('name', 'T-Bar Row')->exists());
+        $this->assertTrue(Exercise::where('name', 'Barbell Bench Press')->exists());
+    }
+}

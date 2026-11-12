@@ -16,8 +16,13 @@ class ExercisesSeeder extends Seeder
     public function run(): void
     {
         $arabic = $this->arabic();
+        // runs on every update: what the admin deleted stays deleted
+        $deleted = Exercise::deletedNames();
 
         foreach ($this->exercises() as $exercise) {
+            if (in_array($exercise['name'], $deleted, true)) {
+                continue;
+            }
             $model = Exercise::firstOrCreate(['name' => $exercise['name']], $exercise + ['is_active' => true]);
 
             // Fill Arabic texts only where they are still empty (keeps admin edits)
