@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Exercise;
+use App\Models\Setting;
 use App\Support\ExercisePicture;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -103,6 +104,11 @@ class AdminExerciseController extends Controller
         $this->deleteFile($exercise->video_path);
         $this->deleteFile($exercise->image_path);
         $exercise->delete();
+
+        // every update adds the starter exercises again: a deleted one is remembered so it doesn't come back
+        Setting::put('deleted_exercises', json_encode(
+            array_values(array_unique([...Exercise::deletedNames(), $exercise->name])), JSON_UNESCAPED_UNICODE
+        ));
 
         return redirect()->route('admin.exercises.index')->with('status', __('Exercise deleted.'));
     }
