@@ -198,4 +198,42 @@ class ExerciseMediaTest extends TestCase
         $this->assertFalse(Exercise::where('name', 'T-Bar Row')->exists());
         $this->assertTrue(Exercise::where('name', 'Barbell Bench Press')->exists());
     }
+
+    public function test_the_exercises_of_the_gym_program_are_added_once(): void
+    {
+        $batch = require database_path('seeders/data/exercises_v3.php');
+        $this->assertCount(18, $batch);
+        $positions = (new \ReflectionClassConstant(\App\Support\PicturePrompt::class, 'POSITIONS'))->getValue();
+        $this->seed(ExercisesSeeder::class);
+
+        foreach ($batch as $data) {
+            $exercise = Exercise::where('name', $data['name'])->sole();
+            $this->assertNotEmpty($exercise->name_ar, $data['name']);
+            $this->assertNotEmpty($exercise->primary_muscles, $data['name']);
+            // the picture text uses the positions written for it, not a guess from the steps
+            [$start] = $positions[$data['name']] ?? [null];
+            $this->assertNotNull($start, $data['name']);
+            $this->assertStringContainsString('LEFT panel, the start position: ' . $start, \App\Support\PicturePrompt::pair($exercise));
+        }
+        $this->assertStringContainsString('Grip: NEUTRAL: palms facing each other, thumbs up', \App\Support\PicturePrompt::pair(Exercise::where('name', 'Hammer Preacher Curl')->sole()));
+        $this->assertStringContainsString('this is a DECLINE bench', \App\Support\PicturePrompt::pair(Exercise::where('name', 'Decline Dumbbell Fly')->sole()));
+        $this->assertStringContainsString('only ONE arm works', \App\Support\PicturePrompt::pair(Exercise::where('name', 'Lying Side Lateral Raise')->sole()));
+        $this->assertStringContainsString('only ONE leg works', \App\Support\PicturePrompt::pair(Exercise::where('name', 'Single-Leg Calf Raise')->sole()));
+
+        // an install that already had the library: the batch comes with the next update, without what the admin deleted
+        $admin = User::factory()->admin()->create();
+        $this->actingAs($admin)->delete(route('admin.exercises.destroy', Exercise::where('name', 'Chest Dips')->sole()->id));
+        \App\Models\Setting::where('key', 'seeded_exercises_v3')->delete();
+        Exercise::where('name', 'Barbell Front Raise')->delete();
+        $before = Exercise::count();
+        $this->seed(ExercisesSeeder::class);
+        $this->assertSame($before + 1, Exercise::count());
+        $this->assertTrue(Exercise::where('name', 'Barbell Front Raise')->exists());
+        $this->assertFalse(Exercise::where('name', 'Chest Dips')->exists());
+
+        // and only once: deleting it again keeps it deleted
+        Exercise::where('name', 'Barbell Front Raise')->delete();
+        $this->seed(ExercisesSeeder::class);
+        $this->assertFalse(Exercise::where('name', 'Barbell Front Raise')->exists());
+    }
 }
