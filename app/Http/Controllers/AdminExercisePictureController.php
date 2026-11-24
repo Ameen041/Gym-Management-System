@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Exercise;
 use App\Support\ExercisePicture;
+use App\Support\PicturePrompt;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -108,6 +109,37 @@ class AdminExercisePictureController extends Controller
         $exercise->update(['frames' => $frames]);
 
         return back()->with('status', __('Picture turned around for ":name".', ['name' => $exercise->display_name]));
+    }
+
+    /** The reference for Gemini: the start and end drawings side by side on one white picture (PNG). */
+    public function reference($id)
+    {
+        $exercise = Exercise::findOrFail($id);
+        $files = PicturePrompt::referenceDrawings($exercise);
+        abort_unless($files, 404);
+
+        $w = 1600; $h = 900;
+        $canvas = imagecreatetruecolor($w, $h);
+        imagefill($canvas, 0, 0, imagecolorallocate($canvas, 255, 255, 255));
+        foreach ($files as $i => $file) {
+            $img = imagecreatefromwebp(public_path($file));
+            $scale = min(($w / 2 - 80) / imagesx($img), ($h - 80) / imagesy($img));
+            $dw = (int) round(imagesx($img) * $scale); $dh = (int) round(imagesy($img) * $scale);
+            imagecopyresampled($canvas, $img, (int) ($i * $w / 2 + ($w / 2 - $dw) / 2), (int) (($h - $dh) / 2), 0, 0, $dw, $dh, imagesx($img), imagesy($img));
+            imagedestroy($img);
+        }
+        // a light line between the start (left) and the end (right), like the two panels
+        imagefilledrectangle($canvas, $w / 2 - 1, 40, $w / 2, $h - 40, imagecolorallocate($canvas, 225, 225, 225));
+
+        ob_start();
+        imagepng($canvas);
+        imagedestroy($canvas);
+
+        return response(ob_get_clean(), 200, [
+            'Content-Type' => 'image/png',
+            'Content-Disposition' => 'inline; filename="reference-' . \Illuminate\Support\Str::slug($exercise->name) . '.png"',
+            'Cache-Control' => 'private, max-age=86400',
+        ]);
     }
 
     /** Back to the drawing (or no picture), for pictures that came out wrong. */

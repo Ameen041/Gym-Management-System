@@ -286,6 +286,29 @@ class PicturePrompt
     ];
 
     /**
+     * The line drawings of the exercise (Everkinetic, CC BY-SA 4.0), start and end: attached to the message, they show Gemini
+     * the movement, which it got wrong from words alone (the T-bar row beside the legs, the dumbbell changing hands...).
+     */
+    public static function referenceDrawings(Exercise $exercise): ?array
+    {
+        static $drawings = null;
+        $drawings ??= require database_path('seeders/data/exercise_frames.php');
+        $files = array_values(array_filter((array) ($drawings[$exercise->name] ?? []), fn ($f) => is_file(public_path($f))));
+
+        return count($files) === 2 ? $files : null;
+    }
+
+    /** The two-panel text, with the sentence for the reference drawing first when there is one. */
+    public static function pairWithReference(Exercise $exercise): string
+    {
+        return (self::referenceDrawings($exercise)
+            ? 'The attached drawing is ONLY a reference for the movement: the left half is the start, the right half is the end. '
+                . 'Copy exactly from it the body position, which arm does what, the grip and the equipment. Do not copy its '
+                . 'drawing style: draw it in the style described below. '
+            : '') . self::pair($exercise);
+    }
+
+    /**
      * Gemini doesn't always draw the grip the text asks for: a photo of the admin's own hands, attached to the message,
      * shows it. The sentence that goes with the photo, for the exercises where the grip matters.
      */

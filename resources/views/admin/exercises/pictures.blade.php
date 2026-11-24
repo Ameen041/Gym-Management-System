@@ -68,7 +68,18 @@
           <span class="pic-num">1</span>
           <div class="pic-text">
             <div class="pic-label">{{ __('The text: both positions in one picture, side by side') }}</div>
-            <p class="pic-prompt" dir="ltr" id="pp-{{ $exercise->id }}">{{ PicturePrompt::pair($exercise) }}</p>
+            @if (PicturePrompt::referenceDrawings($exercise))
+              {{-- the drawing shows Gemini the movement: attached with the text, it gets the grip and the arms right --}}
+              @php($refUrl = route('admin.exercises.pictures.reference', $exercise->id))
+              <div class="pic-ref">
+                <a href="{{ $refUrl }}" target="_blank" rel="noopener"><img src="{{ $refUrl }}" alt="" loading="lazy"></a>
+                <div>
+                  <p>{{ __('In a new Gemini chat, attach this reference picture, then paste the text below.') }}</p>
+                  <a href="{{ $refUrl }}" download="reference-{{ \Illuminate\Support\Str::slug($exercise->name) }}.png" class="btn btn-sm btn-secondary"><i class="fas fa-download"></i> {{ __('Download the reference picture') }}</a>
+                </div>
+              </div>
+            @endif
+            <p class="pic-prompt" dir="ltr" id="pp-{{ $exercise->id }}">{{ PicturePrompt::pairWithReference($exercise) }}</p>
             @if ($gripPhoto = PicturePrompt::gripPhoto($exercise))
               {{-- Gemini doesn't always draw the grip from the text: a photo of the admin's hands shows it --}}
               <details class="pic-alt pic-grip">
@@ -257,6 +268,9 @@
   .pic-alt > summary{cursor:pointer;font-size:.8rem;color:var(--gray-700)}
   .pic-alt > .pic-prompt{margin:6px 0}
   .pic-grip-how{font-size:.82rem;line-height:1.6;margin:6px 0 0}
+  .pic-ref{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+  .pic-ref img{width:150px;aspect-ratio:16/9;object-fit:contain;background:#fff;border:1px solid var(--gray-400);border-radius:10px;display:block}
+  .pic-ref p{font-size:.82rem;line-height:1.6;margin:0 0 6px}
   .pic-pair{display:flex;gap:12px;flex-wrap:wrap}
   .pic-one{flex:1 1 160px;max-width:240px}
   .pic-one img,.pic-one .pic-none{width:100%;aspect-ratio:1;object-fit:contain;border-radius:10px;border:1px solid var(--gray-400);background:#fff}

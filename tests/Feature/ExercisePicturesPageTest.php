@@ -353,4 +353,37 @@ class ExercisePicturesPageTest extends TestCase
         // the other exercises keep their equipment in the name
         $this->assertStringContainsString('two moments of the Deadlift (Barbell).', PicturePrompt::pair(Exercise::where('name', 'Deadlift')->sole()));
     }
+
+    public function test_the_reference_drawing_shows_gemini_the_movement(): void
+    {
+        $this->seed(ExercisesSeeder::class);
+        $admin = User::factory()->admin()->create();
+        $tbar = Exercise::where('name', 'T-Bar Row')->sole();
+
+        // the text starts with the sentence for the drawing, then the two panels
+        $this->assertCount(2, PicturePrompt::referenceDrawings($tbar));
+        $text = PicturePrompt::pairWithReference($tbar);
+        $this->assertStringStartsWith('The attached drawing is ONLY a reference for the movement: the left half is the start, the right half is the end.', $text);
+        $this->assertStringEndsWith(PicturePrompt::pair($tbar), $text);
+
+        $url = route('admin.exercises.pictures.reference', $tbar->id);
+        $this->actingAs($admin)->get(route('admin.exercises.pictures', ['q' => 't-bar', 'show' => 'all']))->assertOk()
+            ->assertSee($url, false)
+            ->assertSee('تنزيل صورة المرجع')
+            ->assertSee(e($text), false);
+
+        // the start and end drawings side by side, on one picture
+        $res = $this->actingAs($admin)->get($url)->assertOk()->assertHeader('Content-Type', 'image/png');
+        [$w, $h] = getimagesizefromstring($res->getContent());
+        $this->assertSame([1600, 900], [$w, $h]);
+
+        // an exercise without a drawing has the text alone
+        $dips = Exercise::where('name', 'Chest Dips')->sole();
+        $this->assertNull(PicturePrompt::referenceDrawings($dips));
+        $this->assertSame(PicturePrompt::pair($dips), PicturePrompt::pairWithReference($dips));
+        $this->actingAs($admin)->get(route('admin.exercises.pictures.reference', $dips->id))->assertNotFound();
+
+        // only for the admin
+        $this->actingAs(User::factory()->create())->get($url)->assertRedirect();
+    }
 }
