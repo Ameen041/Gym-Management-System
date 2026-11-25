@@ -280,6 +280,12 @@ class Exercise extends Model
         return !$this->image_path && (str_starts_with($first, 'images/exercises/ai/') || str_starts_with($first, \App\Support\ExercisePicture::DIR . '/'));
     }
 
+    /** What the picture may not show right (the grip, one arm, one leg after the other), written out: see FormNote. */
+    public function getFormNotesAttribute(): array
+    {
+        return \App\Support\FormNote::for($this);
+    }
+
     /** Muscle keys for the muscle map: ['primary' => [...], 'secondary' => [...]]. */
     public function getMusclesAttribute(): array
     {

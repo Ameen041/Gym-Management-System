@@ -1236,5 +1236,7 @@
     "seen from front": "من قدّام",
     "seen from side": "من الجنب",
     "In a new Gemini chat, attach this reference picture, then paste the text below.": "بمحادثة جديدة بجيميناي، ارفق صورة المرجع هي، وبعدين الصق النص اللي تحت.",
-    "Download the reference picture": "تنزيل صورة المرجع"
+    "Download the reference picture": "تنزيل صورة المرجع",
+    "Under the picture, the trainee reads:": "تحت الصورة رح يقرأ المتدرب:",
+    "So the hands in the picture do not have to be exact: if the movement is right, save it.": "يعني مو لازم تكون الإيدين بالصورة مظبوطة 100%: إذا الحركة صح، احفظها."
 }

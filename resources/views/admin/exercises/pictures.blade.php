@@ -63,6 +63,19 @@
         </div>
       </div>
 
+      @if($notes = $exercise->form_notes)
+        {{-- the grip is written out under the picture for the trainee, so the hands in the picture needn't be exact --}}
+        <div class="pic-note">
+          <i class="fas fa-circle-check"></i>
+          <div>
+            <p>{{ __('Under the picture, the trainee reads:') }}
+              @foreach($notes as $note)<strong><i class="fas {{ $note['icon'] }}"></i> {{ $note['label'] }}:</strong> {{ $note['text'] }} @endforeach
+            </p>
+            <p class="pic-note-ok">{{ __('So the hands in the picture do not have to be exact: if the movement is right, save it.') }}</p>
+          </div>
+        </div>
+      @endif
+
       <div class="pic-steps">
         <div class="pic-step">
           <span class="pic-num">1</span>
@@ -268,6 +281,11 @@
   .pic-alt > summary{cursor:pointer;font-size:.8rem;color:var(--gray-700)}
   .pic-alt > .pic-prompt{margin:6px 0}
   .pic-grip-how{font-size:.82rem;line-height:1.6;margin:6px 0 0}
+  .pic-note{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px;background:var(--accent-soft);border:1px solid var(--accent-ring);font-size:.85rem;line-height:1.6}
+  .pic-note > i{color:var(--accent-text);margin-top:4px}
+  .pic-note p{margin:0}
+  .pic-note strong{color:var(--accent-text)}
+  .pic-note-ok{font-weight:700}
   .pic-ref{display:flex;gap:10px;align-items:center;margin-bottom:8px}
   .pic-ref img{width:150px;aspect-ratio:16/9;object-fit:contain;background:#fff;border:1px solid var(--gray-400);border-radius:10px;display:block}
   .pic-ref p{font-size:.82rem;line-height:1.6;margin:0 0 6px}

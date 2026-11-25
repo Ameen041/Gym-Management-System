@@ -46,6 +46,9 @@
               <span class="ex-name">{{ $exercise['exercise'] ?? '' }}</span>
             @endif
             <span class="muted small">{{ Exercise::translateMuscleName($exercise['muscle'] ?? '') }}</span>
+            @foreach($ex?->form_notes ?? [] as $note)
+              <span class="ex-note-chip" title="{{ $note['text'] }}"><i class="fas {{ $note['icon'] }}"></i> {{ $note['label'] }}</span>
+            @endforeach
           </div>
           <div class="ex-sr">
             <span><b>{{ $exercise['sets'] ?? '' }}</b><small>{{ __('Sets') }}</small></span>
