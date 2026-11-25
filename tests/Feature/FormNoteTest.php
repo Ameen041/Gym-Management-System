@@ -37,10 +37,11 @@ class FormNoteTest extends TestCase
         $this->assertSame('قبضة ضيقة', $label('Close-Grip Lat Pulldown'));
         $this->assertSame('قبضة عادية', $label('Barbell Biceps Curl'));
         $this->assertSame('قبضة عكسية', $label('Reverse-Grip Barbell Curl'));
-        $this->assertSame('قبضة هامر', $label('Hammer Curl'));
+        $this->assertSame('قبضة متقابلة', $label('Hammer Curl'));
+        $this->assertSame('قبضة متقابلة', $label('V-Bar Lat Pulldown'));
         // the book words people don't use at the gym
         foreach (FormNote::names() as $name) {
-            $this->assertDoesNotMatchRegularExpression('/علوية|سفلية|متقابلة|المطرقة/u', $label($name), $name);
+            $this->assertDoesNotMatchRegularExpression('/علوية|سفلية|هامر|المطرقة/u', $label($name), $name);
         }
     }
 
