@@ -48,6 +48,25 @@ class PicturePrompt
         'Seated One-Arm Cable Row' => ['Seated at the cable row station, feet on the platform, knees slightly bent, sitting tall with his chest up. His arm FARTHER from the camera holds the single handle, stretched forward toward the machine. His arm NEARER the camera does not work: it reaches forward and down, straight, the hand resting flat on top of his near knee.', 'His near arm has NOT moved: still straight, reaching forward and down, the hand still flat on top of his near knee. Only his far arm has pulled the handle to the side of his waist, that elbow driven back. This is NOT a two-arm row: only ONE elbow is back.'],
         // Gemini laid the bar beside him and rowed with one hand (a landmine row), twice: what can be seen from behind is spelled out
         'T-Bar Row' => ['Bent over a T-bar: one end of the bar sits in a pivot base on the floor just BEHIND his heels, between his feet, and from there the bar goes forward BETWEEN his legs, under his body, to the plates on the floor in front of him. Bent at the hips about 45 degrees, knees slightly bent, back flat, chest up; BOTH hands hold the V-handle that sits under the bar just behind the plates, both arms hanging straight down.', 'The same bar in the same place, still between his legs from the base behind his heels to the plates in front of him: BOTH hands on the V-handle have rowed the loaded end up toward his chest, both elbows driven back on both sides of his body, the same bent-over angle.'],
+        // from the VIP House program
+        'Dumbbell Around the World' => ['Lying on his back on a flat bench, a light dumbbell in each hand resting on his thighs, arms almost straight, palms up.', 'Arms swept out to the sides in a wide half circle until the dumbbells meet behind his head, arms still almost straight.'],
+        'Chest Dips' => ['Supporting himself on parallel bars with straight arms, torso leaning forward, knees bent behind him.', 'Lowered until his upper arms are about parallel to the floor, torso still leaning forward, elbows slightly out.'],
+        'Decline Dumbbell Fly' => ['Lying on his back on a decline bench, dumbbells pressed above his chest, palms facing each other, elbows slightly bent.', 'Dumbbells lowered out to the sides in a wide arc, elbows still slightly bent, chest stretched.'],
+        'Behind-the-Neck Lat Pulldown' => ['Seated at the lat pulldown, thighs under the pads, arms straight up holding the bar wide, head tilted slightly forward.', 'Bar pulled down behind his head to the base of his neck, elbows pointing down.'],
+        'Seated Machine Row' => ['Seated at a row machine with his chest against the pad, arms straight forward holding the handles.', 'Handles pulled to his sides, elbows driven back, shoulder blades squeezed together, chest still on the pad.'],
+        'Standing Single-Leg Curl' => ['Standing at the standing leg curl machine, the back of one ankle under the pad, both legs straight, hands on the handles.', 'The same leg curled up, heel toward his glute, the other leg still straight.'],
+        'Donkey Calf Raise' => ['Bent forward at the hips at a donkey calf machine, back flat, the pad on his lower back, hands on the support, balls of the feet on the step, heels lowered below it.', 'Raised up on his toes as high as possible, in the same bent-over position.'],
+        'Single-Leg Calf Raise' => ['Standing on one foot on the edge of a step, heel lowered below the step, a dumbbell in the hand on the same side, the other hand on a wall, the other foot lifted behind.', 'Raised up on the toes of the same foot as high as possible.'],
+        'Hack Squat Calf Raise' => ['Standing in the hack squat machine, shoulders under the pads, legs straight, only the balls of the feet on the bottom edge of the platform, heels lowered.', 'Raised up on his toes as high as possible, legs still straight.'],
+        'Seated Behind-the-Neck Press' => ['Seated upright on a bench with back support, the barbell behind his neck at the base of the neck, hands wider than his shoulders.', 'Bar pressed straight up above his head, arms straight.'],
+        'Barbell Front Raise' => ['Standing upright holding a barbell in front of his thighs with straight arms.', 'Bar raised in front of him to eye level, arms almost straight.'],
+        'Lying Side Lateral Raise' => ['Lying on his side on a flat bench, his head on the bottom arm, the top hand holding a dumbbell in front of his hips.', 'The top arm raised out to the side until it points up to the ceiling, elbow slightly bent.'],
+        'Overhead Cable Curl' => ['Standing between two high pulleys, arms stretched out to the sides at shoulder height, a handle in each hand.', 'Handles curled toward his ears, elbows still at shoulder height, like a double-biceps pose.'],
+        'Hammer Preacher Curl' => ['Seated at a preacher bench, upper arms on the pad, arms almost straight holding dumbbells.', 'Dumbbells curled up toward his shoulders, upper arms still on the pad.'],
+        'Lying Dumbbell Triceps Extension' => ['Lying on his back on a flat bench, a dumbbell in each hand above his chest with straight arms.', 'Elbows bent, dumbbells lowered beside his head, upper arms still pointing up.'],
+        "Captain's Chair Knee Raise" => ['Back against the pad of a captain\'s chair, forearms on the arm pads, legs hanging straight down.', 'Knees raised up toward his chest, back still against the pad.'],
+        'Roman Chair Sit-Up' => ['Seated on a roman chair, feet hooked under the pads, torso leaning back slightly below parallel, hands crossed on his chest.', 'Torso raised until it is upright, hands still crossed on his chest.'],
+        'Rotary Disc Twist' => ['Standing on a twist disc, knees slightly bent, holding a handle in front of him, hips and feet turned to one side.', 'Hips and feet turned to the other side, shoulders still facing forward.'],
         'Bent-Over Barbell Row' => ['Bent over with a flat back, torso about 45 degrees to the floor, knees slightly bent, bar hanging at arm\'s length.', 'Bar rowed to his lower chest, elbows driven back, same torso angle.'],
         'Close-Grip Lat Pulldown' => ['Seated at the lat pulldown, thighs under the pads, arms straight up holding the bar at shoulder width.', 'Bar pulled down to his upper chest, elbows driven down and back.'],
         'Deadlift' => ['Bottom position: hips hinged, back flat, gripping the bar on the floor just outside his legs.', 'Standing tall with the bar at his thighs, hips and knees fully extended, shoulders back.'],
@@ -239,6 +258,12 @@ class PicturePrompt
             . 'his palms face toward his own face, the BACKS of his hands face the camera, and his thumbs point OUTWARD, away '
             . 'from his head; hands about shoulder-width apart. Not an overhand grip',
         'Pull-Up'                                => 'OVERHAND (pronated): palms facing away from him, hands slightly wider than his shoulders',
+        'Behind-the-Neck Lat Pulldown'           => 'OVERHAND (pronated): palms facing away from him, hands wide, near the ends of the bar',
+        'Seated Behind-the-Neck Press'           => 'OVERHAND (pronated): palms facing forward, hands wider than his shoulders',
+        'Barbell Front Raise'                    => 'OVERHAND (pronated): palms facing down, hands shoulder-width apart',
+        'Overhead Cable Curl'                    => 'UNDERHAND (supinated): palms facing up, toward his head',
+        'Hammer Preacher Curl'                   => 'NEUTRAL: palms facing each other, thumbs up, the whole time',
+        'Lying Dumbbell Triceps Extension'       => 'NEUTRAL: palms facing each other',
         'Lat Pulldown'                           => 'OVERHAND (pronated): palms facing away from him, hands slightly wider than his shoulders',
         // Gemini put the hands out at the ends of the bar, like the wide pulldown
         'Close-Grip Lat Pulldown'                => 'OVERHAND (pronated): palms facing away from him; his hands are CLOSE together, only '
@@ -259,6 +284,29 @@ class PicturePrompt
         'Barbell Wrist Curl'                     => 'palms facing UP, forearms resting on the bench',
         'Reverse Barbell Wrist Curl'             => 'palms facing DOWN, forearms resting on the bench',
     ];
+
+    /**
+     * The line drawings of the exercise (Everkinetic, CC BY-SA 4.0), start and end: attached to the message, they show Gemini
+     * the movement, which it got wrong from words alone (the T-bar row beside the legs, the dumbbell changing hands...).
+     */
+    public static function referenceDrawings(Exercise $exercise): ?array
+    {
+        static $drawings = null;
+        $drawings ??= require database_path('seeders/data/exercise_frames.php');
+        $files = array_values(array_filter((array) ($drawings[$exercise->name] ?? []), fn ($f) => is_file(public_path($f))));
+
+        return count($files) === 2 ? $files : null;
+    }
+
+    /** The two-panel text, with the sentence for the reference drawing first when there is one. */
+    public static function pairWithReference(Exercise $exercise): string
+    {
+        return (self::referenceDrawings($exercise)
+            ? 'The attached drawing is ONLY a reference for the movement: the left half is the start, the right half is the end. '
+                . 'Copy exactly from it the body position, which arm does what, the grip and the equipment. Do not copy its '
+                . 'drawing style: draw it in the style described below. '
+            : '') . self::pair($exercise);
+    }
 
     /**
      * Gemini doesn't always draw the grip the text asks for: a photo of the admin's own hands, attached to the message,
@@ -340,8 +388,9 @@ class PicturePrompt
      */
     private static function oneSide(Exercise $exercise): ?string
     {
-        if (preg_match('/\b(one-arm|single-arm|concentration curl|triceps kickback)\b/i', $exercise->name)) {
+        if (preg_match('/\b(one-arm|single-arm|concentration curl|triceps kickback|lying side lateral)\b/i', $exercise->name)) {
             $rest = match (true) {
+                str_contains($exercise->name, 'Lying Side')                                 => 'holds his head up, the forearm on the bench',
                 (bool) preg_match('/\b(dumbbell row|triceps kickback)\b/i', $exercise->name) => 'rests flat on the bench',
                 str_contains($exercise->name, 'Seated')                                     => 'rests open on his other knee, that arm almost straight',
                 str_contains($exercise->name, 'Concentration')                              => 'rests open on his other thigh',

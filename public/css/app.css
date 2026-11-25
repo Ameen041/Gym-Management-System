@@ -549,6 +549,13 @@ html[dir="ltr"] .back-link i{transform:scaleX(-1)}
 .ex-demo-steps{display:flex;gap:6px}
 .ex-demo-steps button{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:99px;padding:5px 12px;font:inherit;font-size:.8rem;font-weight:700;cursor:pointer}
 .ex-demo-steps button.on{background:var(--accent-soft);border-color:transparent;color:var(--accent-text)}
+/* the grip / one arm / one leg after the other, written out under the picture */
+.ex-note{display:grid;gap:10px;padding:12px 14px;border-radius:var(--radius-lg);background:var(--accent-soft);border:1px solid var(--accent-ring)}
+.ex-note-row{display:flex;gap:12px;align-items:flex-start}
+.ex-note-icon{flex:none;width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:var(--surface);color:var(--accent-text);font-size:1rem}
+.ex-note-row strong{display:block;font-weight:800;color:var(--accent-text);line-height:1.4}
+.ex-note-row p{margin:2px 0 0;line-height:1.6}
+.ex-note-chip{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;margin-top:5px;padding:3px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent-text);font-size:.76rem;font-weight:700}
 .ex-credit{padding:0 12px 10px;font-size:.72rem;color:var(--faint)}
 .ex-credit a{color:inherit;text-decoration:underline}
 

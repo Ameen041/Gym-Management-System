@@ -1234,5 +1234,9 @@
     "Take a photo of your hands holding a bar or a stick with the grip of this exercise and the same width, :side. In a new Gemini chat, attach the photo, paste the text above and add this sentence after it:": "صوّر إيديك وإنت ماسك بار أو عصاية بنفس قبضة هالتمرين وبنفس العرض، :side. بمحادثة جديدة بجيميناي، ارفق الصورة، والصق النص اللي فوق، وزيد بعده هالجملة:",
     "seen from behind": "من ورا",
     "seen from front": "من قدّام",
-    "seen from side": "من الجنب"
+    "seen from side": "من الجنب",
+    "In a new Gemini chat, attach this reference picture, then paste the text below.": "بمحادثة جديدة بجيميناي، ارفق صورة المرجع هي، وبعدين الصق النص اللي تحت.",
+    "Download the reference picture": "تنزيل صورة المرجع",
+    "Under the picture, the trainee reads:": "تحت الصورة رح يقرأ المتدرب:",
+    "So the hands in the picture do not have to be exact: if the movement is right, save it.": "يعني مو لازم تكون الإيدين بالصورة مظبوطة 100%: إذا الحركة صح، احفظها."
 }

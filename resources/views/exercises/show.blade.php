@@ -46,6 +46,18 @@
       </div>
     @endif
 
+    @if($notes = $exercise->form_notes)
+      {{-- the grip, one arm or one leg after the other, written out: the picture may not show it exactly --}}
+      <div class="ex-note">
+        @foreach($notes as $note)
+          <div class="ex-note-row">
+            <span class="ex-note-icon"><i class="fas {{ $note['icon'] }}"></i></span>
+            <div><strong>{{ $note['label'] }}</strong><p>{{ $note['text'] }}</p></div>
+          </div>
+        @endforeach
+      </div>
+    @endif
+
     <div class="ex-title">
       <h1>{{ $exercise->display_name }}</h1>
       @if(app()->isLocale('ar') && $exercise->name_ar)<span class="muted small" dir="ltr">{{ $exercise->name }}</span>@endif

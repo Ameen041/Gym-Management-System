@@ -35,6 +35,7 @@ class ExercisesSeeder extends Seeder
         }
 
         $this->importMoreExercises();
+        $this->importBatch('seeded_exercises_v3', 'exercises_v3.php');
         $this->addDrawingsAndMuscles();
     }
 
@@ -79,6 +80,26 @@ class ExercisesSeeder extends Seeder
         }
 
         Setting::put('seeded_exercises_v2', now()->toDateTimeString());
+    }
+
+    /**
+     * A later batch of exercises (data/$file), imported once per install: what the
+     * admin deletes afterwards stays deleted, and an exercise already there is kept as it is.
+     */
+    private function importBatch(string $flag, string $file): void
+    {
+        if (Setting::get($flag)) {
+            return;
+        }
+
+        $deleted = Exercise::deletedNames();
+        foreach (require __DIR__ . '/data/' . $file as $exercise) {
+            if (!in_array($exercise['name'], $deleted, true)) {
+                Exercise::firstOrCreate(['name' => $exercise['name']], $exercise + ['is_active' => true]);
+            }
+        }
+
+        Setting::put($flag, now()->toDateTimeString());
     }
 
     private function exercises(): array
