@@ -26,6 +26,24 @@ class FormNoteTest extends TestCase
         $this->assertSame([], array_values(array_diff(FormNote::names(), Exercise::pluck('name')->all())));
     }
 
+    public function test_the_grips_are_named_with_the_words_of_the_gym(): void
+    {
+        $label = fn (string $name) => FormNote::for(new Exercise(['name' => $name]))[0]['label'];
+
+        app()->setLocale('ar');
+        $this->assertSame('قبضة عادية', $label('Pull-Up'));
+        $this->assertSame('قبضة عكسية', $label('Chin-Up'));
+        $this->assertSame('قبضة واسعة', $label('Lat Pulldown'));
+        $this->assertSame('قبضة ضيقة', $label('Close-Grip Lat Pulldown'));
+        $this->assertSame('قبضة عادية', $label('Barbell Biceps Curl'));
+        $this->assertSame('قبضة عكسية', $label('Reverse-Grip Barbell Curl'));
+        $this->assertSame('قبضة هامر', $label('Hammer Curl'));
+        // the book words people don't use at the gym
+        foreach (FormNote::names() as $name) {
+            $this->assertDoesNotMatchRegularExpression('/علوية|سفلية|متقابلة|المطرقة/u', $label($name), $name);
+        }
+    }
+
     public function test_the_exercise_page_writes_out_the_grip_under_the_picture(): void
     {
         $this->seed(ExercisesSeeder::class);
