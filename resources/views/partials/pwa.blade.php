@@ -9,4 +9,9 @@
 <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="48x48">
 <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('icons/icon-192.png') }}">
 <script src="{{ \App\Support\Asset::url('js/app-install.js') }}" defer></script>
+@if(in_array(auth()->user()?->role, ['trainee', 'trainer'], true))
+  {{-- the phone keeps this person's pages, plans and exercise pictures for when there is no internet (js/offline.js) --}}
+  <meta name="offline-pack" content="{{ route('offline.pack', [], false) }}">
+@endif
+<script src="{{ \App\Support\Asset::url('js/offline.js') }}" defer></script>
 <style>[data-install-app][hidden]{display:none !important}</style>

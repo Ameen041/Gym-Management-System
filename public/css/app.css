@@ -243,6 +243,19 @@ button{font:inherit;color:inherit;cursor:pointer}
 .alert-error{border-inline-start-color:var(--danger);background:var(--danger-bg)} .alert-error > i{color:var(--danger)}
 .alert-warning{border-inline-start-color:var(--warning)} .alert-warning > i{color:var(--warning)}
 .alert ul{padding-inline-start:18px}
+/* no internet (js/offline.js): the bar at the top of the page, and the note when a form can't be sent */
+.offline-bar[hidden]{display:none}
+.offline-bar{margin-bottom:14px}
+.offline-bar.is-back{border-inline-start-color:var(--accent)}
+.offline-bar.is-back > i{color:var(--accent-text)}
+.offline-reload{border:0;background:none;padding:0;margin-inline-start:4px;font:inherit;font-weight:800;color:var(--accent-text);text-decoration:underline;cursor:pointer}
+.offline-toast{
+  position:fixed;z-index:90;inset-inline:16px;bottom:calc(16px + env(safe-area-inset-bottom, 0px));max-width:460px;margin-inline:auto;
+  display:flex;gap:10px;align-items:center;padding:12px 16px;border-radius:14px;background:var(--text);color:var(--bg);
+  font-weight:700;font-size:.88rem;line-height:1.5;box-shadow:var(--shadow-lg);
+}
+.offline-toast[hidden]{display:none}
+@media (max-width:1023px){ body:has(.tabbar) .offline-toast{bottom:calc(var(--tabbar-h) + 12px + env(safe-area-inset-bottom, 0px))} }
 .badge{
   display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;
   font-size:.74rem;font-weight:700;background:var(--accent-soft);color:var(--accent-text);white-space:nowrap;

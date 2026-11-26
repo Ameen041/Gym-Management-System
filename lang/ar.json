@@ -1238,5 +1238,10 @@
     "In a new Gemini chat, attach this reference picture, then paste the text below.": "بمحادثة جديدة بجيميناي، ارفق صورة المرجع هي، وبعدين الصق النص اللي تحت.",
     "Download the reference picture": "تنزيل صورة المرجع",
     "Under the picture, the trainee reads:": "تحت الصورة رح يقرأ المتدرب:",
-    "So the hands in the picture do not have to be exact: if the movement is right, save it.": "يعني مو لازم تكون الإيدين بالصورة مظبوطة 100%: إذا الحركة صح، احفظها."
+    "So the hands in the picture do not have to be exact: if the movement is right, save it.": "يعني مو لازم تكون الإيدين بالصورة مظبوطة 100%: إذا الحركة صح، احفظها.",
+    "No internet. You can still open the pages kept on this phone.": "لا يوجد إنترنت. يمكنك فتح الصفحات المحفوظة على هاتفك.",
+    "No internet: this is the copy kept on this phone (:time).": "لا يوجد إنترنت: هذه النسخة المحفوظة على هاتفك (:time).",
+    "The internet is back.": "عاد الإنترنت.",
+    "Refresh the page": "تحديث الصفحة",
+    "No internet: nothing was sent. What you wrote is still here; send it when the internet is back.": "لا يوجد إنترنت: لم يُرسَل شيء. ما كتبته باقٍ هنا، أرسله عندما يعود الإنترنت."
 }
