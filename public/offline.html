@@ -12,17 +12,63 @@
     img{width:88px;height:88px;border-radius:22px}
     h1{font-size:1.3rem;margin:16px 0 8px}
     p{color:#5d6570;line-height:1.7;margin:0 0 6px}
-    button{margin-top:16px;padding:10px 22px;border:0;border-radius:12px;background:#119c4b;color:#fff;font-weight:700;font-size:1rem;cursor:pointer}
-    @media (prefers-color-scheme: dark){ body{background:#090b0e;color:#f1f3f6} .box{background:#121519;box-shadow:none} p{color:#9aa2ad} }
+    button,.kept a{display:block;width:100%;box-sizing:border-box;margin-top:10px;padding:11px 22px;border:0;border-radius:12px;
+      background:#119c4b;color:#fff;font-weight:700;font-size:1rem;cursor:pointer;text-decoration:none;font-family:inherit}
+    .kept{margin-top:18px;padding-top:14px;border-top:1px solid #e5e7eb}
+    .kept a{background:#e2f5e9;color:#0b7a3a}
+    .kept[hidden],[data-not-sent] .when-offline,html:not([data-not-sent]) .when-not-sent{display:none}
+    @media (prefers-color-scheme: dark){
+      body{background:#090b0e;color:#f1f3f6} .box{background:#121519;box-shadow:none} p{color:#9aa2ad}
+      .kept{border-top-color:#252b33} .kept a{background:rgba(34,209,104,.13);color:#3fe082}
+    }
   </style>
 </head>
 <body>
   <div class="box">
     <img src="/icons/icon-192.png" alt="همّة">
-    <h1>لا يوجد اتصال بالإنترنت</h1>
-    <p>تحقق من الاتصال وحاول مرة أخرى.</p>
-    <p dir="ltr" lang="en">You're offline. Check your connection and try again.</p>
-    <button onclick="location.reload()">حاول مرة أخرى</button>
+    <div class="when-offline">
+      <h1>لا يوجد اتصال بالإنترنت</h1>
+      <p>هذه الصفحة غير محفوظة على هاتفك. تحقق من الاتصال وحاول مرة أخرى.</p>
+      <p dir="ltr" lang="en">You're offline, and this page isn't kept on this phone.</p>
+      <button type="button" onclick="location.reload()">حاول مرة أخرى</button>
+    </div>
+    <div class="when-not-sent">
+      <h1>لم يُرسَل شيء</h1>
+      <p>لا يوجد اتصال بالإنترنت. ارجع للصفحة السابقة، وأرسل عندما يعود الإنترنت.</p>
+      <p dir="ltr" lang="en">You're offline: nothing was sent.</p>
+      <button type="button" onclick="history.back()">رجوع</button>
+    </div>
+    <div class="kept" data-kept hidden>
+      <p>الصفحات المحفوظة على هاتفك:</p>
+    </div>
   </div>
+  <script>
+    // the main pages kept on this phone by the app (sw.js), to open without internet
+    (function () {
+      if (!window.caches) return;
+      var pages = [
+        ['/trainee-dashboard', 'الرئيسية'],
+        ['/trainer-dashboard', 'الرئيسية'],
+        ['/workout-plan', 'خطة التمارين'],
+        ['/nutrition-plan', 'الخطة الغذائية'],
+        ['/exercises', 'مكتبة التمارين'],
+        ['/messages', 'الرسائل']
+      ];
+      caches.open('himma-pages').then(function (cache) {
+        return Promise.all(pages.map(function (p) {
+          return cache.match(location.origin + p[0], { ignoreVary: true }).then(function (hit) { return hit ? p : null; });
+        }));
+      }).then(function (found) {
+        var box = document.querySelector('[data-kept]');
+        found.filter(Boolean).forEach(function (p) {
+          var a = document.createElement('a');
+          a.href = p[0];
+          a.textContent = p[1];
+          box.appendChild(a);
+        });
+        box.hidden = !box.querySelector('a');
+      }).catch(function () {});
+    })();
+  </script>
 </body>
 </html>

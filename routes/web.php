@@ -30,6 +30,7 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\AdminChatController;
 use App\Http\Controllers\AdminExercisePictureController;
+use App\Http\Controllers\OfflinePackController;
 use App\Http\Controllers\Coach\DashboardController as CoachDashboardController;
 use App\Http\Controllers\Coach\ProfileController as CoachProfileController;
 use App\Http\Controllers\Coach\PackageController as CoachPackageController;
@@ -138,6 +139,9 @@ Route::middleware(['auth', 'active', 'role:trainer,trainee'])->group(function ()
         ->middleware('throttle:120,1')->name('chat.poll');
     Route::post('/messages/{conversation}/report', [ChatController::class, 'report'])->whereNumber('conversation')
         ->middleware('throttle:5,1')->name('chat.report');
+
+    // what the phone keeps for when there is no internet: the person's pages, plans and exercise pictures (sw.js)
+    Route::get('/offline-pack', OfflinePackController::class)->middleware('throttle:20,1')->name('offline.pack');
 });
 
 // Exercise library (weight training exercises with video explanations)
